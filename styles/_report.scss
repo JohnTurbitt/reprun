@@ -2,6 +2,26 @@
   scroll-margin-top: 24px;
 }
 
+.report__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.report__print {
+  width: auto;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 14px;
+}
+
+.report__date {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .report__summary {
   color: var(--muted);
   font-size: 1rem;

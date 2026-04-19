@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Analysis, formatTime } from "@/lib/analysis";
 import { CalculationExplainer } from "./CalculationExplainer";
 import { Hint } from "./Hint";
@@ -26,12 +27,30 @@ export function ReportPanel({
   onStationGainChange,
   onTransitionGainChange,
 }: ReportPanelProps) {
+  const [generatedDate, setGeneratedDate] = useState("");
+
+  useEffect(() => {
+    setGeneratedDate(new Date().toLocaleDateString());
+  }, []);
+
   return (
     <aside className="report" aria-live="polite">
-      <div className="section-heading">
-        <p className="eyebrow">Math Engine</p>
-        <h2>{hasGeneratedReport ? "Your race breakdown" : "Live preview"}</h2>
+      <div className="report__header">
+        <div className="section-heading">
+          <p className="eyebrow">Math Engine</p>
+          <h2>{hasGeneratedReport ? "Your race breakdown" : "Live preview"}</h2>
+        </div>
+        <button
+          className="report__print"
+          type="button"
+          onClick={() => window.print()}
+        >
+          Print report
+        </button>
       </div>
+      <p className="report__date">
+        {generatedDate ? `Generated ${generatedDate} · RepRun` : "RepRun"}
+      </p>
       <p className="report__summary">{analysis.report}</p>
 
       <div className="metric-row metric-row--three">

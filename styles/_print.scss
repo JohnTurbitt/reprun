@@ -1,0 +1,67 @@
+@media print {
+  @page {
+    margin: 18mm;
+  }
+
+  html,
+  body {
+    background: #ffffff;
+    color: #111111;
+    overflow: visible;
+  }
+
+  .intro,
+  .tab-bar,
+  .split-form,
+  .toast,
+  .scroll-top,
+  .report__print {
+    display: none;
+  }
+
+  .workspace {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .report {
+    border: 0;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .report__header,
+  .metric-row,
+  .leak-card,
+  .station-table div,
+  .formula-grid {
+    break-inside: avoid;
+  }
+
+  .metric-row,
+  .metric-row--three,
+  .formula-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .simulator {
+    display: none;
+  }
+
+  .metric-row div,
+  .leak-card,
+  .formula-grid article {
+    border: 1px solid #dddddd;
+    background: #ffffff;
+  }
+
+  .hint__term {
+    border-bottom: 0;
+    color: inherit;
+  }
+
+  .hint__bubble {
+    display: none;
+  }
+}
