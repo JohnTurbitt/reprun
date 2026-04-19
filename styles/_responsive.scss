@@ -1,0 +1,62 @@
+@media (max-width: 920px) {
+  .intro {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .intro,
+  .workspace {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .intro {
+    padding-top: 28px;
+  }
+
+  .split-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-row {
+    grid-template-columns: 1fr;
+  }
+
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .leak-card {
+    display: grid;
+  }
+
+  .leak-card strong {
+    justify-self: start;
+  }
+
+  .station-table div {
+    align-items: flex-start;
+  }
+
+  .simulator__inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .formula-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-card,
+  .history-card__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .history-card__actions {
+    display: grid;
+  }
+
+  .history-card__actions button {
+    width: 100%;
+  }
+}

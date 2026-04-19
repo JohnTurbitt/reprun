@@ -1,0 +1,64 @@
+.split-form,
+.report {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.split-group {
+  margin-top: 28px;
+}
+
+.split-group h3,
+.report h3 {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+}
+
+.split-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.field--wide {
+  margin-top: 24px;
+}
+
+.field span {
+  min-height: 18px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(140px, 0.6fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #fbfcf8;
+  color: var(--ink);
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(14, 117, 106, 0.14);
+}

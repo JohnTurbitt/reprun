@@ -1,0 +1,49 @@
+.calculation-explainer {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+
+.calculation-explainer h3 {
+  margin: 0 0 8px;
+}
+
+.calculation-explainer p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.58;
+}
+
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.formula-grid article {
+  display: grid;
+  gap: 8px;
+  min-height: 138px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+}
+
+.formula-grid span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.formula-grid strong {
+  font-size: 0.98rem;
+  overflow-wrap: anywhere;
+}
+
+.formula-grid p {
+  font-size: 0.9rem;
+}

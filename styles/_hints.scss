@@ -1,0 +1,58 @@
+.hint-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.hint-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--teal);
+}
+
+.hint {
+  position: relative;
+  display: inline-flex;
+  outline: none;
+}
+
+.hint__term {
+  border-bottom: 2px dotted var(--teal);
+  color: var(--teal);
+  cursor: help;
+  font-weight: 800;
+}
+
+.hint__bubble {
+  position: absolute;
+  z-index: 10;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: min(260px, 78vw);
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--ink);
+  color: var(--panel);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.hint:focus .hint__bubble,
+.hint:focus-within .hint__bubble,
+.hint:hover .hint__bubble {
+  opacity: 1;
+  transform: translateY(0);
+}

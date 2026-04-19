@@ -1,0 +1,99 @@
+.report-anchor {
+  scroll-margin-top: 24px;
+}
+
+.report__summary {
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.metric-row--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric-row strong {
+  font-size: 1.6rem;
+}
+
+.leak-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.leak-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 96px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+}
+
+.leak-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.leak-card h4 {
+  margin: 4px 0 6px;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.leak-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.leak-card strong {
+  flex: 0 0 auto;
+  color: var(--red);
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+
+.station-table {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.helper-text {
+  margin: -4px 0 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.station-table div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 9px 0;
+}
+
+.station-table span {
+  color: var(--muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.station-table strong {
+  text-align: right;
+}

@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Hint } from "@/components/Hint";
+import { ReportHistory } from "@/components/ReportHistory";
 import { ReportPanel } from "@/components/ReportPanel";
 import { SplitForm } from "@/components/SplitForm";
 import {
@@ -13,8 +14,16 @@ import {
   initialRuns,
   initialStations,
 } from "@/lib/analysis";
+import {
+  SavedReport,
+  loadSavedReports,
+  saveReports,
+} from "@/lib/reportStorage";
+
+type ActiveTab = "new" | "history";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>("new");
   const [goal, setGoal] = useState("Sub 1:25 at my next race");
   const [targetTime, setTargetTime] = useState("1:25:00");
   const [level, setLevel] = useState<Level>("competitive");
@@ -25,6 +34,7 @@ export default function Home() {
   const [transitionGain, setTransitionGain] = useState("0:45");
   const [showHints, setShowHints] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +58,31 @@ export default function Home() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setAnalysis(buildAnalysis(goal, targetTime, level, runs, stationSplits));
+    const generatedAnalysis = buildAnalysis(
+      goal,
+      targetTime,
+      level,
+      runs,
+      stationSplits,
+    );
+    const savedReport: SavedReport = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      goal,
+      targetTime,
+      level,
+      runs,
+      stationSplits,
+      finishSeconds: generatedAnalysis.finishSeconds,
+      predictedTargetSeconds: generatedAnalysis.predictedTargetSeconds,
+      topLeakLabel: generatedAnalysis.topLeaks[0]?.label ?? "",
+    };
+    const nextReports = [savedReport, ...savedReports].slice(0, 12);
+
+    setAnalysis(generatedAnalysis);
+    setSavedReports(nextReports);
+    saveReports(nextReports);
+    setActiveTab("new");
     window.requestAnimationFrame(() => {
       reportRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -57,7 +91,42 @@ export default function Home() {
     });
   }
 
+  function loadReport(report: SavedReport) {
+    const loadedAnalysis = buildAnalysis(
+      report.goal,
+      report.targetTime,
+      report.level,
+      report.runs,
+      report.stationSplits,
+    );
+
+    setGoal(report.goal);
+    setTargetTime(report.targetTime);
+    setLevel(report.level);
+    setRuns(report.runs);
+    setStationSplits(report.stationSplits);
+    setAnalysis(loadedAnalysis);
+    setActiveTab("new");
+    window.requestAnimationFrame(() => {
+      reportRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }
+
+  function deleteReport(reportId: string) {
+    const nextReports = savedReports.filter((report) => report.id !== reportId);
+
+    setSavedReports(nextReports);
+    saveReports(nextReports);
+  }
+
   const activeAnalysis = analysis ?? preview;
+
+  useEffect(() => {
+    setSavedReports(loadSavedReports());
+  }, []);
 
   useEffect(() => {
     function handleScroll() {
@@ -109,33 +178,63 @@ export default function Home() {
       </section>
 
       <section className="workspace">
-        <SplitForm
-          goal={goal}
-          targetTime={targetTime}
-          level={level}
-          runs={runs}
-          stationSplits={stationSplits}
-          onGoalChange={setGoal}
-          onTargetTimeChange={setTargetTime}
-          onLevelChange={setLevel}
-          onRunChange={updateRun}
-          onStationChange={updateStation}
-          onSubmit={handleSubmit}
-        />
+        <nav className="tab-bar" aria-label="Report navigation">
+          <button
+            className={activeTab === "new" ? "tab-bar__tab is-active" : "tab-bar__tab"}
+            type="button"
+            onClick={() => setActiveTab("new")}
+          >
+            New report
+          </button>
+          <button
+            className={
+              activeTab === "history" ? "tab-bar__tab is-active" : "tab-bar__tab"
+            }
+            type="button"
+            onClick={() => setActiveTab("history")}
+          >
+            Previous reports
+            {savedReports.length > 0 ? <span>{savedReports.length}</span> : null}
+          </button>
+        </nav>
 
-        <div ref={reportRef} className="report-anchor">
-          <ReportPanel
-            analysis={activeAnalysis}
-            hasGeneratedReport={Boolean(analysis)}
-            showHints={showHints}
-            runGainPerKm={runGainPerKm}
-            stationGain={stationGain}
-            transitionGain={transitionGain}
-            onRunGainPerKmChange={setRunGainPerKm}
-            onStationGainChange={setStationGain}
-            onTransitionGainChange={setTransitionGain}
+        {activeTab === "new" ? (
+          <>
+            <SplitForm
+              goal={goal}
+              targetTime={targetTime}
+              level={level}
+              runs={runs}
+              stationSplits={stationSplits}
+              onGoalChange={setGoal}
+              onTargetTimeChange={setTargetTime}
+              onLevelChange={setLevel}
+              onRunChange={updateRun}
+              onStationChange={updateStation}
+              onSubmit={handleSubmit}
+            />
+
+            <div ref={reportRef} className="report-anchor">
+              <ReportPanel
+                analysis={activeAnalysis}
+                hasGeneratedReport={Boolean(analysis)}
+                showHints={showHints}
+                runGainPerKm={runGainPerKm}
+                stationGain={stationGain}
+                transitionGain={transitionGain}
+                onRunGainPerKmChange={setRunGainPerKm}
+                onStationGainChange={setStationGain}
+                onTransitionGainChange={setTransitionGain}
+              />
+            </div>
+          </>
+        ) : (
+          <ReportHistory
+            reports={savedReports}
+            onLoadReport={loadReport}
+            onDeleteReport={deleteReport}
           />
-        </div>
+        )}
       </section>
 
       <button
