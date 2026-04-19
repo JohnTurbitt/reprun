@@ -5,6 +5,7 @@ import { Hint } from "@/components/Hint";
 import { ReportHistory } from "@/components/ReportHistory";
 import { ReportPanel } from "@/components/ReportPanel";
 import { SplitForm } from "@/components/SplitForm";
+import { Toast, ToastMessage } from "@/components/Toast";
 import {
   Analysis,
   Level,
@@ -19,6 +20,7 @@ import {
   loadSavedReports,
   saveReports,
 } from "@/lib/reportStorage";
+import { validateReportInput } from "@/lib/validation";
 
 type ActiveTab = "new" | "history";
 
@@ -35,6 +37,8 @@ export default function Home() {
   const [showHints, setShowHints] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [toast, setToast] = useState<ToastMessage | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +62,26 @@ export default function Home() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validation = validateReportInput({
+      targetTime,
+      runs,
+      stationSplits,
+    });
+
+    if (!validation.valid) {
+      setValidationErrors(validation.errors);
+      setToast({
+        id: Date.now(),
+        title: "Report not generated",
+        message:
+          validation.errors.length === 1
+            ? validation.errors[0]
+            : `${validation.errors.length} fields need valid times before RepRun can calculate the report.`,
+        tone: "error",
+      });
+      return;
+    }
+
     const generatedAnalysis = buildAnalysis(
       goal,
       targetTime,
@@ -80,6 +104,13 @@ export default function Home() {
     const nextReports = [savedReport, ...savedReports].slice(0, 12);
 
     setAnalysis(generatedAnalysis);
+    setValidationErrors([]);
+    setToast({
+      id: Date.now(),
+      title: "Report generated",
+      message: "Your report has been saved in Previous reports on this device.",
+      tone: "success",
+    });
     setSavedReports(nextReports);
     saveReports(nextReports);
     setActiveTab("new");
@@ -138,6 +169,16 @@ export default function Home() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => setToast(null), 4600);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [toast]);
 
   return (
     <main>
@@ -206,6 +247,7 @@ export default function Home() {
               level={level}
               runs={runs}
               stationSplits={stationSplits}
+              errors={validationErrors}
               onGoalChange={setGoal}
               onTargetTimeChange={setTargetTime}
               onLevelChange={setLevel}
@@ -246,6 +288,8 @@ export default function Home() {
       >
         Back to top
       </button>
+
+      <Toast toast={toast} onDismiss={() => setToast(null)} />
     </main>
   );
 }

@@ -1,0 +1,51 @@
+.toast {
+  position: fixed;
+  top: 18px;
+  right: clamp(14px, 4vw, 34px);
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(440px, calc(100vw - 28px));
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--ink);
+  color: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.toast--error {
+  border-color: var(--red);
+}
+
+.toast--success {
+  border-color: var(--teal);
+}
+
+.toast strong {
+  display: block;
+  color: var(--lime);
+}
+
+.toast p {
+  margin: 4px 0 0;
+  color: #dce4d5;
+  line-height: 1.45;
+}
+
+.toast button {
+  width: auto;
+  min-height: 36px;
+  margin: 0;
+  border-color: rgba(255, 255, 255, 0.22);
+  padding: 0 10px;
+  background: transparent;
+  color: var(--panel);
+  font-size: 0.82rem;
+}
+
+.toast button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}

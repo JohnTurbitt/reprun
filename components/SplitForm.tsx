@@ -12,6 +12,7 @@ type SplitFormProps = {
   level: Level;
   runs: string[];
   stationSplits: Record<StationKey, string>;
+  errors: string[];
   onGoalChange: (value: string) => void;
   onTargetTimeChange: (value: string) => void;
   onLevelChange: (value: Level) => void;
@@ -26,6 +27,7 @@ export function SplitForm({
   level,
   runs,
   stationSplits,
+  errors,
   onGoalChange,
   onTargetTimeChange,
   onLevelChange,
@@ -39,6 +41,17 @@ export function SplitForm({
         <p className="eyebrow">Race Input</p>
         <h2>Your splits</h2>
       </div>
+
+      {errors.length > 0 ? (
+        <div className="form-errors" role="alert">
+          <h3>Fix these before generating</h3>
+          <ul>
+            {errors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="input-row">
         <label className="field">
