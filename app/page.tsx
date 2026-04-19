@@ -2,6 +2,8 @@
 
 import { FormEvent, useMemo, useState } from "react";
 
+type Level = "starter" | "competitive" | "elite";
+
 type StationKey =
   | "ski"
   | "sledPush"
@@ -15,29 +17,122 @@ type StationKey =
 type Station = {
   key: StationKey;
   label: string;
-  benchmarkSec: number;
+  benchmarkSec: Record<Level, number>;
+  recoverability: number;
+  raceImpact: number;
+  guidance: string;
+};
+
+type Leak = {
+  id: string;
+  label: string;
+  type: "station" | "run" | "pacing";
+  leakSeconds: number;
+  recoverableSeconds: number;
+  score: number;
+  detail: string;
+  recommendation: string;
+};
+
+type StationResult = Station & {
+  seconds: number;
+  benchmark: number;
+  gap: number;
+  recoverableSeconds: number;
+  score: number;
 };
 
 type Analysis = {
   finishSeconds: number;
+  targetSeconds: number;
+  targetGapSeconds: number;
   totalRunSeconds: number;
   totalStationSeconds: number;
+  averageRunSeconds: number;
   averageRunPace: string;
-  biggestLeak: string;
-  predictedTarget: string;
+  firstHalfRunAvg: number;
+  secondHalfRunAvg: number;
+  runFadeSeconds: number;
+  runVolatilitySeconds: number;
+  predictedTargetSeconds: number;
+  recoverableSeconds: number;
+  topLeaks: Leak[];
+  stationResults: StationResult[];
   priorities: string[];
   report: string;
 };
 
+const levelLabels: Record<Level, string> = {
+  starter: "Starter",
+  competitive: "Competitive",
+  elite: "Elite",
+};
+
 const stations: Station[] = [
-  { key: "ski", label: "SkiErg", benchmarkSec: 255 },
-  { key: "sledPush", label: "Sled push", benchmarkSec: 285 },
-  { key: "sledPull", label: "Sled pull", benchmarkSec: 300 },
-  { key: "burpees", label: "Burpee broad jumps", benchmarkSec: 330 },
-  { key: "row", label: "Row", benchmarkSec: 260 },
-  { key: "farmers", label: "Farmers carry", benchmarkSec: 210 },
-  { key: "lunges", label: "Sandbag lunges", benchmarkSec: 300 },
-  { key: "wallBalls", label: "Wall balls", benchmarkSec: 360 },
+  {
+    key: "ski",
+    label: "SkiErg",
+    benchmarkSec: { starter: 300, competitive: 255, elite: 225 },
+    recoverability: 0.38,
+    raceImpact: 0.8,
+    guidance: "Train controlled pulls after running so the first station does not spike the heart rate.",
+  },
+  {
+    key: "sledPush",
+    label: "Sled push",
+    benchmarkSec: { starter: 360, competitive: 285, elite: 240 },
+    recoverability: 0.58,
+    raceImpact: 1,
+    guidance: "Use heavy pushes for strength and race-weight pushes for foot speed under fatigue.",
+  },
+  {
+    key: "sledPull",
+    label: "Sled pull",
+    benchmarkSec: { starter: 375, competitive: 300, elite: 255 },
+    recoverability: 0.6,
+    raceImpact: 0.96,
+    guidance: "Practise rope rhythm, foot bracing, and short rests before adding more load.",
+  },
+  {
+    key: "burpees",
+    label: "Burpee broad jumps",
+    benchmarkSec: { starter: 420, competitive: 330, elite: 285 },
+    recoverability: 0.62,
+    raceImpact: 0.9,
+    guidance: "Build repeatable jump distance and breathing control instead of sprinting the first half.",
+  },
+  {
+    key: "row",
+    label: "Row",
+    benchmarkSec: { starter: 315, competitive: 260, elite: 235 },
+    recoverability: 0.34,
+    raceImpact: 0.72,
+    guidance: "Hold a sustainable split and exit ready to run, not with a maxed-out pull rate.",
+  },
+  {
+    key: "farmers",
+    label: "Farmers carry",
+    benchmarkSec: { starter: 270, competitive: 210, elite: 180 },
+    recoverability: 0.54,
+    raceImpact: 0.74,
+    guidance: "Prioritise grip endurance, fast turns, and clean pick-ups.",
+  },
+  {
+    key: "lunges",
+    label: "Sandbag lunges",
+    benchmarkSec: { starter: 390, competitive: 300, elite: 255 },
+    recoverability: 0.66,
+    raceImpact: 0.94,
+    guidance: "Use steady unbroken chunks and practise standing tall under quad fatigue.",
+  },
+  {
+    key: "wallBalls",
+    label: "Wall balls",
+    benchmarkSec: { starter: 450, competitive: 360, elite: 300 },
+    recoverability: 0.72,
+    raceImpact: 1,
+    guidance: "Break sets before failure and train quality reps after compromised running.",
+  },
 ];
 
 const initialRuns: string[] = Array.from({ length: 8 }, (_, index) =>
@@ -88,73 +183,165 @@ function formatTime(totalSeconds: number) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function average(values: number[]) {
+  if (!values.length) {
+    return 0;
+  }
+
+  return values.reduce((total, value) => total + value, 0) / values.length;
+}
+
+function standardDeviation(values: number[]) {
+  const mean = average(values);
+  const variance = average(values.map((value) => (value - mean) ** 2));
+
+  return Math.sqrt(variance);
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function buildStationLeak(result: StationResult): Leak {
+  return {
+    id: result.key,
+    label: result.label,
+    type: "station",
+    leakSeconds: result.gap,
+    recoverableSeconds: result.recoverableSeconds,
+    score: result.score,
+    detail: `${formatTime(result.seconds)} vs ${formatTime(result.benchmark)} benchmark`,
+    recommendation: result.guidance,
+  };
+}
+
 function buildAnalysis(
   goal: string,
+  targetTime: string,
+  level: Level,
   runs: string[],
   stationSplits: Record<StationKey, string>,
 ): Analysis {
   const runSeconds = runs.map(parseTime);
   const totalRunSeconds = runSeconds.reduce((total, split) => total + split, 0);
-  const stationRows = stations.map((station) => {
-    const seconds = parseTime(stationSplits[station.key]);
-    return {
-      ...station,
-      seconds,
-      gap: seconds - station.benchmarkSec,
-    };
-  });
-  const totalStationSeconds = stationRows.reduce(
+  const totalValidRuns = runSeconds.filter((split) => split > 0).length || 8;
+  const averageRunSeconds = totalRunSeconds / totalValidRuns;
+  const firstHalfRunAvg = average(runSeconds.slice(0, 4));
+  const secondHalfRunAvg = average(runSeconds.slice(4));
+  const runFadeSeconds = Math.max(0, secondHalfRunAvg - firstHalfRunAvg);
+  const runVolatilitySeconds = standardDeviation(runSeconds);
+
+  const stationResults = stations
+    .map((station) => {
+      const seconds = parseTime(stationSplits[station.key]);
+      const benchmark = station.benchmarkSec[level];
+      const gap = Math.max(0, seconds - benchmark);
+      const confidence = seconds > 0 ? 1 : 0;
+      const recoverableSeconds = Math.round(gap * station.recoverability);
+      const score = Math.round(
+        gap * station.recoverability * station.raceImpact * confidence,
+      );
+
+      return {
+        ...station,
+        seconds,
+        benchmark,
+        gap,
+        recoverableSeconds,
+        score,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const totalStationSeconds = stationResults.reduce(
     (total, station) => total + station.seconds,
     0,
   );
   const finishSeconds = totalRunSeconds + totalStationSeconds;
-  const biggestStation = stationRows.sort((a, b) => b.gap - a.gap)[0];
-  const runFade = runSeconds.slice(4).reduce((a, b) => a + b, 0) / 4 -
-    runSeconds.slice(0, 4).reduce((a, b) => a + b, 0) / 4;
-  const biggestLeak =
-    runFade > biggestStation.gap
-      ? "running fade after the fourth kilometre"
-      : biggestStation.label.toLowerCase();
-  const realisticGain = Math.min(
-    Math.max(finishSeconds * 0.06, 180),
-    finishSeconds * 0.12,
+  const targetSeconds = parseTime(targetTime);
+  const targetGapSeconds = Math.max(0, finishSeconds - targetSeconds);
+
+  const runFadeLeak: Leak = {
+    id: "run-fade",
+    label: "Second-half run fade",
+    type: "run",
+    leakSeconds: Math.round(runFadeSeconds * 4),
+    recoverableSeconds: Math.round(runFadeSeconds * 4 * 0.55),
+    score: Math.round(runFadeSeconds * 4 * 0.55 * 1.08),
+    detail: `${formatTime(firstHalfRunAvg)} average for runs 1-4, ${formatTime(secondHalfRunAvg)} for runs 5-8`,
+    recommendation:
+      "Add one compromised run session each week: station work straight into 600m-1km repeats at controlled race pace.",
+  };
+
+  const pacingLeak: Leak = {
+    id: "pacing-volatility",
+    label: "Pacing volatility",
+    type: "pacing",
+    leakSeconds: Math.round(runVolatilitySeconds * 3.2),
+    recoverableSeconds: Math.round(runVolatilitySeconds * 3.2 * 0.45),
+    score: Math.round(runVolatilitySeconds * 3.2 * 0.45 * 0.86),
+    detail: `${formatTime(runVolatilitySeconds)} standard deviation across run splits`,
+    recommendation:
+      "Set a ceiling for the first two runs and practise even kilometre repeats after stations.",
+  };
+
+  const leaks = [
+    ...stationResults.filter((station) => station.score > 0).map(buildStationLeak),
+    ...(runFadeLeak.score > 12 ? [runFadeLeak] : []),
+    ...(pacingLeak.score > 10 ? [pacingLeak] : []),
+  ].sort((a, b) => b.score - a.score);
+
+  const topLeaks = leaks.slice(0, 3);
+  const rawRecoverableSeconds = topLeaks.reduce(
+    (total, leak) => total + leak.recoverableSeconds,
+    0,
   );
-  const predictedTarget = formatTime(finishSeconds - realisticGain);
-  const priorities = [
-    runFade > 10
-      ? "Build compromised running with short station-to-run repeats."
-      : "Keep run pace steady and protect it with controlled station exits.",
-    `${biggestStation.label} is the biggest station leak. Give it one focused exposure each week.`,
-    goal
-      ? `Shape the next block around ${goal.toLowerCase()} instead of adding random volume.`
-      : "Pick one race target so the plan has a clear direction.",
-  ];
+  const recoverableSeconds = Math.round(
+    clamp(rawRecoverableSeconds, finishSeconds * 0.025, finishSeconds * 0.12),
+  );
+  const predictedTargetSeconds = finishSeconds - recoverableSeconds;
+  const priorities = topLeaks.map(
+    (leak) =>
+      `${leak.label}: ${formatTime(leak.recoverableSeconds)} realistic gain. ${leak.recommendation}`,
+  );
+  const primaryLeak = topLeaks[0];
+  const targetLine =
+    targetSeconds > 0
+      ? `Your entered target is ${formatTime(targetSeconds)}, leaving ${formatTime(targetGapSeconds)} to find.`
+      : "Add a target finish time to see the exact gap you need to close.";
 
   return {
     finishSeconds,
+    targetSeconds,
+    targetGapSeconds,
     totalRunSeconds,
     totalStationSeconds,
-    averageRunPace: formatTime(totalRunSeconds / 8),
-    biggestLeak,
-    predictedTarget,
+    averageRunSeconds,
+    averageRunPace: formatTime(averageRunSeconds),
+    firstHalfRunAvg,
+    secondHalfRunAvg,
+    runFadeSeconds,
+    runVolatilitySeconds,
+    predictedTargetSeconds,
+    recoverableSeconds,
+    topLeaks,
+    stationResults,
     priorities,
-    report: `Your current profile points to a ${formatTime(
-      finishSeconds,
-    )} finish from the splits entered. The fastest path forward is not more random volume; it is tightening ${biggestLeak} while keeping your average run split around ${formatTime(
-      totalRunSeconds / 8,
-    )}. A realistic next target is ${predictedTarget} if the next block is focused and consistent.`,
+    report: `The model projects ${formatTime(finishSeconds)} from these splits. ${targetLine} The biggest recoverable leak is ${primaryLeak?.label.toLowerCase() ?? "not clear yet"}, worth about ${formatTime(primaryLeak?.recoverableSeconds ?? 0)} if trained well. Based on the top three leaks, a realistic next step is ${formatTime(predictedTargetSeconds)} without needing random extra volume.`,
   };
 }
 
 export default function Home() {
   const [goal, setGoal] = useState("Sub 1:25 at my next race");
+  const [targetTime, setTargetTime] = useState("1:25:00");
+  const [level, setLevel] = useState<Level>("competitive");
   const [runs, setRuns] = useState(initialRuns);
   const [stationSplits, setStationSplits] = useState(initialStations);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
 
   const preview = useMemo(
-    () => buildAnalysis(goal, runs, stationSplits),
-    [goal, runs, stationSplits],
+    () => buildAnalysis(goal, targetTime, level, runs, stationSplits),
+    [goal, targetTime, level, runs, stationSplits],
   );
 
   function updateRun(index: number, value: string) {
@@ -172,7 +359,7 @@ export default function Home() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setAnalysis(buildAnalysis(goal, runs, stationSplits));
+    setAnalysis(buildAnalysis(goal, targetTime, level, runs, stationSplits));
   }
 
   const activeAnalysis = analysis ?? preview;
@@ -182,10 +369,10 @@ export default function Home() {
       <section className="intro">
         <div className="intro__copy">
           <p className="eyebrow">RepRun</p>
-          <h1>Know exactly where your next race gets faster.</h1>
+          <h1>Find the time leaks between your reps and runs.</h1>
           <p>
-            Enter your run and station splits to get a clear breakdown, a
-            realistic target, and the training priorities that matter next.
+            Enter your splits to get a deterministic race breakdown, ranked weak
+            points, and a realistic next target without AI guesswork.
           </p>
         </div>
         <div className="quick-stats" aria-label="Current split summary">
@@ -194,12 +381,12 @@ export default function Home() {
             <strong>{formatTime(activeAnalysis.finishSeconds)}</strong>
           </div>
           <div>
-            <span>Average run</span>
-            <strong>{activeAnalysis.averageRunPace}</strong>
+            <span>Recoverable time</span>
+            <strong>{formatTime(activeAnalysis.recoverableSeconds)}</strong>
           </div>
           <div>
             <span>Next target</span>
-            <strong>{activeAnalysis.predictedTarget}</strong>
+            <strong>{formatTime(activeAnalysis.predictedTargetSeconds)}</strong>
           </div>
         </div>
       </section>
@@ -211,13 +398,39 @@ export default function Home() {
             <h2>Your splits</h2>
           </div>
 
+          <div className="input-row">
+            <label className="field">
+              <span>Goal</span>
+              <input
+                value={goal}
+                onChange={(event) => setGoal(event.target.value)}
+                placeholder="Sub 1:25 at my next race"
+              />
+            </label>
+
+            <label className="field">
+              <span>Target time</span>
+              <input
+                value={targetTime}
+                onChange={(event) => setTargetTime(event.target.value)}
+                inputMode="numeric"
+                placeholder="1:25:00"
+              />
+            </label>
+          </div>
+
           <label className="field field--wide">
-            <span>Goal</span>
-            <input
-              value={goal}
-              onChange={(event) => setGoal(event.target.value)}
-              placeholder="Sub 1:25 at my next race"
-            />
+            <span>Athlete level</span>
+            <select
+              value={level}
+              onChange={(event) => setLevel(event.target.value as Level)}
+            >
+              {Object.entries(levelLabels).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </label>
 
           <div className="split-group">
@@ -261,20 +474,38 @@ export default function Home() {
 
         <aside className="report" aria-live="polite">
           <div className="section-heading">
-            <p className="eyebrow">Report</p>
+            <p className="eyebrow">Math Engine</p>
             <h2>{analysis ? "Your race breakdown" : "Live preview"}</h2>
           </div>
           <p className="report__summary">{activeAnalysis.report}</p>
 
-          <div className="metric-row">
+          <div className="metric-row metric-row--three">
             <div>
-              <span>Run total</span>
-              <strong>{formatTime(activeAnalysis.totalRunSeconds)}</strong>
+              <span>Average run</span>
+              <strong>{activeAnalysis.averageRunPace}</strong>
             </div>
             <div>
-              <span>Station total</span>
-              <strong>{formatTime(activeAnalysis.totalStationSeconds)}</strong>
+              <span>Run fade</span>
+              <strong>{formatTime(activeAnalysis.runFadeSeconds)}/km</strong>
             </div>
+            <div>
+              <span>Target gap</span>
+              <strong>{formatTime(activeAnalysis.targetGapSeconds)}</strong>
+            </div>
+          </div>
+
+          <h3>Top time leaks</h3>
+          <div className="leak-list">
+            {activeAnalysis.topLeaks.map((leak, index) => (
+              <article className="leak-card" key={leak.id}>
+                <div>
+                  <span>#{index + 1}</span>
+                  <h4>{leak.label}</h4>
+                  <p>{leak.detail}</p>
+                </div>
+                <strong>{formatTime(leak.recoverableSeconds)}</strong>
+              </article>
+            ))}
           </div>
 
           <h3>Training priorities</h3>
@@ -283,6 +514,16 @@ export default function Home() {
               <li key={priority}>{priority}</li>
             ))}
           </ol>
+
+          <h3>Station ranking</h3>
+          <div className="station-table">
+            {activeAnalysis.stationResults.map((station) => (
+              <div key={station.key}>
+                <span>{station.label}</span>
+                <strong>{formatTime(station.gap)} leak</strong>
+              </div>
+            ))}
+          </div>
         </aside>
       </section>
     </main>

@@ -1,6 +1,6 @@
 # RepRun
 
-RepRun is a mobile-first race split analyzer for hybrid athletes. The MVP lets an athlete enter eight run splits and eight station splits, then returns a practical breakdown of where time is leaking and what to focus on next.
+RepRun is a mobile-first race split analyzer for hybrid athletes. The MVP lets an athlete enter eight run splits and eight station splits, then uses a deterministic scoring engine to rank weak points, estimate recoverable time, and suggest the next training priorities.
 
 ## Tech Stack
 
@@ -9,13 +9,22 @@ RepRun is a mobile-first race split analyzer for hybrid athletes. The MVP lets a
 - TypeScript
 - SCSS
 
+Current analysis:
+
+- run fade
+- pacing volatility
+- station benchmark gaps
+- recoverability scoring
+- top three time leaks
+- realistic next target
+
 Planned additions:
 
 - Prisma
 - PostgreSQL
 - Auth
 - Stripe
-- AI-generated report copy
+- saved report history
 
 ## Getting Started
 
@@ -43,11 +52,12 @@ npm run start
 
 ## Product Direction
 
-The first paid feature should be a race report:
+The first paid feature should be a full race analytics report:
 
 - split diagnosis
 - biggest time leaks
 - realistic next target
+- station ranking
 - four-week training priorities
 - unlockable full report via Stripe
 

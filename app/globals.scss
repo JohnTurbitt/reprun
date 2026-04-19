@@ -28,7 +28,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -161,7 +162,15 @@ main {
   font-size: 0.86rem;
 }
 
-.field input {
+.input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(140px, 0.6fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.field input,
+.field select {
   width: 100%;
   min-height: 48px;
   border: 1px solid var(--line);
@@ -172,7 +181,8 @@ main {
   outline: none;
 }
 
-.field input:focus {
+.field input:focus,
+.field select:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(14, 117, 106, 0.14);
 }
@@ -206,8 +216,76 @@ button:hover {
   margin: 22px 0;
 }
 
+.metric-row--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .metric-row strong {
   font-size: 1.6rem;
+}
+
+.leak-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.leak-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 96px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+}
+
+.leak-card span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.leak-card h4 {
+  margin: 4px 0 6px;
+  font-size: 1rem;
+}
+
+.leak-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.leak-card strong {
+  flex: 0 0 auto;
+  color: var(--red);
+  font-size: 1.2rem;
+}
+
+.station-table {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.station-table div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 9px 0;
+}
+
+.station-table span {
+  color: var(--muted);
+}
+
+.station-table strong {
+  white-space: nowrap;
 }
 
 ol {
@@ -243,5 +321,13 @@ li {
 
   .metric-row {
     grid-template-columns: 1fr;
+  }
+
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .leak-card {
+    display: grid;
   }
 }
