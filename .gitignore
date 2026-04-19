@@ -5,3 +5,4 @@ dist
 .env.local
 *.log
 dev-server*.log
+tsconfig.tsbuildinfo

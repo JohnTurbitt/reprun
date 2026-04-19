@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Hint } from "@/components/Hint";
 import { ReportPanel } from "@/components/ReportPanel";
 import { SplitForm } from "@/components/SplitForm";
@@ -24,7 +24,9 @@ export default function Home() {
   const [stationGain, setStationGain] = useState("2:30");
   const [transitionGain, setTransitionGain] = useState("0:45");
   const [showHints, setShowHints] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const preview = useMemo(
     () => buildAnalysis(goal, targetTime, level, runs, stationSplits),
@@ -47,9 +49,26 @@ export default function Home() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setAnalysis(buildAnalysis(goal, targetTime, level, runs, stationSplits));
+    window.requestAnimationFrame(() => {
+      reportRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
   }
 
   const activeAnalysis = analysis ?? preview;
+
+  useEffect(() => {
+    function handleScroll() {
+      setShowScrollTop(window.scrollY > 560);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <main>
@@ -104,18 +123,30 @@ export default function Home() {
           onSubmit={handleSubmit}
         />
 
-        <ReportPanel
-          analysis={activeAnalysis}
-          hasGeneratedReport={Boolean(analysis)}
-          showHints={showHints}
-          runGainPerKm={runGainPerKm}
-          stationGain={stationGain}
-          transitionGain={transitionGain}
-          onRunGainPerKmChange={setRunGainPerKm}
-          onStationGainChange={setStationGain}
-          onTransitionGainChange={setTransitionGain}
-        />
+        <div ref={reportRef} className="report-anchor">
+          <ReportPanel
+            analysis={activeAnalysis}
+            hasGeneratedReport={Boolean(analysis)}
+            showHints={showHints}
+            runGainPerKm={runGainPerKm}
+            stationGain={stationGain}
+            transitionGain={transitionGain}
+            onRunGainPerKmChange={setRunGainPerKm}
+            onStationGainChange={setStationGain}
+            onTransitionGainChange={setTransitionGain}
+          />
+        </div>
       </section>
+
+      <button
+        className={`scroll-top ${showScrollTop ? "scroll-top--visible" : ""}`}
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-hidden={!showScrollTop}
+        tabIndex={showScrollTop ? 0 : -1}
+      >
+        Back to top
+      </button>
     </main>
   );
 }

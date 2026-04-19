@@ -1,4 +1,5 @@
 import { Analysis, formatTime } from "@/lib/analysis";
+import { CalculationExplainer } from "./CalculationExplainer";
 import { Hint } from "./Hint";
 import { TargetSimulator } from "./TargetSimulator";
 
@@ -101,6 +102,8 @@ export function ReportPanel({
           </div>
         ))}
       </div>
+
+      <CalculationExplainer analysis={analysis} />
     </aside>
   );
 }

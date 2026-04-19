@@ -17,6 +17,7 @@
 html {
   background: var(--paper);
   color: var(--ink);
+  overflow-x: hidden;
 }
 
 body {
@@ -25,6 +26,7 @@ body {
     Arial,
     Helvetica,
     sans-serif;
+  overflow-x: hidden;
 }
 
 button,
@@ -34,7 +36,25 @@ select {
 }
 
 main {
+  width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.not-found {
+  display: grid;
+  align-content: center;
+  padding: 48px clamp(18px, 5vw, 72px);
+}
+
+.not-found h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+}
+
+.not-found p:last-child {
+  color: var(--muted);
+  font-size: 1.05rem;
 }
 
 .intro {
@@ -72,6 +92,13 @@ main {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
+}
+
+.intro > *,
+.workspace > *,
+.split-form,
+.report {
+  min-width: 0;
 }
 
 .hint-toggle {
@@ -162,12 +189,15 @@ main {
 
 .quick-stats strong {
   font-size: 2.1rem;
+  overflow-wrap: anywhere;
 }
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px;
+  max-width: 1120px;
+  margin: 0 auto;
   padding: 28px clamp(18px, 5vw, 72px) 56px;
 }
 
@@ -179,10 +209,8 @@ main {
   padding: clamp(18px, 3vw, 28px);
 }
 
-.report {
-  position: sticky;
-  top: 24px;
-  align-self: start;
+.report-anchor {
+  scroll-margin-top: 24px;
 }
 
 .section-heading h2 {
@@ -209,6 +237,7 @@ main {
 .field {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .field--wide {
@@ -262,6 +291,37 @@ button:hover {
   background: #2b3028;
 }
 
+.scroll-top {
+  position: fixed;
+  right: clamp(16px, 4vw, 34px);
+  bottom: 22px;
+  z-index: 20;
+  width: auto;
+  min-height: 44px;
+  margin: 0;
+  border-color: var(--teal);
+  padding: 0 16px;
+  background: var(--teal);
+  color: var(--panel);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.scroll-top--visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.scroll-top:hover {
+  background: #0a5e55;
+}
+
 .report__summary {
   color: var(--muted);
   font-size: 1rem;
@@ -310,6 +370,7 @@ button:hover {
 .leak-card h4 {
   margin: 4px 0 6px;
   font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 
 .leak-card p {
@@ -323,6 +384,7 @@ button:hover {
   flex: 0 0 auto;
   color: var(--red);
   font-size: 1.2rem;
+  overflow-wrap: anywhere;
 }
 
 .station-table {
@@ -348,10 +410,12 @@ button:hover {
 
 .station-table span {
   color: var(--muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .station-table strong {
-  white-space: nowrap;
+  text-align: right;
 }
 
 .simulator {
@@ -387,12 +451,63 @@ button:hover {
   margin-top: 6px;
   color: var(--lime);
   font-size: 2rem;
+  overflow-wrap: anywhere;
 }
 
 .simulator__result p {
   margin: 8px 0 0;
   color: #dce4d5;
   line-height: 1.45;
+}
+
+.calculation-explainer {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+
+.calculation-explainer h3 {
+  margin: 0 0 8px;
+}
+
+.calculation-explainer p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.58;
+}
+
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.formula-grid article {
+  display: grid;
+  gap: 8px;
+  min-height: 138px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+}
+
+.formula-grid span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.formula-grid strong {
+  font-size: 0.98rem;
+  overflow-wrap: anywhere;
+}
+
+.formula-grid p {
+  font-size: 0.9rem;
 }
 
 ol {
@@ -407,17 +522,18 @@ li {
 }
 
 @media (max-width: 920px) {
-  .intro,
-  .workspace {
+  .intro {
     grid-template-columns: 1fr;
-  }
-
-  .report {
-    position: static;
   }
 }
 
 @media (max-width: 640px) {
+  .intro,
+  .workspace {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
   .intro {
     padding-top: 28px;
   }
@@ -438,7 +554,19 @@ li {
     display: grid;
   }
 
+  .leak-card strong {
+    justify-self: start;
+  }
+
+  .station-table div {
+    align-items: flex-start;
+  }
+
   .simulator__inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .formula-grid {
     grid-template-columns: 1fr;
   }
 }
