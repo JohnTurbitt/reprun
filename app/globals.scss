@@ -74,6 +74,65 @@ main {
   text-transform: uppercase;
 }
 
+.hint-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.hint-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--teal);
+}
+
+.hint {
+  position: relative;
+  display: inline-flex;
+  outline: none;
+}
+
+.hint__term {
+  border-bottom: 2px dotted var(--teal);
+  color: var(--teal);
+  cursor: help;
+  font-weight: 800;
+}
+
+.hint__bubble {
+  position: absolute;
+  z-index: 10;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: min(260px, 78vw);
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--ink);
+  color: var(--panel);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.hint:focus .hint__bubble,
+.hint:focus-within .hint__bubble,
+.hint:hover .hint__bubble {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .quick-stats {
   display: grid;
   gap: 12px;
@@ -272,6 +331,13 @@ button:hover {
   margin-top: 12px;
 }
 
+.helper-text {
+  margin: -4px 0 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 .station-table div {
   display: flex;
   justify-content: space-between;
@@ -286,6 +352,47 @@ button:hover {
 
 .station-table strong {
   white-space: nowrap;
+}
+
+.simulator {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 24px;
+}
+
+.simulator__inputs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.simulator__result {
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--ink);
+  color: var(--panel);
+}
+
+.simulator__result span {
+  display: block;
+  color: var(--lime);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.simulator__result strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--lime);
+  font-size: 2rem;
+}
+
+.simulator__result p {
+  margin: 8px 0 0;
+  color: #dce4d5;
+  line-height: 1.45;
 }
 
 ol {
@@ -329,5 +436,9 @@ li {
 
   .leak-card {
     display: grid;
+  }
+
+  .simulator__inputs {
+    grid-template-columns: 1fr;
   }
 }
