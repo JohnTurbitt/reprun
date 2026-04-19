@@ -38,6 +38,7 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<ToastMessage | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
@@ -51,6 +52,7 @@ export default function Home() {
     setRuns((current) =>
       current.map((split, splitIndex) => (splitIndex === index ? value : split)),
     );
+    clearFieldError(`run-${index}`);
   }
 
   function updateStation(key: StationKey, value: string) {
@@ -58,6 +60,24 @@ export default function Home() {
       ...current,
       [key]: value,
     }));
+    clearFieldError(`station-${key}`);
+  }
+
+  function updateTargetTime(value: string) {
+    setTargetTime(value);
+    clearFieldError("targetTime");
+  }
+
+  function clearFieldError(fieldKey: string) {
+    setFieldErrors((current) => {
+      if (!current[fieldKey]) {
+        return current;
+      }
+
+      const nextErrors = { ...current };
+      delete nextErrors[fieldKey];
+      return nextErrors;
+    });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -70,6 +90,7 @@ export default function Home() {
 
     if (!validation.valid) {
       setValidationErrors(validation.errors);
+      setFieldErrors(validation.fieldErrors);
       setToast({
         id: Date.now(),
         title: "Report not generated",
@@ -105,6 +126,7 @@ export default function Home() {
 
     setAnalysis(generatedAnalysis);
     setValidationErrors([]);
+    setFieldErrors({});
     setToast({
       id: Date.now(),
       title: "Report generated",
@@ -248,8 +270,9 @@ export default function Home() {
               runs={runs}
               stationSplits={stationSplits}
               errors={validationErrors}
+              fieldErrors={fieldErrors}
               onGoalChange={setGoal}
-              onTargetTimeChange={setTargetTime}
+              onTargetTimeChange={updateTargetTime}
               onLevelChange={setLevel}
               onRunChange={updateRun}
               onStationChange={updateStation}

@@ -89,3 +89,21 @@
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(14, 117, 106, 0.14);
 }
+
+.field input.is-invalid,
+.field select.is-invalid {
+  border-color: var(--red);
+  background: rgba(216, 75, 58, 0.06);
+}
+
+.field input.is-invalid:focus,
+.field select.is-invalid:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(216, 75, 58, 0.14);
+}
+
+.field-error {
+  color: var(--red);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}

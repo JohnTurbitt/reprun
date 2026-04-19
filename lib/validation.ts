@@ -9,6 +9,7 @@ export type ValidationInput = {
 export type ValidationResult = {
   valid: boolean;
   errors: string[];
+  fieldErrors: Record<string, string>;
 };
 
 const timePattern = /^\d+(?::\d{1,2}){0,2}$/;
@@ -45,25 +46,33 @@ export function validateReportInput({
   stationSplits,
 }: ValidationInput): ValidationResult {
   const errors: string[] = [];
+  const fieldErrors: Record<string, string> = {};
 
   if (!isValidTime(targetTime)) {
-    errors.push("Enter a valid target time, for example 1:25:00.");
+    const message = "Enter a valid target time, for example 1:25:00.";
+    errors.push(message);
+    fieldErrors.targetTime = message;
   }
 
   runs.forEach((split, index) => {
     if (!isValidTime(split)) {
-      errors.push(`Run ${index + 1} needs a valid time, for example 5:30.`);
+      const message = `Run ${index + 1} needs a valid time, for example 5:30.`;
+      errors.push(message);
+      fieldErrors[`run-${index}`] = "Use a valid time like 5:30.";
     }
   });
 
   stations.forEach((station) => {
     if (!isValidTime(stationSplits[station.key])) {
-      errors.push(`${station.label} needs a valid time, for example 5:00.`);
+      const message = `${station.label} needs a valid time, for example 5:00.`;
+      errors.push(message);
+      fieldErrors[`station-${station.key}`] = "Use a valid time like 5:00.";
     }
   });
 
   return {
     valid: errors.length === 0,
     errors,
+    fieldErrors,
   };
 }

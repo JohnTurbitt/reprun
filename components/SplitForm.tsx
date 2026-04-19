@@ -13,6 +13,7 @@ type SplitFormProps = {
   runs: string[];
   stationSplits: Record<StationKey, string>;
   errors: string[];
+  fieldErrors: Record<string, string>;
   onGoalChange: (value: string) => void;
   onTargetTimeChange: (value: string) => void;
   onLevelChange: (value: Level) => void;
@@ -28,6 +29,7 @@ export function SplitForm({
   runs,
   stationSplits,
   errors,
+  fieldErrors,
   onGoalChange,
   onTargetTimeChange,
   onLevelChange,
@@ -66,11 +68,16 @@ export function SplitForm({
         <label className="field">
           <span>Target time</span>
           <input
+            className={fieldErrors.targetTime ? "is-invalid" : undefined}
             value={targetTime}
             onChange={(event) => onTargetTimeChange(event.target.value)}
             inputMode="numeric"
             placeholder="1:25:00"
+            aria-invalid={Boolean(fieldErrors.targetTime)}
           />
+          {fieldErrors.targetTime ? (
+            <small className="field-error">{fieldErrors.targetTime}</small>
+          ) : null}
         </label>
       </div>
 
@@ -95,11 +102,18 @@ export function SplitForm({
             <label className="field" key={`run-${index + 1}`}>
               <span>Run {index + 1}</span>
               <input
+                className={fieldErrors[`run-${index}`] ? "is-invalid" : undefined}
                 value={split}
                 onChange={(event) => onRunChange(index, event.target.value)}
                 inputMode="numeric"
                 placeholder="5:30"
+                aria-invalid={Boolean(fieldErrors[`run-${index}`])}
               />
+              {fieldErrors[`run-${index}`] ? (
+                <small className="field-error">
+                  {fieldErrors[`run-${index}`]}
+                </small>
+              ) : null}
             </label>
           ))}
         </div>
@@ -112,13 +126,22 @@ export function SplitForm({
             <label className="field" key={station.key}>
               <span>{station.label}</span>
               <input
+                className={
+                  fieldErrors[`station-${station.key}`] ? "is-invalid" : undefined
+                }
                 value={stationSplits[station.key]}
                 onChange={(event) =>
                   onStationChange(station.key, event.target.value)
                 }
                 inputMode="numeric"
                 placeholder="5:00"
+                aria-invalid={Boolean(fieldErrors[`station-${station.key}`])}
               />
+              {fieldErrors[`station-${station.key}`] ? (
+                <small className="field-error">
+                  {fieldErrors[`station-${station.key}`]}
+                </small>
+              ) : null}
             </label>
           ))}
         </div>

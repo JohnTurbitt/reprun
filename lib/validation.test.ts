@@ -27,6 +27,7 @@ describe("validateReportInput", () => {
 
     expect(result.valid).toBe(true);
     expect(result.errors).toEqual([]);
+    expect(result.fieldErrors).toEqual({});
   });
 
   it("reports target, run and station errors", () => {
@@ -46,6 +47,13 @@ describe("validateReportInput", () => {
     expect(result.errors).toContain("Run 1 needs a valid time, for example 5:30.");
     expect(result.errors).toContain(
       "Wall balls needs a valid time, for example 5:00.",
+    );
+    expect(result.fieldErrors.targetTime).toBe(
+      "Enter a valid target time, for example 1:25:00.",
+    );
+    expect(result.fieldErrors["run-0"]).toBe("Use a valid time like 5:30.");
+    expect(result.fieldErrors["station-wallBalls"]).toBe(
+      "Use a valid time like 5:00.",
     );
   });
 });
