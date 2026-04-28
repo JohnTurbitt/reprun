@@ -22,6 +22,14 @@ export type PersistableRaceReport = {
   analysisSnapshot: Analysis;
 };
 
+export type PersistedReportSummary = Omit<
+  PersistableRaceReport,
+  "analysisSnapshot"
+> & {
+  id: string;
+  createdAt: Date | string;
+};
+
 const athleteLevelByLevel: Record<Level, PersistableRaceReport["athleteLevel"]> = {
   starter: "STARTER",
   competitive: "COMPETITIVE",
@@ -34,6 +42,8 @@ const levelByAthleteLevel: Record<PersistableRaceReport["athleteLevel"], Level> 
   ELITE: "elite",
 };
 
+// Keep persistence concerns out of the analysis engine. The UI works with
+// lowercase levels and `SavedReport`; Prisma stores enum values and JSON.
 export function toPersistableRaceReport({
   goal,
   targetTime,
@@ -55,9 +65,9 @@ export function toPersistableRaceReport({
   };
 }
 
-export function toSavedReport(
-  report: PersistableRaceReport & { id: string; createdAt: Date | string },
-): SavedReport {
+// Server-backed history should look like the existing local-storage history so
+// the frontend can switch storage backends without changing report rendering.
+export function toSavedReport(report: PersistedReportSummary): SavedReport {
   return {
     id: report.id,
     createdAt:

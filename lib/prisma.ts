@@ -17,6 +17,8 @@ function createPrismaClient() {
   });
 }
 
+// Reuse the Prisma instance during Next dev hot reloads so file refreshes do not
+// create a new Postgres connection pool each time.
 export const prisma =
   globalForPrisma.prisma ?? createPrismaClient();
 
