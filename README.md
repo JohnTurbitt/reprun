@@ -8,6 +8,8 @@ RepRun is a mobile-first race split analyzer for hybrid athletes. The MVP lets a
 - React
 - TypeScript
 - SCSS
+- Prisma
+- PostgreSQL
 
 Current analysis:
 
@@ -18,13 +20,17 @@ Current analysis:
 - top three time leaks
 - realistic next target
 
+Backend foundation:
+
+- Prisma schema for users, subscriptions, and race reports
+- password hashing helpers
+- report persistence mappers that keep the current UI shape separate from the database shape
+
 Planned additions:
 
-- Prisma
-- PostgreSQL
-- Auth
-- Stripe
-- saved report history
+- Auth routes and sessions
+- Stripe checkout and webhook handling
+- server-backed saved report history
 
 ## Getting Started
 
@@ -48,6 +54,9 @@ Open `http://localhost:3000`.
 npm run dev
 npm run build
 npm run start
+npm run test
+npm run prisma:generate
+npm run prisma:migrate
 ```
 
 ## Product Direction

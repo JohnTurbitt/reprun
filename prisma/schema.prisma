@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AthleteLevel {
+  STARTER
+  COMPETITIVE
+  ELITE
+}
+
+enum SubscriptionStatus {
+  FREE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+model User {
+  id           String             @id @default(cuid())
+  email        String             @unique
+  passwordHash String
+  name         String?
+  subscription SubscriptionStatus @default(FREE)
+  stripeCustomerId String?        @unique
+  reports      RaceReport[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+}
+
+model RaceReport {
+  id                     String       @id @default(cuid())
+  userId                 String
+  user                   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal                   String
+  targetTime             String
+  athleteLevel           AthleteLevel
+  runSplits              String[]
+  stationSplits          Json
+  finishSeconds          Int
+  predictedTargetSeconds Int
+  topLeakLabel           String
+  analysisSnapshot       Json
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  @@index([userId, createdAt])
+}
