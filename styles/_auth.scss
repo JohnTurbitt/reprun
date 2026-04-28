@@ -1,0 +1,89 @@
+.auth-panel {
+  display: grid;
+  gap: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 18px;
+}
+
+.auth-panel__heading,
+.auth-panel--signed-in {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-panel__heading h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.auth-panel__switch {
+  display: inline-flex;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+  background: #fbfcf8;
+}
+
+.auth-panel__switch button,
+.auth-panel--signed-in button {
+  width: auto;
+  min-height: 38px;
+  margin: 0;
+  border-color: transparent;
+  padding: 0 12px;
+  background: transparent;
+  color: var(--ink);
+}
+
+.auth-panel__switch button.is-active {
+  background: var(--ink);
+  color: var(--lime);
+}
+
+.auth-panel__form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.auth-panel__form button {
+  width: auto;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.auth-panel--signed-in span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.auth-panel--signed-in strong {
+  display: block;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.auth-panel--signed-in p {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.auth-panel--signed-in .button-secondary {
+  border-color: var(--line);
+  background: #fbfcf8;
+  color: var(--ink);
+}
+
+.auth-panel--signed-in .button-secondary:hover {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--lime);
+}

@@ -48,6 +48,8 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+For preview handoff steps, see [TESTING.md](./TESTING.md).
+
 ## Scripts
 
 ```bash

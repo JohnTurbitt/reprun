@@ -27,6 +27,22 @@
     grid-template-columns: 1fr;
   }
 
+  .auth-panel__heading,
+  .auth-panel--signed-in {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .auth-panel__switch,
+  .auth-panel__switch button,
+  .auth-panel--signed-in button {
+    width: 100%;
+  }
+
+  .auth-panel__form {
+    grid-template-columns: 1fr;
+  }
+
   .leak-card {
     display: grid;
   }

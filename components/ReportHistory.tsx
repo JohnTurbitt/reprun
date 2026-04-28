@@ -3,12 +3,16 @@ import { SavedReport } from "@/lib/reportStorage";
 
 type ReportHistoryProps = {
   reports: SavedReport[];
+  storageLabel: string;
+  loading: boolean;
   onLoadReport: (report: SavedReport) => void;
-  onDeleteReport: (reportId: string) => void;
+  onDeleteReport: (reportId: string) => void | Promise<void>;
 };
 
 export function ReportHistory({
   reports,
+  storageLabel,
+  loading,
   onLoadReport,
   onDeleteReport,
 }: ReportHistoryProps) {
@@ -16,14 +20,19 @@ export function ReportHistory({
     <section className="report-history">
       <div className="section-heading">
         <p className="eyebrow">Previous Reports</p>
-        <h2>Saved in this browser</h2>
+        <h2>{storageLabel}</h2>
       </div>
 
-      {reports.length === 0 ? (
+      {loading ? (
+        <div className="empty-state">
+          <h3>Loading reports</h3>
+          <p>RepRun is checking the saved history for this account.</p>
+        </div>
+      ) : reports.length === 0 ? (
         <div className="empty-state">
           <h3>No reports saved yet</h3>
           <p>
-            Generate a race report and RepRun will keep it here on this device.
+            Generate a race report and RepRun will keep it in this history.
           </p>
         </div>
       ) : (
@@ -55,7 +64,7 @@ export function ReportHistory({
                 <button
                   className="button-secondary"
                   type="button"
-                  onClick={() => onDeleteReport(report.id)}
+                  onClick={() => void onDeleteReport(report.id)}
                 >
                   Delete
                 </button>

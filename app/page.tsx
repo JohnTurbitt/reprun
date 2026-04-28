@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { AuthPanel } from "@/components/AuthPanel";
 import { Hint } from "@/components/Hint";
 import { ReportHistory } from "@/components/ReportHistory";
 import { ReportPanel } from "@/components/ReportPanel";
@@ -20,6 +21,17 @@ import {
   loadSavedReports,
   saveReports,
 } from "@/lib/reportStorage";
+import {
+  AuthFormInput,
+  AuthUser,
+  deleteRemoteReport,
+  getCurrentUser,
+  loadRemoteReports,
+  logIn,
+  logOut,
+  saveRemoteReport,
+  signUp,
+} from "@/lib/apiClient";
 import { validateReportInput } from "@/lib/validation";
 
 type ActiveTab = "new" | "history";
@@ -37,6 +49,9 @@ export default function Home() {
   const [showHints, setShowHints] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [reportsLoading, setReportsLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<ToastMessage | null>(null);
@@ -80,7 +95,89 @@ export default function Home() {
     });
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function refreshRemoteReports() {
+    setReportsLoading(true);
+
+    try {
+      setSavedReports(await loadRemoteReports());
+    } finally {
+      setReportsLoading(false);
+    }
+  }
+
+  async function handleLogin(input: AuthFormInput) {
+    try {
+      const authenticatedUser = await logIn(input);
+
+      setUser(authenticatedUser);
+      await refreshRemoteReports();
+      setToast({
+        id: Date.now(),
+        title: "Signed in",
+        message: "Your reports will now save to your account.",
+        tone: "success",
+      });
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Sign in failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "RepRun could not sign you in.",
+        tone: "error",
+      });
+    }
+  }
+
+  async function handleSignup(input: AuthFormInput) {
+    try {
+      const authenticatedUser = await signUp(input);
+
+      setUser(authenticatedUser);
+      await refreshRemoteReports();
+      setToast({
+        id: Date.now(),
+        title: "Account created",
+        message: "Your future reports will save to your RepRun account.",
+        tone: "success",
+      });
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Account not created",
+        message:
+          error instanceof Error
+            ? error.message
+            : "RepRun could not create this account.",
+        tone: "error",
+      });
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await logOut();
+      setUser(null);
+      setSavedReports(loadSavedReports());
+      setToast({
+        id: Date.now(),
+        title: "Signed out",
+        message: "RepRun is showing reports saved on this device.",
+        tone: "success",
+      });
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Logout failed",
+        message:
+          error instanceof Error ? error.message : "RepRun could not log out.",
+        tone: "error",
+      });
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const validation = validateReportInput({
       targetTime,
@@ -122,7 +219,36 @@ export default function Home() {
       predictedTargetSeconds: generatedAnalysis.predictedTargetSeconds,
       topLeakLabel: generatedAnalysis.topLeaks[0]?.label ?? "",
     };
-    const nextReports = [savedReport, ...savedReports].slice(0, 12);
+    let nextReports = [savedReport, ...savedReports].slice(0, 12);
+    let toastMessage = "Your report has been saved on this device.";
+
+    if (user) {
+      try {
+        const remoteReport = await saveRemoteReport({
+          goal,
+          targetTime,
+          level,
+          runs,
+          stationSplits,
+        });
+
+        nextReports = [remoteReport, ...savedReports].slice(0, 50);
+        toastMessage = "Your report has been saved to your RepRun account.";
+      } catch (error) {
+        setToast({
+          id: Date.now(),
+          title: "Report not saved",
+          message:
+            error instanceof Error
+              ? error.message
+              : "The server could not save this report.",
+          tone: "error",
+        });
+        return;
+      }
+    } else {
+      saveReports(nextReports);
+    }
 
     setAnalysis(generatedAnalysis);
     setValidationErrors([]);
@@ -130,11 +256,10 @@ export default function Home() {
     setToast({
       id: Date.now(),
       title: "Report generated",
-      message: "Your report has been saved in Previous reports on this device.",
+      message: toastMessage,
       tone: "success",
     });
     setSavedReports(nextReports);
-    saveReports(nextReports);
     setActiveTab("new");
     window.requestAnimationFrame(() => {
       reportRef.current?.scrollIntoView({
@@ -168,17 +293,75 @@ export default function Home() {
     });
   }
 
-  function deleteReport(reportId: string) {
+  async function deleteReport(reportId: string) {
+    if (user) {
+      try {
+        await deleteRemoteReport(reportId);
+      } catch (error) {
+        setToast({
+          id: Date.now(),
+          title: "Report not deleted",
+          message:
+            error instanceof Error
+              ? error.message
+              : "The server could not delete this report.",
+          tone: "error",
+        });
+        return;
+      }
+    }
+
     const nextReports = savedReports.filter((report) => report.id !== reportId);
 
     setSavedReports(nextReports);
-    saveReports(nextReports);
+
+    if (!user) {
+      saveReports(nextReports);
+    }
   }
 
   const activeAnalysis = analysis ?? preview;
 
   useEffect(() => {
-    setSavedReports(loadSavedReports());
+    let cancelled = false;
+
+    async function loadInitialSession() {
+      try {
+        const currentUser = await getCurrentUser();
+
+        if (cancelled) {
+          return;
+        }
+
+        setUser(currentUser);
+
+        if (currentUser) {
+          setSavedReports(await loadRemoteReports());
+        } else {
+          setSavedReports(loadSavedReports());
+        }
+      } catch {
+        if (!cancelled) {
+          setSavedReports(loadSavedReports());
+          setToast({
+            id: Date.now(),
+            title: "Using device storage",
+            message: "RepRun could not reach the account API.",
+            tone: "error",
+          });
+        }
+      } finally {
+        if (!cancelled) {
+          setAuthLoading(false);
+        }
+      }
+    }
+
+    void loadInitialSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -241,6 +424,14 @@ export default function Home() {
       </section>
 
       <section className="workspace">
+        <AuthPanel
+          user={user}
+          loading={authLoading || reportsLoading}
+          onLogin={handleLogin}
+          onSignup={handleSignup}
+          onLogout={handleLogout}
+        />
+
         <nav className="tab-bar" aria-label="Report navigation">
           <button
             className={activeTab === "new" ? "tab-bar__tab is-active" : "tab-bar__tab"}
@@ -296,6 +487,8 @@ export default function Home() {
         ) : (
           <ReportHistory
             reports={savedReports}
+            storageLabel={user ? "Saved to your account" : "Saved in this browser"}
+            loading={reportsLoading}
             onLoadReport={loadReport}
             onDeleteReport={deleteReport}
           />
