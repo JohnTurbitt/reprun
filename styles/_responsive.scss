@@ -31,6 +31,19 @@
     grid-template-columns: 1fr;
   }
 
+  .form-heading {
+    display: grid;
+  }
+
+  .preset-actions,
+  .preset-actions button {
+    width: 100%;
+  }
+
+  .preset-actions {
+    display: grid;
+  }
+
   .auth-panel__heading,
   .auth-panel--signed-in {
     align-items: stretch;

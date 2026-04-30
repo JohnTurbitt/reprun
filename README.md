@@ -20,6 +20,7 @@ Current analysis:
 - top three time leaks
 - realistic next target
 - four-week deterministic training focus
+- sample race onboarding controls
 
 Backend foundation:
 
@@ -34,7 +35,6 @@ Backend foundation:
 
 Planned additions:
 
-- sample race onboarding
 - profile defaults
 - richer report history
 

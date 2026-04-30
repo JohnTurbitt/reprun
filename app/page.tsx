@@ -13,14 +13,19 @@ import {
   StationKey,
   buildAnalysis,
   formatTime,
-  initialRuns,
-  initialStations,
 } from "@/lib/analysis";
 import {
   SavedReport,
   loadSavedReports,
   saveReports,
 } from "@/lib/reportStorage";
+import {
+  ReportPreset,
+  cloneReportPreset,
+  defaultReportPreset,
+  emptyReportPreset,
+  sampleReportPreset,
+} from "@/lib/reportPresets";
 import {
   AuthFormInput,
   AuthUser,
@@ -43,11 +48,13 @@ const billingRefreshDelayMs = 1600;
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("new");
-  const [goal, setGoal] = useState("Sub 1:25 at my next race");
-  const [targetTime, setTargetTime] = useState("1:25:00");
-  const [level, setLevel] = useState<Level>("competitive");
-  const [runs, setRuns] = useState(initialRuns);
-  const [stationSplits, setStationSplits] = useState(initialStations);
+  const [goal, setGoal] = useState(defaultReportPreset.goal);
+  const [targetTime, setTargetTime] = useState(defaultReportPreset.targetTime);
+  const [level, setLevel] = useState<Level>(defaultReportPreset.level);
+  const [runs, setRuns] = useState(defaultReportPreset.runs);
+  const [stationSplits, setStationSplits] = useState(
+    defaultReportPreset.stationSplits,
+  );
   const [runGainPerKm, setRunGainPerKm] = useState("8");
   const [stationGain, setStationGain] = useState("2:30");
   const [transitionGain, setTransitionGain] = useState("0:45");
@@ -98,6 +105,26 @@ export default function Home() {
       const nextErrors = { ...current };
       delete nextErrors[fieldKey];
       return nextErrors;
+    });
+  }
+
+  function applyReportPreset(preset: ReportPreset, toastTitle: string) {
+    const nextPreset = cloneReportPreset(preset);
+
+    setGoal(nextPreset.goal);
+    setTargetTime(nextPreset.targetTime);
+    setLevel(nextPreset.level);
+    setRuns(nextPreset.runs);
+    setStationSplits(nextPreset.stationSplits);
+    setAnalysis(null);
+    setValidationErrors([]);
+    setFieldErrors({});
+    setActiveTab("new");
+    setToast({
+      id: Date.now(),
+      title: toastTitle,
+      message: "The live preview has been updated.",
+      tone: "success",
     });
   }
 
@@ -599,6 +626,13 @@ export default function Home() {
               onLevelChange={setLevel}
               onRunChange={updateRun}
               onStationChange={updateStation}
+              onLoadSample={() =>
+                applyReportPreset(sampleReportPreset, "Sample race loaded")
+              }
+              onResetDefaults={() =>
+                applyReportPreset(defaultReportPreset, "Defaults restored")
+              }
+              onClearForm={() => applyReportPreset(emptyReportPreset, "Form cleared")}
               onSubmit={handleSubmit}
             />
 

@@ -19,6 +19,9 @@ type SplitFormProps = {
   onLevelChange: (value: Level) => void;
   onRunChange: (index: number, value: string) => void;
   onStationChange: (key: StationKey, value: string) => void;
+  onLoadSample: () => void;
+  onResetDefaults: () => void;
+  onClearForm: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
@@ -35,13 +38,29 @@ export function SplitForm({
   onLevelChange,
   onRunChange,
   onStationChange,
+  onLoadSample,
+  onResetDefaults,
+  onClearForm,
   onSubmit,
 }: SplitFormProps) {
   return (
     <form className="split-form" onSubmit={onSubmit}>
-      <div className="section-heading">
-        <p className="eyebrow">Race Input</p>
-        <h2>Your splits</h2>
+      <div className="form-heading">
+        <div className="section-heading">
+          <p className="eyebrow">Race Input</p>
+          <h2>Your splits</h2>
+        </div>
+        <div className="preset-actions" aria-label="Report presets">
+          <button type="button" onClick={onLoadSample}>
+            Load sample race
+          </button>
+          <button type="button" onClick={onResetDefaults}>
+            Reset defaults
+          </button>
+          <button type="button" onClick={onClearForm}>
+            Clear form
+          </button>
+        </div>
       </div>
 
       {errors.length > 0 ? (
