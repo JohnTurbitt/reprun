@@ -82,83 +82,101 @@ function parseReportPayload(payload: unknown): {
 }
 
 export async function GET(request: NextRequest) {
-  const user = await requireCurrentUser(request);
+  try {
+    const user = await requireCurrentUser(request);
 
-  if (!user) {
-    return NextResponse.json({ errors: ["Sign in required."] }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ errors: ["Sign in required."] }, { status: 401 });
+    }
+
+    const reports = await prisma.raceReport.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      // This endpoint powers history lists, not full archival exports.
+      take: 50,
+    });
+
+    return NextResponse.json({
+      reports: reports.map((report) =>
+        toSavedReport({
+          id: report.id,
+          createdAt: report.createdAt,
+          goal: report.goal,
+          targetTime: report.targetTime,
+          athleteLevel: report.athleteLevel,
+          runSplits: report.runSplits,
+          stationSplits: report.stationSplits as Record<StationKey, string>,
+          finishSeconds: report.finishSeconds,
+          predictedTargetSeconds: report.predictedTargetSeconds,
+          topLeakLabel: report.topLeakLabel,
+        }),
+      ),
+    });
+  } catch (error) {
+    console.error("Report history load failed", error);
+
+    return NextResponse.json(
+      { errors: ["Report history could not be loaded."] },
+      { status: 500 },
+    );
   }
-
-  const reports = await prisma.raceReport.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    // This endpoint powers history lists, not full archival exports.
-    take: 50,
-  });
-
-  return NextResponse.json({
-    reports: reports.map((report) =>
-      toSavedReport({
-        id: report.id,
-        createdAt: report.createdAt,
-        goal: report.goal,
-        targetTime: report.targetTime,
-        athleteLevel: report.athleteLevel,
-        runSplits: report.runSplits,
-        stationSplits: report.stationSplits as Record<StationKey, string>,
-        finishSeconds: report.finishSeconds,
-        predictedTargetSeconds: report.predictedTargetSeconds,
-        topLeakLabel: report.topLeakLabel,
-      }),
-    ),
-  });
 }
 
 export async function POST(request: NextRequest) {
-  const user = await requireCurrentUser(request);
+  try {
+    const user = await requireCurrentUser(request);
 
-  if (!user) {
-    return NextResponse.json({ errors: ["Sign in required."] }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ errors: ["Sign in required."] }, { status: 401 });
+    }
+
+    const parsed = parseReportPayload(await request.json().catch(() => null));
+
+    if (!parsed.value) {
+      return NextResponse.json({ errors: parsed.errors }, { status: 400 });
+    }
+
+    // Recompute analysis server-side instead of trusting client-submitted totals.
+    // That keeps saved reports consistent with the current deterministic model.
+    const analysis = buildAnalysis(
+      parsed.value.goal,
+      parsed.value.targetTime,
+      parsed.value.level,
+      parsed.value.runs,
+      parsed.value.stationSplits,
+    );
+    const reportData = toPersistableRaceReport({ ...parsed.value, analysis });
+    const report = await prisma.raceReport.create({
+      data: {
+        userId: user.id,
+        goal: reportData.goal,
+        targetTime: reportData.targetTime,
+        athleteLevel: reportData.athleteLevel,
+        runSplits: reportData.runSplits,
+        stationSplits: reportData.stationSplits,
+        finishSeconds: reportData.finishSeconds,
+        predictedTargetSeconds: reportData.predictedTargetSeconds,
+        topLeakLabel: reportData.topLeakLabel,
+        analysisSnapshot: reportData.analysisSnapshot,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        report: toSavedReport({
+          ...reportData,
+          id: report.id,
+          createdAt: report.createdAt,
+        }),
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("Report save failed", error);
+
+    return NextResponse.json(
+      { errors: ["Report could not be saved to your account."] },
+      { status: 500 },
+    );
   }
-
-  const parsed = parseReportPayload(await request.json().catch(() => null));
-
-  if (!parsed.value) {
-    return NextResponse.json({ errors: parsed.errors }, { status: 400 });
-  }
-
-  // Recompute analysis server-side instead of trusting client-submitted totals.
-  // That keeps saved reports consistent with the current deterministic model.
-  const analysis = buildAnalysis(
-    parsed.value.goal,
-    parsed.value.targetTime,
-    parsed.value.level,
-    parsed.value.runs,
-    parsed.value.stationSplits,
-  );
-  const reportData = toPersistableRaceReport({ ...parsed.value, analysis });
-  const report = await prisma.raceReport.create({
-    data: {
-      userId: user.id,
-      goal: reportData.goal,
-      targetTime: reportData.targetTime,
-      athleteLevel: reportData.athleteLevel,
-      runSplits: reportData.runSplits,
-      stationSplits: reportData.stationSplits,
-      finishSeconds: reportData.finishSeconds,
-      predictedTargetSeconds: reportData.predictedTargetSeconds,
-      topLeakLabel: reportData.topLeakLabel,
-      analysisSnapshot: reportData.analysisSnapshot,
-    },
-  });
-
-  return NextResponse.json(
-    {
-      report: toSavedReport({
-        ...reportData,
-        id: report.id,
-        createdAt: report.createdAt,
-      }),
-    },
-    { status: 201 },
-  );
 }

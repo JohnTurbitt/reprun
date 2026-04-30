@@ -19,18 +19,20 @@ Current analysis:
 - recoverability scoring
 - top three time leaks
 - realistic next target
+- four-week deterministic training focus
 
 Backend foundation:
 
 - Prisma schema for users, subscriptions, and race reports
 - password hashing helpers
 - report persistence mappers that keep the current UI shape separate from the database shape
+- Auth routes and sessions
+- server-backed saved report history
 
 Planned additions:
 
-- Auth routes and sessions
 - Stripe checkout and webhook handling
-- server-backed saved report history
+- paid full-report gating
 
 ## Getting Started
 

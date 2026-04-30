@@ -95,6 +95,24 @@ export function ReportPanel({
         ))}
       </ol>
 
+      <h3>Four-week focus</h3>
+      <div className="training-plan">
+        {analysis.trainingPlan.map((week) => (
+          <article className="training-week" key={week.week}>
+            <div className="training-week__header">
+              <span>Week {week.week}</span>
+              <h4>{week.focus}</h4>
+            </div>
+            <ul>
+              {week.sessions.map((session) => (
+                <li key={session}>{session}</li>
+              ))}
+            </ul>
+            <p>{week.target}</p>
+          </article>
+        ))}
+      </div>
+
       <h3>Target simulator</h3>
       <TargetSimulator
         analysis={analysis}

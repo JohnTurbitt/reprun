@@ -87,6 +87,64 @@
   overflow-wrap: anywhere;
 }
 
+.training-plan {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 24px;
+}
+
+.training-week {
+  display: grid;
+  gap: 12px;
+  min-height: 238px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+}
+
+.training-week__header {
+  display: grid;
+  gap: 5px;
+}
+
+.training-week__header span {
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.training-week h4 {
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.training-week ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.training-week li,
+.training-week p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.training-week p {
+  align-self: end;
+  margin: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .station-table {
   display: grid;
   gap: 8px;

@@ -235,14 +235,23 @@ export default function Home() {
         nextReports = [remoteReport, ...savedReports].slice(0, 50);
         toastMessage = "Your report has been saved to your RepRun account.";
       } catch (error) {
+        setAnalysis(generatedAnalysis);
+        setValidationErrors([]);
+        setFieldErrors({});
         setToast({
           id: Date.now(),
-          title: "Report not saved",
+          title: "Report generated",
           message:
             error instanceof Error
-              ? error.message
-              : "The server could not save this report.",
+              ? `${error.message} The report is visible below but was not saved.`
+              : "The report is visible below but was not saved to your account.",
           tone: "error",
+        });
+        window.requestAnimationFrame(() => {
+          reportRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
         });
         return;
       }

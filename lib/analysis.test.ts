@@ -121,4 +121,23 @@ describe("buildAnalysis", () => {
       Math.round(analysis.finishSeconds * 0.12),
     );
   });
+
+  it("builds a four-week plan from the ranked leaks", () => {
+    const analysis = buildAnalysis(
+      "Fix the worst station",
+      "1:25:00",
+      "competitive",
+      steadyRuns,
+      stationSplits,
+    );
+
+    expect(analysis.trainingPlan).toHaveLength(4);
+    expect(analysis.trainingPlan[0].focus).toContain("Wall balls");
+    expect(analysis.trainingPlan[0].sessions[0]).toBe(
+      analysis.topLeaks[0].recommendation,
+    );
+    expect(analysis.trainingPlan[3].target).toContain(
+      formatTime(analysis.predictedTargetSeconds),
+    );
+  });
 });

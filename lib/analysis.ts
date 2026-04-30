@@ -38,6 +38,13 @@ export type StationResult = Station & {
   score: number;
 };
 
+export type TrainingWeek = {
+  week: number;
+  focus: string;
+  sessions: string[];
+  target: string;
+};
+
 export type Analysis = {
   finishSeconds: number;
   targetSeconds: number;
@@ -55,6 +62,7 @@ export type Analysis = {
   topLeaks: Leak[];
   stationResults: StationResult[];
   priorities: string[];
+  trainingPlan: TrainingWeek[];
   report: string;
 };
 
@@ -218,6 +226,92 @@ function buildStationLeak(result: StationResult): Leak {
   };
 }
 
+function buildTrainingPlan(topLeaks: Leak[], predictedTargetSeconds: number) {
+  const primaryLeak = topLeaks[0];
+  const secondaryLeak = topLeaks[1] ?? primaryLeak;
+  const tertiaryLeak = topLeaks[2] ?? secondaryLeak;
+
+  if (!primaryLeak) {
+    return [
+      {
+        week: 1,
+        focus: "Baseline pacing",
+        sessions: [
+          "Complete one controlled race rehearsal at current split targets.",
+          "Run 6 x 1km with equal pacing and full note-taking after each rep.",
+        ],
+        target: "Confirm the split data before increasing training stress.",
+      },
+      {
+        week: 2,
+        focus: "Run economy",
+        sessions: [
+          "Add one aerobic run with relaxed strides after the main work.",
+          "Practise station exits into 400m controlled runs.",
+        ],
+        target: "Keep late-run pace within 10 seconds of early-run pace.",
+      },
+      {
+        week: 3,
+        focus: "Station rhythm",
+        sessions: [
+          "Run station technique work at repeatable race effort.",
+          "Use short rest intervals to preserve form under fatigue.",
+        ],
+        target: "Record clean reps and consistent transitions.",
+      },
+      {
+        week: 4,
+        focus: "Race rehearsal",
+        sessions: [
+          "Complete a reduced-volume simulation with planned split ceilings.",
+          "Taper intensity after the rehearsal and keep only light sharpness work.",
+        ],
+        target: `Rehearse a realistic next finish around ${formatTime(predictedTargetSeconds)}.`,
+      },
+    ];
+  }
+
+  return [
+    {
+      week: 1,
+      focus: `${primaryLeak.label} control`,
+      sessions: [
+        primaryLeak.recommendation,
+        "Add one low-risk technique session and stop each set before form breaks.",
+      ],
+      target: `Make ${formatTime(primaryLeak.recoverableSeconds)} feel repeatable before chasing more speed.`,
+    },
+    {
+      week: 2,
+      focus: `${secondaryLeak.label} under fatigue`,
+      sessions: [
+        secondaryLeak.recommendation,
+        "Pair the focus area with 600m-1km runs at controlled race effort.",
+      ],
+      target: `Bring the second leak within ${formatTime(Math.max(15, secondaryLeak.recoverableSeconds * 0.6))} of benchmark pace.`,
+    },
+    {
+      week: 3,
+      focus: `${tertiaryLeak.label} plus transitions`,
+      sessions: [
+        tertiaryLeak.recommendation,
+        "Practise entering and leaving stations without standing recovery.",
+      ],
+      target: "Hold planned movement quality while trimming avoidable dead time.",
+    },
+    {
+      week: 4,
+      focus: "Race-specific consolidation",
+      sessions: [
+        "Run a 70-80% volume rehearsal using the planned first-half run ceiling.",
+        "Keep the final hard session short, then taper into fresh race-pace touches.",
+      ],
+      target: `Validate a next target near ${formatTime(predictedTargetSeconds)}.`,
+    },
+  ];
+}
+
 export function buildAnalysis(
   goal: string,
   targetTime: string,
@@ -307,6 +401,7 @@ export function buildAnalysis(
     (leak) =>
       `${leak.label}: ${formatTime(leak.recoverableSeconds)} realistic gain. ${leak.recommendation}`,
   );
+  const trainingPlan = buildTrainingPlan(topLeaks, predictedTargetSeconds);
   const primaryLeak = topLeaks[0];
   const targetLine =
     targetSeconds > 0
@@ -330,6 +425,7 @@ export function buildAnalysis(
     topLeaks,
     stationResults,
     priorities,
+    trainingPlan,
     report: `The model projects ${formatTime(finishSeconds)} from these splits. ${targetLine} The biggest recoverable leak is ${primaryLeak?.label.toLowerCase() ?? "not clear yet"}, worth about ${formatTime(primaryLeak?.recoverableSeconds ?? 0)} if trained well. Based on the top three leaks, a realistic next step is ${formatTime(predictedTargetSeconds)} without needing random extra volume.`,
   };
 }
