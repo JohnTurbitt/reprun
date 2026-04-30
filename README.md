@@ -29,10 +29,10 @@ Backend foundation:
 - Auth routes and sessions
 - server-backed saved report history
 - Stripe checkout route and subscription webhook
+- Stripe customer portal for subscription management
 
 Planned additions:
 
-- Stripe customer portal
 - paid report export and sharing
 
 ## Paid Report Boundary
@@ -52,15 +52,20 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRICE_ID=price_...
 ```
 
-The checkout endpoint is `POST /api/billing/checkout`. Configure Stripe
-webhooks to send subscription events to `/api/billing/webhook`.
+The checkout endpoint is `POST /api/billing/checkout`. The customer billing
+portal endpoint is `POST /api/billing/portal`. Configure Stripe webhooks to
+send subscription events to `/api/billing/webhook`.
+
+Paid customers can unsubscribe through the `Manage billing` button shown in the
+signed-in account panel. Stripe handles the cancellation flow, then webhook
+events update the local `User.subscription` status.
 
 ## Local Stripe Test Flow
 
 Run RepRun:
 
 ```bash
-npm run dev -- --hostname 127.0.0.1 --port 3002
+npm run dev
 ```
 
 In a separate terminal, forward Stripe webhooks:
@@ -82,6 +87,15 @@ To test checkout:
 5. Keep the webhook listener running so the account is upgraded to paid access
    after checkout completes.
 
+To test cancellation:
+
+1. Sign in as a paid test user.
+2. Click `Manage billing` in the top account panel.
+3. Cancel the subscription in Stripe's customer portal.
+4. Return to RepRun and keep the webhook listener running.
+5. Confirm the account panel changes from `Paid access` to the updated
+   subscription status and paid report sections lock again.
+
 ## Getting Started
 
 Install dependencies:
@@ -96,7 +110,7 @@ Run the local dev server:
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://127.0.0.1:3002`.
 
 For preview handoff steps, see [TESTING.md](./TESTING.md).
 

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const stripe = getStripe();
     const priceId = getCheckoutPriceId();
-    const origin = request.nextUrl.origin;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
     const databaseUser = await prisma.user.findUnique({
       where: { id: user.id },
       select: {
@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
       customer: customerId,
       client_reference_id: databaseUser.id,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${origin}/?checkout=success`,
-      cancel_url: `${origin}/?checkout=cancelled`,
+      success_url: `${appUrl}/?checkout=success`,
+      cancel_url: `${appUrl}/?checkout=cancelled`,
       metadata: { userId: databaseUser.id },
       subscription_data: {
         metadata: { userId: databaseUser.id },

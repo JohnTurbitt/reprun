@@ -35,6 +35,44 @@
   line-height: 1.7;
 }
 
+.benchmark-context {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.36fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  margin: 18px 0 22px;
+}
+
+.benchmark-context div {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #eff3e8;
+}
+
+.benchmark-context span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.benchmark-context strong {
+  font-size: 1.25rem;
+}
+
+.benchmark-context p {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcf8;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .metric-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

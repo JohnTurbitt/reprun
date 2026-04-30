@@ -4,19 +4,30 @@ import { AuthFormInput, AuthUser } from "@/lib/apiClient";
 type AuthPanelProps = {
   user: AuthUser | null;
   loading: boolean;
+  billingLoading: boolean;
   onLogin: (input: AuthFormInput) => Promise<void>;
   onSignup: (input: AuthFormInput) => Promise<void>;
   onLogout: () => Promise<void>;
+  onManageBilling: () => void;
 };
 
 type AuthMode = "login" | "signup";
 
+const subscriptionLabels: Record<AuthUser["subscription"], string> = {
+  ACTIVE: "Paid access",
+  CANCELED: "Subscription canceled",
+  FREE: "Free account",
+  PAST_DUE: "Payment past due",
+};
+
 export function AuthPanel({
   user,
   loading,
+  billingLoading,
   onLogin,
   onSignup,
   onLogout,
+  onManageBilling,
 }: AuthPanelProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
@@ -42,21 +53,35 @@ export function AuthPanel({
   }
 
   if (user) {
+    const canManageBilling = user.subscription !== "FREE";
+
     return (
       <aside className="auth-panel auth-panel--signed-in">
         <div>
           <span>Signed in</span>
           <strong>{user.name || user.email}</strong>
-          <p>{user.subscription === "ACTIVE" ? "Paid access" : "Free account"}</p>
+          <p>{subscriptionLabels[user.subscription]}</p>
         </div>
-        <button
-          className="button-secondary"
-          type="button"
-          onClick={() => void onLogout()}
-          disabled={loading}
-        >
-          Log out
-        </button>
+        <div className="auth-panel__actions">
+          {canManageBilling ? (
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={onManageBilling}
+              disabled={loading || billingLoading}
+            >
+              {billingLoading ? "Opening..." : "Manage billing"}
+            </button>
+          ) : null}
+          <button
+            className="button-secondary"
+            type="button"
+            onClick={() => void onLogout()}
+            disabled={loading}
+          >
+            Log out
+          </button>
+        </div>
       </aside>
     );
   }

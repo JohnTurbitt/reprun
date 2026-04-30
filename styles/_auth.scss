@@ -40,6 +40,13 @@
   color: var(--ink);
 }
 
+.auth-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .auth-panel__switch button.is-active {
   background: var(--ink);
   color: var(--lime);

@@ -46,6 +46,8 @@ export type TrainingWeek = {
 };
 
 export type Analysis = {
+  level: Level;
+  levelLabel: string;
   finishSeconds: number;
   targetSeconds: number;
   targetGapSeconds: number;
@@ -61,6 +63,7 @@ export type Analysis = {
   recoverableSeconds: number;
   topLeaks: Leak[];
   stationResults: StationResult[];
+  stationBenchmarkSummary: string;
   priorities: string[];
   trainingPlan: TrainingWeek[];
   report: string;
@@ -349,6 +352,7 @@ export function buildAnalysis(
       };
     })
     .sort((a, b) => b.score - a.score);
+  const stationBenchmarkSummary = `Station leaks are measured against ${levelLabels[level]} benchmarks. Run fade and pacing volatility are calculated from your own run splits.`;
 
   const totalStationSeconds = stationResults.reduce(
     (total, station) => total + station.seconds,
@@ -409,6 +413,8 @@ export function buildAnalysis(
       : "Add a target finish time to see the exact gap you need to close.";
 
   return {
+    level,
+    levelLabel: levelLabels[level],
     finishSeconds,
     targetSeconds,
     targetGapSeconds,
@@ -424,6 +430,7 @@ export function buildAnalysis(
     recoverableSeconds,
     topLeaks,
     stationResults,
+    stationBenchmarkSummary,
     priorities,
     trainingPlan,
     report: `The model projects ${formatTime(finishSeconds)} from these splits. ${targetLine} The biggest recoverable leak is ${primaryLeak?.label.toLowerCase() ?? "not clear yet"}, worth about ${formatTime(primaryLeak?.recoverableSeconds ?? 0)} if trained well. Based on the top three leaks, a realistic next step is ${formatTime(predictedTargetSeconds)} without needing random extra volume.`,

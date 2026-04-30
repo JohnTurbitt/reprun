@@ -95,6 +95,8 @@ describe("buildAnalysis", () => {
     expect(eliteWallBalls?.benchmark).toBe(300);
     expect(starterWallBalls?.gap).toBe(0);
     expect(eliteWallBalls?.gap).toBe(110);
+    expect(elite.levelLabel).toBe("Elite");
+    expect(elite.stationBenchmarkSummary).toContain("Elite benchmarks");
   });
 
   it("caps recoverable time at twelve percent of projected finish", () => {

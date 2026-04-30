@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getStripe } from "@/lib/billing";
+import { requireCurrentUser } from "@/lib/apiAuth";
+import { prisma } from "@/lib/prisma";
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await requireCurrentUser(request);
+
+    if (!user) {
+      return NextResponse.json({ errors: ["Sign in required."] }, { status: 401 });
+    }
+
+    const databaseUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { stripeCustomerId: true },
+    });
+
+    if (!databaseUser?.stripeCustomerId) {
+      return NextResponse.json(
+        { errors: ["No Stripe customer is attached to this account."] },
+        { status: 400 },
+      );
+    }
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+    const session = await getStripe().billingPortal.sessions.create({
+      customer: databaseUser.stripeCustomerId,
+      return_url: `${appUrl}/?checkout=billing`,
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error("Customer portal creation failed", error);
+
+    return NextResponse.json(
+      { errors: ["Billing settings could not be opened."] },
+      { status: 500 },
+    );
+  }
+}

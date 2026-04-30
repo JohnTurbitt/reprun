@@ -23,6 +23,10 @@
     grid-template-columns: 1fr;
   }
 
+  .benchmark-context {
+    grid-template-columns: 1fr;
+  }
+
   .input-row {
     grid-template-columns: 1fr;
   }
@@ -35,8 +39,13 @@
 
   .auth-panel__switch,
   .auth-panel__switch button,
+  .auth-panel__actions,
   .auth-panel--signed-in button {
     width: 100%;
+  }
+
+  .auth-panel__actions {
+    display: grid;
   }
 
   .auth-panel__form {

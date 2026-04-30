@@ -29,6 +29,7 @@ import {
   loadRemoteReports,
   logIn,
   logOut,
+  openBillingPortal,
   saveRemoteReport,
   signUp,
   startCheckout,
@@ -36,6 +37,9 @@ import {
 import { validateReportInput } from "@/lib/validation";
 
 type ActiveTab = "new" | "history";
+
+const billingRefreshAttempts = 6;
+const billingRefreshDelayMs = 1600;
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("new");
@@ -105,6 +109,33 @@ export default function Home() {
     } finally {
       setReportsLoading(false);
     }
+  }
+
+  async function pollAccountStatus(expectedPaidAccess?: boolean) {
+    setBillingLoading(true);
+
+    for (let attempt = 0; attempt < billingRefreshAttempts; attempt += 1) {
+      try {
+        const currentUser = await getCurrentUser();
+
+        setUser(currentUser);
+
+        if (
+          expectedPaidAccess === undefined ||
+          Boolean(currentUser?.subscription === "ACTIVE") === expectedPaidAccess
+        ) {
+          return;
+        }
+      } catch {
+        break;
+      }
+
+      await new Promise((resolve) =>
+        window.setTimeout(resolve, billingRefreshDelayMs),
+      );
+    }
+
+    setBillingLoading(false);
   }
 
   async function handleLogin(input: AuthFormInput) {
@@ -202,6 +233,25 @@ export default function Home() {
           error instanceof Error
             ? error.message
             : "RepRun could not open checkout.",
+        tone: "error",
+      });
+      setBillingLoading(false);
+    }
+  }
+
+  async function handleManageBilling() {
+    setBillingLoading(true);
+
+    try {
+      window.location.href = await openBillingPortal();
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Billing not opened",
+        message:
+          error instanceof Error
+            ? error.message
+            : "RepRun could not open billing settings.",
         tone: "error",
       });
       setBillingLoading(false);
@@ -414,10 +464,10 @@ export default function Home() {
       setToast({
         id: Date.now(),
         title: "Checkout complete",
-        message: "Paid access will unlock as soon as Stripe confirms payment.",
+        message: "Checking your paid access now.",
         tone: "success",
       });
-      void getCurrentUser().then(setUser).catch(() => undefined);
+      void pollAccountStatus(true).finally(() => setBillingLoading(false));
       window.history.replaceState({}, "", window.location.pathname);
     }
 
@@ -428,6 +478,17 @@ export default function Home() {
         message: "Your report is unchanged.",
         tone: "error",
       });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    if (checkoutStatus === "billing") {
+      setToast({
+        id: Date.now(),
+        title: "Billing updated",
+        message: "Refreshing your account status.",
+        tone: "success",
+      });
+      void pollAccountStatus().finally(() => setBillingLoading(false));
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -456,6 +517,17 @@ export default function Home() {
   return (
     <main>
       <section className="intro">
+        <div className="intro__account">
+          <AuthPanel
+            user={user}
+            loading={authLoading || reportsLoading}
+            billingLoading={billingLoading}
+            onLogin={handleLogin}
+            onSignup={handleSignup}
+            onLogout={handleLogout}
+            onManageBilling={handleManageBilling}
+          />
+        </div>
         <div className="intro__copy">
           <p className="eyebrow">RepRun</p>
           <h1>Find the time leaks between your reps and runs.</h1>
@@ -492,14 +564,6 @@ export default function Home() {
       </section>
 
       <section className="workspace">
-        <AuthPanel
-          user={user}
-          loading={authLoading || reportsLoading}
-          onLogin={handleLogin}
-          onSignup={handleSignup}
-          onLogout={handleLogout}
-        />
-
         <nav className="tab-bar" aria-label="Report navigation">
           <button
             className={activeTab === "new" ? "tab-bar__tab is-active" : "tab-bar__tab"}

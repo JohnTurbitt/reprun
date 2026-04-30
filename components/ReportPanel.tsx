@@ -65,6 +65,14 @@ export function ReportPanel({
       </p>
       <p className="report__summary">{analysis.report}</p>
 
+      <div className="benchmark-context">
+        <div>
+          <span>Athlete level</span>
+          <strong>{analysis.levelLabel}</strong>
+        </div>
+        <p>{analysis.stationBenchmarkSummary}</p>
+      </div>
+
       <div className="metric-row metric-row--three">
         <div>
           <span>Average run</span>
@@ -164,9 +172,8 @@ export function ReportPanel({
 
           <h3>Station ranking</h3>
           <p className="helper-text">
-            Each station is compared with the{" "}
-            <Hint enabled={showHints} hint="benchmark" term="benchmark" /> for your
-            selected level.
+            Each station is compared with the {analysis.levelLabel}{" "}
+            <Hint enabled={showHints} hint="benchmark" term="benchmark" />.
           </p>
           <div className="station-table">
             {analysis.stationResults.map((station) => (

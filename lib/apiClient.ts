@@ -106,3 +106,14 @@ export async function startCheckout() {
 
   return body.url;
 }
+
+export async function openBillingPortal() {
+  const response = await fetch("/api/billing/portal", { method: "POST" });
+  const body = await readApiResponse<{ url: string | null }>(response);
+
+  if (!body.url) {
+    throw new Error("Billing settings did not return a link.");
+  }
+
+  return body.url;
+}
