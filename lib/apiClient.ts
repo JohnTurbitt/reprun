@@ -95,3 +95,14 @@ export async function deleteRemoteReport(reportId: string) {
 
   await readApiResponse<{ ok: true }>(response);
 }
+
+export async function startCheckout() {
+  const response = await fetch("/api/billing/checkout", { method: "POST" });
+  const body = await readApiResponse<{ url: string | null }>(response);
+
+  if (!body.url) {
+    throw new Error("Checkout did not return a payment link.");
+  }
+
+  return body.url;
+}

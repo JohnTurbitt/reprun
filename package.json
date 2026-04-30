@@ -20,7 +20,8 @@
     "next": "^15.4.0",
     "pg": "^8.20.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "stripe": "^22.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

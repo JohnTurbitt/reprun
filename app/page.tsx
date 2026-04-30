@@ -31,6 +31,7 @@ import {
   logOut,
   saveRemoteReport,
   signUp,
+  startCheckout,
 } from "@/lib/apiClient";
 import { validateReportInput } from "@/lib/validation";
 
@@ -52,6 +53,7 @@ export default function Home() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<ToastMessage | null>(null);
@@ -174,6 +176,35 @@ export default function Home() {
           error instanceof Error ? error.message : "RepRun could not log out.",
         tone: "error",
       });
+    }
+  }
+
+  async function handleStartCheckout() {
+    if (!user) {
+      setToast({
+        id: Date.now(),
+        title: "Sign in required",
+        message: "Create an account or sign in before unlocking the full report.",
+        tone: "error",
+      });
+      return;
+    }
+
+    setBillingLoading(true);
+
+    try {
+      window.location.href = await startCheckout();
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Checkout not started",
+        message:
+          error instanceof Error
+            ? error.message
+            : "RepRun could not open checkout.",
+        tone: "error",
+      });
+      setBillingLoading(false);
     }
   }
 
@@ -330,6 +361,7 @@ export default function Home() {
   }
 
   const activeAnalysis = analysis ?? preview;
+  const fullReportUnlocked = user?.subscription === "ACTIVE";
 
   useEffect(() => {
     let cancelled = false;
@@ -371,6 +403,33 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const checkoutStatus = new URLSearchParams(window.location.search).get(
+      "checkout",
+    );
+
+    if (checkoutStatus === "success") {
+      setToast({
+        id: Date.now(),
+        title: "Checkout complete",
+        message: "Paid access will unlock as soon as Stripe confirms payment.",
+        tone: "success",
+      });
+      void getCurrentUser().then(setUser).catch(() => undefined);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    if (checkoutStatus === "cancelled") {
+      setToast({
+        id: Date.now(),
+        title: "Checkout cancelled",
+        message: "Your report is unchanged.",
+        tone: "error",
+      });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
   }, []);
 
   useEffect(() => {
@@ -483,10 +542,14 @@ export default function Home() {
               <ReportPanel
                 analysis={activeAnalysis}
                 hasGeneratedReport={Boolean(analysis)}
+                fullReportUnlocked={fullReportUnlocked}
+                canStartCheckout={Boolean(user) && !fullReportUnlocked}
+                billingLoading={billingLoading}
                 showHints={showHints}
                 runGainPerKm={runGainPerKm}
                 stationGain={stationGain}
                 transitionGain={transitionGain}
+                onStartCheckout={handleStartCheckout}
                 onRunGainPerKmChange={setRunGainPerKm}
                 onStationGainChange={setStationGain}
                 onTransitionGainChange={setTransitionGain}

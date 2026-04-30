@@ -51,6 +51,14 @@
     justify-self: start;
   }
 
+  .paywall {
+    grid-template-columns: 1fr;
+  }
+
+  .paywall button {
+    width: 100%;
+  }
+
   .station-table div {
     align-items: flex-start;
   }

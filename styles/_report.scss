@@ -16,6 +16,13 @@
   padding: 0 14px;
 }
 
+.report__print:disabled {
+  border-color: var(--line);
+  background: #eef1e8;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .report__date {
   margin: 14px 0 0;
   color: var(--muted);
@@ -85,6 +92,42 @@
   color: var(--red);
   font-size: 1.2rem;
   overflow-wrap: anywhere;
+}
+
+.paywall {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  margin: 24px 0;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  padding: 18px;
+  background: #eef1e8;
+}
+
+.paywall h3 {
+  margin: 0 0 8px;
+}
+
+.paywall p:last-child {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.paywall button {
+  width: auto;
+  min-width: 184px;
+  margin: 0;
+  padding: 0 18px;
+}
+
+.paywall button:disabled {
+  border-color: var(--line);
+  background: #dfe4d7;
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 .training-plan {

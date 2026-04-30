@@ -28,11 +28,59 @@ Backend foundation:
 - report persistence mappers that keep the current UI shape separate from the database shape
 - Auth routes and sessions
 - server-backed saved report history
+- Stripe checkout route and subscription webhook
 
 Planned additions:
 
-- Stripe checkout and webhook handling
-- paid full-report gating
+- Stripe customer portal
+- paid report export and sharing
+
+## Paid Report Boundary
+
+Free users see the projected finish, run summary, target gap, and the first two
+ranked leaks. Paid users unlock the full leak list, training priorities,
+four-week focus, target simulator, station ranking, print view, and calculation
+breakdown.
+
+## Stripe Setup
+
+Add these values to `.env` before testing checkout:
+
+```bash
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_ID=price_...
+```
+
+The checkout endpoint is `POST /api/billing/checkout`. Configure Stripe
+webhooks to send subscription events to `/api/billing/webhook`.
+
+## Local Stripe Test Flow
+
+Run RepRun:
+
+```bash
+npm run dev -- --hostname 127.0.0.1 --port 3002
+```
+
+In a separate terminal, forward Stripe webhooks:
+
+```powershell
+& "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Stripe.StripeCli_Microsoft.Winget.Source_8wekyb3d8bbwe\stripe.exe" listen --forward-to http://127.0.0.1:3002/api/billing/webhook
+```
+
+Use the `whsec_...` value printed by the Stripe CLI as
+`STRIPE_WEBHOOK_SECRET`, then restart the dev server.
+
+To test checkout:
+
+1. Sign in or create a local RepRun account.
+2. Generate a report.
+3. Click `Unlock full report`.
+4. Use Stripe test card `4242 4242 4242 4242` with any future expiry date
+   and any CVC.
+5. Keep the webhook listener running so the account is upgraded to paid access
+   after checkout completes.
 
 ## Getting Started
 

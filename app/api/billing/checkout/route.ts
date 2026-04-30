@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCheckoutPriceId, getStripe } from "@/lib/billing";
+import { requireCurrentUser } from "@/lib/apiAuth";
+import { prisma } from "@/lib/prisma";
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await requireCurrentUser(request);
+
+    if (!user) {
+      return NextResponse.json({ errors: ["Sign in required."] }, { status: 401 });
+    }
+
+    const stripe = getStripe();
+    const priceId = getCheckoutPriceId();
+    const origin = request.nextUrl.origin;
+    const databaseUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        stripeCustomerId: true,
+        subscription: true,
+      },
+    });
+
+    if (!databaseUser) {
+      return NextResponse.json({ errors: ["User not found."] }, { status: 404 });
+    }
+
+    if (databaseUser.subscription === "ACTIVE") {
+      return NextResponse.json(
+        { errors: ["Your account already has paid access."] },
+        { status: 400 },
+      );
+    }
+
+    let customerId = databaseUser.stripeCustomerId;
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: databaseUser.email,
+        name: databaseUser.name ?? undefined,
+        metadata: { userId: databaseUser.id },
+      });
+
+      customerId = customer.id;
+
+      await prisma.user.update({
+        where: { id: databaseUser.id },
+        data: { stripeCustomerId: customerId },
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer: customerId,
+      client_reference_id: databaseUser.id,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${origin}/?checkout=success`,
+      cancel_url: `${origin}/?checkout=cancelled`,
+      metadata: { userId: databaseUser.id },
+      subscription_data: {
+        metadata: { userId: databaseUser.id },
+      },
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error("Checkout creation failed", error);
+
+    return NextResponse.json(
+      { errors: ["Checkout could not be started."] },
+      { status: 500 },
+    );
+  }
+}
