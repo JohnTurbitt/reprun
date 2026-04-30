@@ -1,0 +1,3 @@
+ALTER TABLE "User"
+ADD COLUMN "defaultLevel" "AthleteLevel" NOT NULL DEFAULT 'COMPETITIVE',
+ADD COLUMN "defaultTargetTime" TEXT NOT NULL DEFAULT '1:25:00';

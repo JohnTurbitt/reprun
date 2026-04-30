@@ -21,6 +21,7 @@ Current analysis:
 - realistic next target
 - four-week deterministic training focus
 - sample race onboarding controls
+- account profile defaults for target time and athlete level
 
 Backend foundation:
 
@@ -32,10 +33,10 @@ Backend foundation:
 - Stripe checkout route and subscription webhook
 - Stripe customer portal for subscription management
 - paid report copy, share, download, and print actions
+- RepRun premium badge for paid-only report features
 
 Planned additions:
 
-- profile defaults
 - richer report history
 
 ## Paid Report Boundary

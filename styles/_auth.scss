@@ -83,6 +83,33 @@
   color: var(--muted);
 }
 
+.auth-panel__identity {
+  display: grid;
+  gap: 4px;
+}
+
+.auth-panel__identity p:last-child {
+  font-size: 0.88rem;
+}
+
+.profile-form {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+
+.profile-form button {
+  width: auto;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
 .auth-panel--signed-in .button-secondary {
   border-color: var(--line);
   background: #fbfcf8;

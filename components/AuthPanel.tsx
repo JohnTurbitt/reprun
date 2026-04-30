@@ -1,5 +1,7 @@
 import { FormEvent, useState } from "react";
-import { AuthFormInput, AuthUser } from "@/lib/apiClient";
+import { Level, levelLabels } from "@/lib/analysis";
+import { AuthFormInput, AuthUser, ProfileFormInput } from "@/lib/apiClient";
+import { PremiumBadge } from "./PremiumBadge";
 
 type AuthPanelProps = {
   user: AuthUser | null;
@@ -9,6 +11,7 @@ type AuthPanelProps = {
   onSignup: (input: AuthFormInput) => Promise<void>;
   onLogout: () => Promise<void>;
   onManageBilling: () => void;
+  onSaveProfile: (input: ProfileFormInput) => Promise<void>;
 };
 
 type AuthMode = "login" | "signup";
@@ -28,11 +31,16 @@ export function AuthPanel({
   onSignup,
   onLogout,
   onManageBilling,
+  onSaveProfile,
 }: AuthPanelProps) {
   const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileName, setProfileName] = useState("");
+  const [profileLevel, setProfileLevel] = useState<Level>("competitive");
+  const [profileTargetTime, setProfileTargetTime] = useState("1:25:00");
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -57,12 +65,33 @@ export function AuthPanel({
 
     return (
       <aside className="auth-panel auth-panel--signed-in">
-        <div>
-          <span>Signed in</span>
-          <strong>{user.name || user.email}</strong>
-          <p>{subscriptionLabels[user.subscription]}</p>
+        <div className="auth-panel__identity">
+          <div>
+            <span>Signed in</span>
+            <strong>{user.name || user.email}</strong>
+            <p>
+              {subscriptionLabels[user.subscription]}{" "}
+              {user.subscription === "ACTIVE" ? <PremiumBadge /> : null}
+            </p>
+          </div>
+          <p>
+            Defaults: {levelLabels[user.defaultLevel]}, {user.defaultTargetTime}
+          </p>
         </div>
         <div className="auth-panel__actions">
+          <button
+            className="button-secondary"
+            type="button"
+            onClick={() => {
+              setProfileName(user.name ?? "");
+              setProfileLevel(user.defaultLevel);
+              setProfileTargetTime(user.defaultTargetTime);
+              setProfileOpen((isOpen) => !isOpen);
+            }}
+            disabled={loading}
+          >
+            Profile settings
+          </button>
           {canManageBilling ? (
             <button
               className="button-secondary"
@@ -82,6 +111,60 @@ export function AuthPanel({
             Log out
           </button>
         </div>
+        {profileOpen ? (
+          <form
+            className="profile-form"
+            onSubmit={async (event) => {
+              event.preventDefault();
+              setSubmitting(true);
+
+              try {
+                await onSaveProfile({
+                  name: profileName,
+                  defaultLevel: profileLevel,
+                  defaultTargetTime: profileTargetTime,
+                });
+                setProfileOpen(false);
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+          >
+            <label className="field">
+              <span>Name</span>
+              <input
+                value={profileName}
+                onChange={(event) => setProfileName(event.target.value)}
+                placeholder="Runner name"
+              />
+            </label>
+            <label className="field">
+              <span>Default athlete level</span>
+              <select
+                value={profileLevel}
+                onChange={(event) => setProfileLevel(event.target.value as Level)}
+              >
+                {Object.entries(levelLabels).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>Default target time</span>
+              <input
+                value={profileTargetTime}
+                onChange={(event) => setProfileTargetTime(event.target.value)}
+                inputMode="numeric"
+                placeholder="1:25:00"
+              />
+            </label>
+            <button type="submit" disabled={submitting || loading}>
+              {submitting ? "Saving..." : "Save profile"}
+            </button>
+          </form>
+        ) : null}
       </aside>
     );
   }

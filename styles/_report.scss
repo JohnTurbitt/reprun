@@ -180,6 +180,10 @@
 }
 
 .report-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: auto;
   min-height: 42px;
   margin: 0;

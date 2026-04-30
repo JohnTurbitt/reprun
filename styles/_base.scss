@@ -82,6 +82,22 @@ li {
   font-size: clamp(1.6rem, 3vw, 2.6rem);
 }
 
+.premium-badge {
+  display: inline-grid;
+  min-width: 36px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 0 8px;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 .not-found {
   display: grid;
   align-content: center;

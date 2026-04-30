@@ -6,6 +6,8 @@ export type AuthUser = {
   email: string;
   name: string | null;
   subscription: "FREE" | "ACTIVE" | "PAST_DUE" | "CANCELED";
+  defaultLevel: Level;
+  defaultTargetTime: string;
   createdAt: string;
 };
 
@@ -13,6 +15,12 @@ export type AuthFormInput = {
   email: string;
   password: string;
   name?: string;
+};
+
+export type ProfileFormInput = {
+  name?: string;
+  defaultLevel: Level;
+  defaultTargetTime: string;
 };
 
 export type ReportRequestInput = {
@@ -40,6 +48,17 @@ async function readApiResponse<T>(response: Response): Promise<T> {
 export async function getCurrentUser() {
   const response = await fetch("/api/auth/me");
   const body = await readApiResponse<{ user: AuthUser | null }>(response);
+
+  return body.user;
+}
+
+export async function updateProfile(input: ProfileFormInput) {
+  const response = await fetch("/api/auth/me", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  const body = await readApiResponse<{ user: AuthUser }>(response);
 
   return body.user;
 }

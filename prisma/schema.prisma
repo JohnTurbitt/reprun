@@ -24,6 +24,8 @@ model User {
   email        String             @unique
   passwordHash String
   name         String?
+  defaultLevel AthleteLevel       @default(COMPETITIVE)
+  defaultTargetTime String        @default("1:25:00")
   subscription SubscriptionStatus @default(FREE)
   stripeCustomerId String?        @unique
   sessions     UserSession[]

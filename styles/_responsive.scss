@@ -65,6 +65,14 @@
     grid-template-columns: 1fr;
   }
 
+  .profile-form {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form button {
+    width: 100%;
+  }
+
   .leak-card {
     display: grid;
   }

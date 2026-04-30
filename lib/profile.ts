@@ -1,0 +1,45 @@
+import { AthleteLevel, SubscriptionStatus } from "@prisma/client";
+import { Level } from "./analysis";
+
+export type PublicUser = {
+  id: string;
+  email: string;
+  name: string | null;
+  subscription: SubscriptionStatus;
+  defaultLevel: Level;
+  defaultTargetTime: string;
+  createdAt: Date | string;
+};
+
+export const athleteLevelByLevel: Record<Level, AthleteLevel> = {
+  starter: "STARTER",
+  competitive: "COMPETITIVE",
+  elite: "ELITE",
+};
+
+export const levelByAthleteLevel: Record<AthleteLevel, Level> = {
+  STARTER: "starter",
+  COMPETITIVE: "competitive",
+  ELITE: "elite",
+};
+
+export function toPublicUser(user: {
+  id: string;
+  email: string;
+  name: string | null;
+  subscription: SubscriptionStatus;
+  defaultLevel: AthleteLevel;
+  defaultTargetTime: string;
+  createdAt: Date | string;
+}): PublicUser {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    subscription: user.subscription,
+    defaultLevel: levelByAthleteLevel[user.defaultLevel],
+    defaultTargetTime: user.defaultTargetTime,
+    createdAt:
+      user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt,
+  };
+}

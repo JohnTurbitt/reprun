@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { normalizeEmail, verifyPassword } from "@/lib/auth";
 import { validateAuthPayload } from "@/lib/apiValidation";
 import { prisma } from "@/lib/prisma";
+import { toPublicUser } from "@/lib/profile";
 import {
   createSessionToken,
   getSessionCookieOptions,
@@ -40,15 +41,7 @@ export async function POST(request: Request) {
     },
   });
 
-  const response = NextResponse.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      subscription: user.subscription,
-      createdAt: user.createdAt,
-    },
-  });
+  const response = NextResponse.json({ user: toPublicUser(user) });
 
   response.cookies.set(sessionCookieName, token, getSessionCookieOptions());
 

@@ -35,9 +35,11 @@ import {
   logIn,
   logOut,
   openBillingPortal,
+  ProfileFormInput,
   saveRemoteReport,
   signUp,
   startCheckout,
+  updateProfile,
 } from "@/lib/apiClient";
 import { validateReportInput } from "@/lib/validation";
 
@@ -45,6 +47,14 @@ type ActiveTab = "new" | "history";
 
 const billingRefreshAttempts = 6;
 const billingRefreshDelayMs = 1600;
+
+function buildUserDefaultPreset(user: AuthUser | null): ReportPreset {
+  return {
+    ...defaultReportPreset,
+    level: user?.defaultLevel ?? defaultReportPreset.level,
+    targetTime: user?.defaultTargetTime ?? defaultReportPreset.targetTime,
+  };
+}
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("new");
@@ -170,6 +180,8 @@ export default function Home() {
       const authenticatedUser = await logIn(input);
 
       setUser(authenticatedUser);
+      setLevel(authenticatedUser.defaultLevel);
+      setTargetTime(authenticatedUser.defaultTargetTime);
       await refreshRemoteReports();
       setToast({
         id: Date.now(),
@@ -195,6 +207,8 @@ export default function Home() {
       const authenticatedUser = await signUp(input);
 
       setUser(authenticatedUser);
+      setLevel(authenticatedUser.defaultLevel);
+      setTargetTime(authenticatedUser.defaultTargetTime);
       await refreshRemoteReports();
       setToast({
         id: Date.now(),
@@ -282,6 +296,33 @@ export default function Home() {
         tone: "error",
       });
       setBillingLoading(false);
+    }
+  }
+
+  async function handleSaveProfile(input: ProfileFormInput) {
+    try {
+      const updatedUser = await updateProfile(input);
+
+      setUser(updatedUser);
+      setLevel(updatedUser.defaultLevel);
+      setTargetTime(updatedUser.defaultTargetTime);
+      setToast({
+        id: Date.now(),
+        title: "Profile saved",
+        message: "Your report defaults have been updated.",
+        tone: "success",
+      });
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Profile not saved",
+        message:
+          error instanceof Error
+            ? error.message
+            : "RepRun could not save your profile.",
+        tone: "error",
+      });
+      throw error;
     }
   }
 
@@ -454,6 +495,8 @@ export default function Home() {
         setUser(currentUser);
 
         if (currentUser) {
+          setLevel(currentUser.defaultLevel);
+          setTargetTime(currentUser.defaultTargetTime);
           setSavedReports(await loadRemoteReports());
         } else {
           setSavedReports(loadSavedReports());
@@ -553,6 +596,7 @@ export default function Home() {
             onSignup={handleSignup}
             onLogout={handleLogout}
             onManageBilling={handleManageBilling}
+            onSaveProfile={handleSaveProfile}
           />
         </div>
         <div className="intro__copy">
@@ -630,7 +674,7 @@ export default function Home() {
                 applyReportPreset(sampleReportPreset, "Sample race loaded")
               }
               onResetDefaults={() =>
-                applyReportPreset(defaultReportPreset, "Defaults restored")
+                applyReportPreset(buildUserDefaultPreset(user), "Defaults restored")
               }
               onClearForm={() => applyReportPreset(emptyReportPreset, "Form cleared")}
               onSubmit={handleSubmit}

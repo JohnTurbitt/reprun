@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "./prisma";
+import { toPublicUser } from "./profile";
 import { hashSessionToken, sessionCookieName } from "./session";
 
 export async function getCurrentUser(request: NextRequest) {
@@ -20,6 +21,8 @@ export async function getCurrentUser(request: NextRequest) {
           email: true,
           name: true,
           subscription: true,
+          defaultLevel: true,
+          defaultTargetTime: true,
           createdAt: true,
         },
       },
@@ -30,7 +33,7 @@ export async function getCurrentUser(request: NextRequest) {
     return null;
   }
 
-  return session.user;
+  return toPublicUser(session.user);
 }
 
 export async function requireCurrentUser(request: NextRequest) {

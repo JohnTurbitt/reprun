@@ -4,6 +4,7 @@ import { Analysis, formatTime } from "@/lib/analysis";
 import { buildReportExportText } from "@/lib/reportExport";
 import { CalculationExplainer } from "./CalculationExplainer";
 import { Hint } from "./Hint";
+import { PremiumBadge } from "./PremiumBadge";
 import { TargetSimulator } from "./TargetSimulator";
 
 type ReportPanelProps = {
@@ -147,7 +148,7 @@ export function ReportPanel({
                 onClick={() => setExportMenuOpen((isOpen) => !isOpen)}
                 aria-expanded={exportMenuOpen}
               >
-                Export
+                Export <PremiumBadge />
               </button>
               {exportMenuOpen ? (
                 <div className="export-menu__options">
@@ -226,7 +227,9 @@ export function ReportPanel({
         <div className="paywall">
           <div>
             <p className="eyebrow">Full report</p>
-            <h3>Unlock the complete race plan</h3>
+            <h3>
+              Unlock the complete race plan <PremiumBadge />
+            </h3>
             <p>
               Paid access includes the full leak list, four-week focus,
               station ranking, target simulator, print view, and calculation
@@ -252,14 +255,18 @@ export function ReportPanel({
               "Export includes the full leak list, training plan, target, and station ranking."}
           </p>
 
-          <h3>Training priorities</h3>
+          <h3>
+            Training priorities <PremiumBadge />
+          </h3>
           <ol>
             {analysis.priorities.map((priority) => (
               <li key={priority}>{priority}</li>
             ))}
           </ol>
 
-          <h3>Four-week focus</h3>
+          <h3>
+            Four-week focus <PremiumBadge />
+          </h3>
           <div className="training-plan">
             {analysis.trainingPlan.map((week) => (
               <article className="training-week" key={week.week}>
@@ -277,7 +284,9 @@ export function ReportPanel({
             ))}
           </div>
 
-          <h3>Target simulator</h3>
+          <h3>
+            Target simulator <PremiumBadge />
+          </h3>
           <TargetSimulator
             analysis={analysis}
             runGainPerKm={runGainPerKm}
@@ -289,7 +298,9 @@ export function ReportPanel({
             onTransitionGainChange={onTransitionGainChange}
           />
 
-          <h3>Station ranking</h3>
+          <h3>
+            Station ranking <PremiumBadge />
+          </h3>
           <p className="helper-text">
             Each station is compared with the {analysis.levelLabel}{" "}
             <Hint enabled={showHints} hint="benchmark" term="benchmark" />.
