@@ -42,8 +42,46 @@ Backend foundation:
 
 Planned additions:
 
-- paid custom race builder
-- richer report history
+- race-day pace card
+- benchmark bands
+- compare two reports
+- performance trend dashboard
+- manual HR and RPE inputs
+
+## Upcoming Premium Features
+
+Planned premium roadmap, in suggested build order:
+
+1. Race-day pace card
+   - Target split for every run and station.
+   - Cumulative checkpoint time after each segment.
+   - Warning zones where the athlete is most likely to lose the target.
+   - One focus cue per key segment.
+   - Printable and shareable for race week.
+
+2. Benchmark bands
+   - Starter, Competitive, and Elite bands for each run or station.
+   - User marker and target marker on the same visual.
+   - Clear indication of where the athlete is closest to each level.
+
+3. Compare two reports
+   - Select two saved reports and compare total time gained or lost.
+   - Show run improvement, station improvement, and segment deltas.
+   - Summarize what changed between attempts.
+
+4. Performance trend dashboard
+   - Projected finish trend over time.
+   - Target gap trend.
+   - Average run trend.
+   - Biggest leak history.
+   - Station leak trend from saved reports.
+
+5. Manual HR and RPE inputs
+   - Optional RPE per segment.
+   - Optional average or max HR per segment.
+   - Segment notes for effort, pacing, or execution.
+   - Use the added effort data to explain whether a leak looks like fitness,
+     pacing, fatigue, or station execution.
 
 ## Paid Report Boundary
 
