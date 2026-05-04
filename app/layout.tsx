@@ -2,8 +2,12 @@ import type { Metadata, Viewport } from "next";
 import "./globals.scss";
 
 export const metadata: Metadata = {
-  title: "RepRun",
-  description: "Find where your hybrid race time is disappearing.",
+  title: "RepRun - Hybrid Race Split Analyzer",
+  description:
+    "Analyze HYROX-style race splits, find time leaks, and build a realistic next target.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export const viewport: Viewport = {

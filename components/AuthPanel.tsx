@@ -33,7 +33,7 @@ export function AuthPanel({
   onManageBilling,
   onSaveProfile,
 }: AuthPanelProps) {
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [mode, setMode] = useState<AuthMode | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -171,11 +171,8 @@ export function AuthPanel({
 
   return (
     <aside className="auth-panel">
-      <div className="auth-panel__heading">
-        <div>
-          <p className="eyebrow">Account</p>
-          <h2>{mode === "signup" ? "Create account" : "Sign in"}</h2>
-        </div>
+      <div className="auth-panel__signed-out">
+        <p>Save reports and unlock paid race analytics.</p>
         <div className="auth-panel__switch" aria-label="Auth mode">
           <button
             className={mode === "login" ? "is-active" : undefined}
@@ -194,43 +191,52 @@ export function AuthPanel({
         </div>
       </div>
 
-      <form className="auth-panel__form" onSubmit={handleSubmit}>
-        {mode === "signup" ? (
-          <label className="field">
-            <span>Name</span>
+      {mode ? (
+        <form
+          className={
+            mode === "signup"
+              ? "auth-panel__form auth-panel__form--signup"
+              : "auth-panel__form auth-panel__form--login"
+          }
+          onSubmit={handleSubmit}
+        >
+          {mode === "signup" ? (
+            <label className="field">
+              <span>Name</span>
+              <input
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Test Runner"
+              />
+            </label>
+          ) : null}
+          <label className="field auth-panel__email-field">
+            <span>Email</span>
             <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Test Runner"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="runner@example.com"
+              type="email"
             />
           </label>
-        ) : null}
-        <label className="field">
-          <span>Email</span>
-          <input
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="runner@example.com"
-            type="email"
-          />
-        </label>
-        <label className="field">
-          <span>Password</span>
-          <input
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="At least 8 characters"
-            type="password"
-          />
-        </label>
-        <button type="submit" disabled={submitting || loading}>
-          {submitting
+          <label className="field auth-panel__password-field">
+            <span>Password</span>
+            <input
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="At least 8 characters"
+              type="password"
+            />
+          </label>
+          <button type="submit" disabled={submitting || loading}>
+            {submitting
               ? "Working..."
-            : mode === "signup"
-              ? "Create account"
-              : "Sign in"}
-        </button>
-      </form>
+              : mode === "signup"
+                ? "Create account"
+                : "Sign in"}
+          </button>
+        </form>
+      ) : null}
     </aside>
   );
 }

@@ -587,7 +587,12 @@ export default function Home() {
   return (
     <main>
       <section className="intro">
-        <div className="intro__account">
+        <header className="site-header">
+          <img
+            className="site-header__logo"
+            src="/brand/reprun-logo-09-wordmark.svg"
+            alt="RepRun"
+          />
           <AuthPanel
             user={user}
             loading={authLoading || reportsLoading}
@@ -598,9 +603,8 @@ export default function Home() {
             onManageBilling={handleManageBilling}
             onSaveProfile={handleSaveProfile}
           />
-        </div>
+        </header>
         <div className="intro__copy">
-          <p className="eyebrow">RepRun</p>
           <h1>Find the time leaks between your reps and runs.</h1>
           <p>
             Enter your splits to get a deterministic race breakdown, ranked weak

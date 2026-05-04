@@ -1,0 +1,10 @@
+<svg width="420" height="120" viewBox="0 0 420 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">RepRun editorial wordmark</title>
+  <desc id="desc">Clean RepRun wordmark with split underline and RR plus badge.</desc>
+  <rect width="420" height="120" rx="18" fill="#F7F8F3"/>
+  <text x="34" y="69" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="900" letter-spacing="-1.5">RepRun</text>
+  <path d="M37 81H145" stroke="#075047" stroke-width="6" stroke-linecap="round"/>
+  <path d="M159 81H255" stroke="#4BAA62" stroke-width="6" stroke-linecap="round"/>
+  <path d="M269 81H384" stroke="#C6F14A" stroke-width="6" stroke-linecap="round"/>
+  <text x="38" y="101" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="800" letter-spacing="2">HYBRID RACE ANALYTICS</text>
+</svg>

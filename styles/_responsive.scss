@@ -2,6 +2,10 @@
   .intro {
     grid-template-columns: 1fr;
   }
+
+  .site-header {
+    display: grid;
+  }
 }
 
 @media (max-width: 640px) {
@@ -45,6 +49,7 @@
   }
 
   .auth-panel__heading,
+  .auth-panel__signed-out,
   .auth-panel--signed-in {
     align-items: stretch;
     flex-direction: column;

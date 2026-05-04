@@ -11,8 +11,18 @@
     var(--paper);
 }
 
-.intro__account {
+.site-header {
   grid-column: 1 / -1;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.site-header__logo {
+  width: min(260px, 54vw);
+  height: auto;
+  flex: 0 0 auto;
 }
 
 .intro h1 {
