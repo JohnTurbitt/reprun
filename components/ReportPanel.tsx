@@ -23,6 +23,32 @@ type ReportPanelProps = {
   onTransitionGainChange: (value: string) => void;
 };
 
+type ReportSectionProps = {
+  title: string;
+  defaultOpen?: boolean;
+  premium?: boolean;
+  children: React.ReactNode;
+};
+
+function ReportSection({
+  title,
+  defaultOpen = false,
+  premium = false,
+  children,
+}: ReportSectionProps) {
+  return (
+    <details className="report-section" open={defaultOpen}>
+      <summary>
+        <span>
+          {title} {premium ? <PremiumBadge /> : null}
+        </span>
+        <strong>View</strong>
+      </summary>
+      <div className="report-section__body">{children}</div>
+    </details>
+  );
+}
+
 export function ReportPanel({
   analysis,
   hasGeneratedReport,
@@ -180,6 +206,25 @@ export function ReportPanel({
       </p>
       <p className="report__summary">{analysis.report}</p>
 
+      <div className="report-strip">
+        <div>
+          <span>Projected</span>
+          <strong>{formatTime(analysis.finishSeconds)}</strong>
+        </div>
+        <div>
+          <span>Gap</span>
+          <strong>{formatTime(analysis.targetGapSeconds)}</strong>
+        </div>
+        <div>
+          <span>Biggest leak</span>
+          <strong>{analysis.topLeaks[0]?.label ?? "Not clear"}</strong>
+        </div>
+        <div>
+          <span>Target</span>
+          <strong>{analysis.targetDifficultyLabel}</strong>
+        </div>
+      </div>
+
       <div className="benchmark-context">
         <div>
           <span>Athlete level</span>
@@ -207,42 +252,44 @@ export function ReportPanel({
         </div>
       </div>
 
-      <div className="target-plan">
-        <div className="target-plan__header">
-          <div>
-            <p className="eyebrow">Target math</p>
-            <h3>{analysis.targetDifficultyLabel}</h3>
+      <ReportSection title="Target math" defaultOpen>
+        <div className="target-plan">
+          <div className="target-plan__header">
+            <div>
+              <p className="eyebrow">Target math</p>
+              <h3>{analysis.targetDifficultyLabel}</h3>
+            </div>
+            <strong>
+              {analysis.requiredGainPercent > 0
+                ? `${Math.round(analysis.requiredGainPercent * 1000) / 10}% gain`
+                : "No gap"}
+            </strong>
           </div>
-          <strong>
-            {analysis.requiredGainPercent > 0
-              ? `${Math.round(analysis.requiredGainPercent * 1000) / 10}% gain`
-              : "No gap"}
-          </strong>
+          <p>{analysis.targetPlanSummary}</p>
+          <div className="target-plan__grid">
+            <div>
+              <span>Run-only route</span>
+              <strong>{formatTime(analysis.requiredGainPerRunSeconds)}</strong>
+              <small>needed from each run</small>
+            </div>
+            <div>
+              <span>Station-only route</span>
+              <strong>{formatTime(analysis.requiredGainPerStationSeconds)}</strong>
+              <small>needed from each station</small>
+            </div>
+            <div>
+              <span>Balanced run target</span>
+              <strong>{formatTime(analysis.targetRunAverageSeconds)}</strong>
+              <small>average run split</small>
+            </div>
+            <div>
+              <span>Balanced station target</span>
+              <strong>{formatTime(analysis.targetStationAverageSeconds)}</strong>
+              <small>average station split</small>
+            </div>
+          </div>
         </div>
-        <p>{analysis.targetPlanSummary}</p>
-        <div className="target-plan__grid">
-          <div>
-            <span>Run-only route</span>
-            <strong>{formatTime(analysis.requiredGainPerRunSeconds)}</strong>
-            <small>needed from each run</small>
-          </div>
-          <div>
-            <span>Station-only route</span>
-            <strong>{formatTime(analysis.requiredGainPerStationSeconds)}</strong>
-            <small>needed from each station</small>
-          </div>
-          <div>
-            <span>Balanced run target</span>
-            <strong>{formatTime(analysis.targetRunAverageSeconds)}</strong>
-            <small>average run split</small>
-          </div>
-          <div>
-            <span>Balanced station target</span>
-            <strong>{formatTime(analysis.targetStationAverageSeconds)}</strong>
-            <small>average station split</small>
-          </div>
-        </div>
-      </div>
+      </ReportSection>
 
       <h3>
         Top <Hint enabled={showHints} hint="timeLeak" term="time leaks" />
@@ -292,66 +339,64 @@ export function ReportPanel({
               "Export includes the full leak list, training plan, target, and station ranking."}
           </p>
 
-          <h3>
-            Training priorities <PremiumBadge />
-          </h3>
-          <ol>
-            {analysis.priorities.map((priority) => (
-              <li key={priority}>{priority}</li>
-            ))}
-          </ol>
+          <ReportSection title="Training priorities" defaultOpen premium>
+            <ol>
+              {analysis.priorities.map((priority) => (
+                <li key={priority}>{priority}</li>
+              ))}
+            </ol>
+          </ReportSection>
 
-          <h3>
-            Four-week focus <PremiumBadge />
-          </h3>
-          <div className="training-plan">
-            {analysis.trainingPlan.map((week) => (
-              <article className="training-week" key={week.week}>
-                <div className="training-week__header">
-                  <span>Week {week.week}</span>
-                  <h4>{week.focus}</h4>
+          <ReportSection title="Four-week focus" premium>
+            <div className="training-plan">
+              {analysis.trainingPlan.map((week) => (
+                <article className="training-week" key={week.week}>
+                  <div className="training-week__header">
+                    <span>Week {week.week}</span>
+                    <h4>{week.focus}</h4>
+                  </div>
+                  <ul>
+                    {week.sessions.map((session) => (
+                      <li key={session}>{session}</li>
+                    ))}
+                  </ul>
+                  <p>{week.target}</p>
+                </article>
+              ))}
+            </div>
+          </ReportSection>
+
+          <ReportSection title="Target simulator" premium>
+            <TargetSimulator
+              analysis={analysis}
+              runGainPerKm={runGainPerKm}
+              stationGain={stationGain}
+              transitionGain={transitionGain}
+              showHints={showHints}
+              onRunGainPerKmChange={onRunGainPerKmChange}
+              onStationGainChange={onStationGainChange}
+              onTransitionGainChange={onTransitionGainChange}
+            />
+          </ReportSection>
+
+          <ReportSection title="Station ranking" premium>
+            <p className="helper-text">
+              Each station is compared with the {analysis.levelLabel}{" "}
+              <Hint enabled={showHints} hint="benchmark" term="benchmark" />.
+            </p>
+            <div className="station-table">
+              {analysis.stationResults.map((station) => (
+                <div key={station.key}>
+                  <span>{station.label}</span>
+                  <strong>{formatTime(station.gap)} leak</strong>
                 </div>
-                <ul>
-                  {week.sessions.map((session) => (
-                    <li key={session}>{session}</li>
-                  ))}
-                </ul>
-                <p>{week.target}</p>
-              </article>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ReportSection>
 
-          <h3>
-            Target simulator <PremiumBadge />
-          </h3>
-          <TargetSimulator
-            analysis={analysis}
-            runGainPerKm={runGainPerKm}
-            stationGain={stationGain}
-            transitionGain={transitionGain}
-            showHints={showHints}
-            onRunGainPerKmChange={onRunGainPerKmChange}
-            onStationGainChange={onStationGainChange}
-            onTransitionGainChange={onTransitionGainChange}
-          />
-
-          <h3>
-            Station ranking <PremiumBadge />
-          </h3>
-          <p className="helper-text">
-            Each station is compared with the {analysis.levelLabel}{" "}
-            <Hint enabled={showHints} hint="benchmark" term="benchmark" />.
-          </p>
-          <div className="station-table">
-            {analysis.stationResults.map((station) => (
-              <div key={station.key}>
-                <span>{station.label}</span>
-                <strong>{formatTime(station.gap)} leak</strong>
-              </div>
-            ))}
-          </div>
-
-          <CalculationExplainer analysis={analysis} />
+          <ReportSection title="Calculation breakdown" premium>
+            <CalculationExplainer analysis={analysis} />
+          </ReportSection>
         </>
       )}
     </aside>

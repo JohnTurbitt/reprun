@@ -34,6 +34,8 @@
 
   .report__header,
   .metric-row,
+  .report-strip,
+  .report-section,
   .leak-card,
   .station-table div,
   .formula-grid {
@@ -42,8 +44,28 @@
 
   .metric-row,
   .metric-row--three,
+  .report-strip,
   .formula-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-section {
+    border: 0;
+  }
+
+  .report-section summary {
+    min-height: 0;
+    border-bottom: 1px solid #dddddd;
+    padding: 0 0 8px;
+    cursor: default;
+  }
+
+  .report-section summary strong {
+    display: none;
+  }
+
+  .report-section__body {
+    padding: 12px 0;
   }
 
   .simulator {
