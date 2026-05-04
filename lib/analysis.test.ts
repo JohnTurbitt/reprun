@@ -41,6 +41,28 @@ describe("buildAnalysis", () => {
 
     expect(analysis.finishSeconds).toBe(5105);
     expect(analysis.targetGapSeconds).toBe(5);
+    expect(analysis.requiredGainSeconds).toBe(5);
+    expect(analysis.requiredGainPerRunSeconds).toBe(0.625);
+  });
+
+  it("builds target math for an aggressive target", () => {
+    const analysis = buildAnalysis(
+      "Find three minutes",
+      "1:22:05",
+      "competitive",
+      steadyRuns,
+      stationSplits,
+    );
+
+    expect(analysis.requiredGainSeconds).toBe(180);
+    expect(analysis.targetDifficulty).toBe("aggressive");
+    expect(analysis.targetPlanSummary).toContain("find 3:00 total");
+    expect(analysis.targetRunAverageSeconds).toBeLessThan(
+      analysis.averageRunSeconds,
+    );
+    expect(analysis.targetStationAverageSeconds).toBeLessThan(
+      analysis.totalStationSeconds / analysis.stationResults.length,
+    );
   });
 
   it("calculates second-half run fade per kilometre", () => {

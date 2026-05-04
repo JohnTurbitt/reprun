@@ -57,6 +57,17 @@ export type Analysis = {
   runVolatilitySeconds: number;
   predictedTargetSeconds: number;
   recoverableSeconds: number;
+  requiredGainSeconds: number;
+  requiredGainPercent: number;
+  requiredGainPerRunSeconds: number;
+  requiredGainPerStationSeconds: number;
+  balancedRunGainSeconds: number;
+  balancedStationGainSeconds: number;
+  targetRunAverageSeconds: number;
+  targetStationAverageSeconds: number;
+  targetDifficulty: "on-track" | "realistic" | "aggressive" | "very-aggressive";
+  targetDifficultyLabel: string;
+  targetPlanSummary: string;
   topLeaks: Leak[];
   stationResults: StationResult[];
   stationBenchmarkSummary: string;
@@ -311,6 +322,34 @@ function buildTrainingPlan(topLeaks: Leak[], predictedTargetSeconds: number) {
   ];
 }
 
+function getTargetDifficulty(requiredGainPercent: number, targetGapSeconds: number) {
+  if (targetGapSeconds <= 0) {
+    return {
+      targetDifficulty: "on-track" as const,
+      targetDifficultyLabel: "On track",
+    };
+  }
+
+  if (requiredGainPercent <= 0.035) {
+    return {
+      targetDifficulty: "realistic" as const,
+      targetDifficultyLabel: "Realistic",
+    };
+  }
+
+  if (requiredGainPercent <= 0.075) {
+    return {
+      targetDifficulty: "aggressive" as const,
+      targetDifficultyLabel: "Aggressive",
+    };
+  }
+
+  return {
+    targetDifficulty: "very-aggressive" as const,
+    targetDifficultyLabel: "Very aggressive",
+  };
+}
+
 export function buildAnalysis(
   goal: string,
   targetTime: string,
@@ -359,6 +398,31 @@ export function buildAnalysis(
   const finishSeconds = totalRunSeconds + totalStationSeconds;
   const targetSeconds = parseTime(targetTime);
   const targetGapSeconds = Math.max(0, finishSeconds - targetSeconds);
+  const runCount = runSeconds.filter((split) => split > 0).length || runs.length || 1;
+  const stationCount =
+    stationResults.filter((station) => station.seconds > 0).length ||
+    stationDefinitions.length ||
+    1;
+  const requiredGainSeconds = targetSeconds > 0 ? targetGapSeconds : 0;
+  const requiredGainPercent =
+    finishSeconds > 0 ? requiredGainSeconds / finishSeconds : 0;
+  const requiredGainPerRunSeconds = requiredGainSeconds / runCount;
+  const requiredGainPerStationSeconds = requiredGainSeconds / stationCount;
+  const balancedRunGainSeconds = requiredGainSeconds * 0.45 / runCount;
+  const balancedStationGainSeconds = requiredGainSeconds * 0.55 / stationCount;
+  const targetRunAverageSeconds = Math.max(
+    0,
+    averageRunSeconds - balancedRunGainSeconds,
+  );
+  const averageStationSeconds = totalStationSeconds / stationCount;
+  const targetStationAverageSeconds = Math.max(
+    0,
+    averageStationSeconds - balancedStationGainSeconds,
+  );
+  const { targetDifficulty, targetDifficultyLabel } = getTargetDifficulty(
+    requiredGainPercent,
+    targetGapSeconds,
+  );
 
   const runFadeLeak: Leak = {
     id: "run-fade",
@@ -409,6 +473,12 @@ export function buildAnalysis(
     targetSeconds > 0
       ? `Your entered target is ${formatTime(targetSeconds)}, leaving ${formatTime(targetGapSeconds)} to find.`
       : "Add a target finish time to see the exact gap you need to close.";
+  const targetPlanSummary =
+    targetSeconds > 0 && requiredGainSeconds > 0
+      ? `To hit ${formatTime(targetSeconds)}, find ${formatTime(requiredGainSeconds)} total: ${formatTime(requiredGainPerRunSeconds)} per run, ${formatTime(requiredGainPerStationSeconds)} per station, or a balanced plan around ${formatTime(balancedRunGainSeconds)} per run plus ${formatTime(balancedStationGainSeconds)} per station.`
+      : targetSeconds > 0
+        ? `Your current projection is already at or ahead of ${formatTime(targetSeconds)}. Protect pacing and avoid giving time back.`
+        : "Add a target finish time to generate a target split plan.";
 
   return {
     raceFormat,
@@ -428,6 +498,17 @@ export function buildAnalysis(
     runVolatilitySeconds,
     predictedTargetSeconds,
     recoverableSeconds,
+    requiredGainSeconds,
+    requiredGainPercent,
+    requiredGainPerRunSeconds,
+    requiredGainPerStationSeconds,
+    balancedRunGainSeconds,
+    balancedStationGainSeconds,
+    targetRunAverageSeconds,
+    targetStationAverageSeconds,
+    targetDifficulty,
+    targetDifficultyLabel,
+    targetPlanSummary,
     topLeaks,
     stationResults,
     stationBenchmarkSummary,

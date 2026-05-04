@@ -27,6 +27,18 @@
     grid-template-columns: 1fr;
   }
 
+  .target-plan__header {
+    display: grid;
+  }
+
+  .target-plan__header > strong {
+    justify-self: start;
+  }
+
+  .target-plan__grid {
+    grid-template-columns: 1fr;
+  }
+
   .benchmark-context {
     grid-template-columns: 1fr;
   }

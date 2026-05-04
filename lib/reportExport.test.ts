@@ -17,6 +17,8 @@ describe("buildReportExportText", () => {
     expect(exportText).toContain("Athlete level: Competitive");
     expect(exportText).toContain("Top Time Leaks");
     expect(exportText).toContain("Training Priorities");
+    expect(exportText).toContain("Target Math");
+    expect(exportText).toContain("Balanced targets");
     expect(exportText).toContain("Four-Week Focus");
     expect(exportText).toContain("Station Ranking");
   });

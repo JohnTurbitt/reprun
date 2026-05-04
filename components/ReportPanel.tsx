@@ -207,6 +207,43 @@ export function ReportPanel({
         </div>
       </div>
 
+      <div className="target-plan">
+        <div className="target-plan__header">
+          <div>
+            <p className="eyebrow">Target math</p>
+            <h3>{analysis.targetDifficultyLabel}</h3>
+          </div>
+          <strong>
+            {analysis.requiredGainPercent > 0
+              ? `${Math.round(analysis.requiredGainPercent * 1000) / 10}% gain`
+              : "No gap"}
+          </strong>
+        </div>
+        <p>{analysis.targetPlanSummary}</p>
+        <div className="target-plan__grid">
+          <div>
+            <span>Run-only route</span>
+            <strong>{formatTime(analysis.requiredGainPerRunSeconds)}</strong>
+            <small>needed from each run</small>
+          </div>
+          <div>
+            <span>Station-only route</span>
+            <strong>{formatTime(analysis.requiredGainPerStationSeconds)}</strong>
+            <small>needed from each station</small>
+          </div>
+          <div>
+            <span>Balanced run target</span>
+            <strong>{formatTime(analysis.targetRunAverageSeconds)}</strong>
+            <small>average run split</small>
+          </div>
+          <div>
+            <span>Balanced station target</span>
+            <strong>{formatTime(analysis.targetStationAverageSeconds)}</strong>
+            <small>average station split</small>
+          </div>
+        </div>
+      </div>
+
       <h3>
         Top <Hint enabled={showHints} hint="timeLeak" term="time leaks" />
       </h3>
