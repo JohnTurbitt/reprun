@@ -140,4 +140,19 @@
   .history-card__actions button {
     width: 100%;
   }
+
+  .site-footer {
+    display: grid;
+    gap: 14px;
+  }
+
+  .site-footer div,
+  .site-footer nav {
+    display: grid;
+    gap: 8px;
+  }
+
+  .legal-page {
+    padding-top: 36px;
+  }
 }

@@ -34,6 +34,7 @@ Backend foundation:
 - Stripe customer portal for subscription management
 - paid report copy, share, download, and print actions
 - RepRun premium badge for paid-only report features
+- launch trust pages for privacy, terms, refunds, and contact
 
 Planned additions:
 

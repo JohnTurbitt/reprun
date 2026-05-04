@@ -70,6 +70,7 @@ export default function Home() {
   const [transitionGain, setTransitionGain] = useState("0:45");
   const [showHints, setShowHints] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scrollTopBottom, setScrollTopBottom] = useState(22);
   const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -565,13 +566,23 @@ export default function Home() {
 
   useEffect(() => {
     function handleScroll() {
+      const footer = document.querySelector<HTMLElement>(".site-footer");
+      const footerOverlap = footer
+        ? Math.max(0, window.innerHeight - footer.getBoundingClientRect().top)
+        : 0;
+
       setShowScrollTop(window.scrollY > 560);
+      setScrollTopBottom(footerOverlap > 0 ? footerOverlap + 16 : 22);
     }
 
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -716,6 +727,7 @@ export default function Home() {
       <button
         className={`scroll-top ${showScrollTop ? "scroll-top--visible" : ""}`}
         type="button"
+        style={{ bottom: `${scrollTopBottom}px` }}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-hidden={!showScrollTop}
         tabIndex={showScrollTop ? 0 : -1}
