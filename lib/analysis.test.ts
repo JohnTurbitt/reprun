@@ -90,6 +90,34 @@ describe("buildAnalysis", () => {
     expect(analysis.topLeaks[0].recoverableSeconds).toBe(86);
   });
 
+  it("builds ordered race segments for visual reports", () => {
+    const analysis = buildAnalysis(
+      "Visual report",
+      "1:22:05",
+      "competitive",
+      steadyRuns,
+      stationSplits,
+    );
+
+    expect(analysis.raceSegments).toHaveLength(16);
+    expect(analysis.raceSegments[0]).toMatchObject({
+      id: "run-1",
+      label: "Run 1",
+      type: "run",
+    });
+    expect(analysis.raceSegments[1]).toMatchObject({
+      id: "station-ski",
+      label: "SkiErg",
+      type: "station",
+    });
+    expect(
+      analysis.raceSegments.reduce(
+        (total, segment) => total + segment.actualSeconds,
+        0,
+      ),
+    ).toBe(analysis.finishSeconds);
+  });
+
   it("changes station benchmarks when athlete level changes", () => {
     const starter = buildAnalysis(
       "Starter benchmark",

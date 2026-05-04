@@ -5,6 +5,13 @@ import { buildReportExportText } from "@/lib/reportExport";
 import { CalculationExplainer } from "./CalculationExplainer";
 import { Hint } from "./Hint";
 import { PremiumBadge } from "./PremiumBadge";
+import {
+  PremiumReportPoster,
+  RaceFlowMap,
+  RaceReplayMode,
+  TargetGhostOverlay,
+  TimeLeakHeatmap,
+} from "./RaceVisuals";
 import { TargetSimulator } from "./TargetSimulator";
 
 type ReportPanelProps = {
@@ -237,6 +244,10 @@ export function ReportPanel({
         <p>{analysis.stationBenchmarkSummary}</p>
       </div>
 
+      <ReportSection title="Race flow map" defaultOpen>
+        <RaceFlowMap analysis={analysis} />
+      </ReportSection>
+
       <div className="metric-row metric-row--three">
         <div>
           <span>Average run</span>
@@ -320,8 +331,8 @@ export function ReportPanel({
             </h3>
             <p>
               Paid access includes the full leak list, four-week focus,
-              station ranking, target simulator, print view, and calculation
-              breakdown.
+              ghost overlay, heatmap, race replay, report poster, target
+              simulator, print view, and calculation breakdown.
             </p>
           </div>
           <button
@@ -381,6 +392,22 @@ export function ReportPanel({
               onStationGainChange={onStationGainChange}
               onTransitionGainChange={onTransitionGainChange}
             />
+          </ReportSection>
+
+          <ReportSection title="Target ghost overlay" premium>
+            <TargetGhostOverlay analysis={analysis} />
+          </ReportSection>
+
+          <ReportSection title="Time leak heatmap" premium>
+            <TimeLeakHeatmap analysis={analysis} />
+          </ReportSection>
+
+          <ReportSection title="Race replay mode" premium>
+            <RaceReplayMode analysis={analysis} />
+          </ReportSection>
+
+          <ReportSection title="Premium report poster" premium>
+            <PremiumReportPoster analysis={analysis} />
           </ReportSection>
 
           <ReportSection title="Station ranking" premium>

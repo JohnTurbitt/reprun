@@ -141,6 +141,53 @@
     align-items: flex-start;
   }
 
+  .ghost-row,
+  .race-flow__detail,
+  .poster-card {
+    grid-template-columns: 1fr;
+  }
+
+  .race-flow__detail dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .race-flow__chart {
+    min-height: 520px;
+    padding: 8px 4px;
+  }
+
+  .race-flow__header {
+    grid-template-columns: 68px minmax(0, 1fr);
+    padding: 0 48px 0 8px;
+    font-size: 0.68rem;
+  }
+
+  .race-flow-svg__time {
+    font-size: 0.7rem;
+  }
+
+  .race-flow-svg__leak-text {
+    font-size: 0.66rem;
+  }
+
+  .race-flow__segment {
+    min-width: 62px;
+  }
+
+  .race-flow__segment,
+  .race-flow__segment--station,
+  .race-flow__segment--run {
+    min-height: 108px;
+  }
+
+  .heatmap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .poster-card__fingerprint {
+    justify-content: flex-start;
+  }
+
   .simulator__inputs {
     grid-template-columns: 1fr;
   }

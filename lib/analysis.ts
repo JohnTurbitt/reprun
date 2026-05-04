@@ -39,6 +39,19 @@ export type TrainingWeek = {
   target: string;
 };
 
+export type RaceSegment = {
+  id: string;
+  label: string;
+  type: "run" | "station";
+  actualSeconds: number;
+  targetSeconds: number;
+  leakSeconds: number;
+  startPercent: number;
+  widthPercent: number;
+  intensity: number;
+  status: "strong" | "steady" | "leak";
+};
+
 export type Analysis = {
   raceFormat: RaceFormat;
   stationDefinitions: Station[];
@@ -70,6 +83,7 @@ export type Analysis = {
   targetPlanSummary: string;
   topLeaks: Leak[];
   stationResults: StationResult[];
+  raceSegments: RaceSegment[];
   stationBenchmarkSummary: string;
   priorities: string[];
   trainingPlan: TrainingWeek[];
@@ -350,6 +364,18 @@ function getTargetDifficulty(requiredGainPercent: number, targetGapSeconds: numb
   };
 }
 
+function getSegmentStatus(intensity: number): RaceSegment["status"] {
+  if (intensity >= 0.66) {
+    return "leak";
+  }
+
+  if (intensity >= 0.28) {
+    return "steady";
+  }
+
+  return "strong";
+}
+
 export function buildAnalysis(
   goal: string,
   targetTime: string,
@@ -368,7 +394,7 @@ export function buildAnalysis(
   const runFadeSeconds = Math.max(0, secondHalfRunAvg - firstHalfRunAvg);
   const runVolatilitySeconds = standardDeviation(runSeconds);
 
-  const stationResults = stationDefinitions
+  const orderedStationResults = stationDefinitions
     .map((station) => {
       const seconds = parseTime(stationSplits[station.key]);
       const benchmark = station.benchmarkSec[level];
@@ -387,8 +413,8 @@ export function buildAnalysis(
         recoverableSeconds,
         score,
       };
-    })
-    .sort((a, b) => b.score - a.score);
+    });
+  const stationResults = [...orderedStationResults].sort((a, b) => b.score - a.score);
   const stationBenchmarkSummary = `Station leaks are measured against ${levelLabels[level]} benchmarks. Run fade and pacing volatility are calculated from your own run splits.`;
 
   const totalStationSeconds = stationResults.reduce(
@@ -479,6 +505,56 @@ export function buildAnalysis(
       : targetSeconds > 0
         ? `Your current projection is already at or ahead of ${formatTime(targetSeconds)}. Protect pacing and avoid giving time back.`
         : "Add a target finish time to generate a target split plan.";
+  const maxSegmentLeak = Math.max(
+    1,
+    ...runSeconds.map((seconds) =>
+      Math.max(0, seconds - targetRunAverageSeconds),
+    ),
+    ...orderedStationResults.map((station) =>
+      Math.max(0, station.seconds - targetStationAverageSeconds),
+    ),
+  );
+  let elapsedSeconds = 0;
+  const raceSegments = runSeconds.flatMap((seconds, index) => {
+    const station = orderedStationResults[index];
+    const runLeak = Math.max(0, seconds - targetRunAverageSeconds);
+    const runSegment: RaceSegment = {
+      id: `run-${index + 1}`,
+      label: `Run ${index + 1}`,
+      type: "run",
+      actualSeconds: seconds,
+      targetSeconds: targetRunAverageSeconds,
+      leakSeconds: runLeak,
+      startPercent: finishSeconds > 0 ? (elapsedSeconds / finishSeconds) * 100 : 0,
+      widthPercent: finishSeconds > 0 ? (seconds / finishSeconds) * 100 : 0,
+      intensity: clamp(runLeak / maxSegmentLeak, 0, 1),
+      status: getSegmentStatus(runLeak / maxSegmentLeak),
+    };
+
+    elapsedSeconds += seconds;
+
+    if (!station) {
+      return [runSegment];
+    }
+
+    const stationLeak = Math.max(0, station.seconds - targetStationAverageSeconds);
+    const stationSegment: RaceSegment = {
+      id: `station-${station.key}`,
+      label: station.label,
+      type: "station",
+      actualSeconds: station.seconds,
+      targetSeconds: targetStationAverageSeconds,
+      leakSeconds: stationLeak,
+      startPercent: finishSeconds > 0 ? (elapsedSeconds / finishSeconds) * 100 : 0,
+      widthPercent: finishSeconds > 0 ? (station.seconds / finishSeconds) * 100 : 0,
+      intensity: clamp(stationLeak / maxSegmentLeak, 0, 1),
+      status: getSegmentStatus(stationLeak / maxSegmentLeak),
+    };
+
+    elapsedSeconds += station.seconds;
+
+    return [runSegment, stationSegment];
+  });
 
   return {
     raceFormat,
@@ -511,6 +587,7 @@ export function buildAnalysis(
     targetPlanSummary,
     topLeaks,
     stationResults,
+    raceSegments,
     stationBenchmarkSummary,
     priorities,
     trainingPlan,
