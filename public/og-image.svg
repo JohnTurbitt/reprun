@@ -1,0 +1,31 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">RepRun hybrid race split analyzer</title>
+  <desc id="desc">RepRun share image with race analytics headline and green progress bars.</desc>
+  <rect width="1200" height="630" fill="#F7F8F3"/>
+  <path d="M0 0H1200V630H0V0Z" fill="#F7F8F3"/>
+  <circle cx="1060" cy="78" r="188" fill="#C6F14A" opacity="0.24"/>
+  <circle cx="160" cy="560" r="210" fill="#D84B3A" opacity="0.1"/>
+  <rect x="78" y="72" width="1044" height="486" rx="28" fill="#FFFFFF" stroke="#121411" stroke-width="3"/>
+  <text x="124" y="178" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="900">RepRun</text>
+  <path d="M128 207H320" stroke="#075047" stroke-width="12" stroke-linecap="round"/>
+  <path d="M346 207H522" stroke="#4BAA62" stroke-width="12" stroke-linecap="round"/>
+  <path d="M548 207H754" stroke="#C6F14A" stroke-width="12" stroke-linecap="round"/>
+  <text x="126" y="274" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="900">Hybrid race split analyzer</text>
+  <text x="126" y="330" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Find time leaks, rank weak points,</text>
+  <text x="126" y="366" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">and build a realistic next target.</text>
+  <g>
+    <rect x="126" y="420" width="286" height="78" rx="10" fill="#EFF3E8"/>
+    <text x="150" y="452" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="800">PROJECTED FINISH</text>
+    <text x="150" y="480" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900">Race breakdown</text>
+  </g>
+  <g>
+    <rect x="438" y="420" width="256" height="78" rx="10" fill="#EFF3E8"/>
+    <text x="462" y="452" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="800">TIME LEAKS</text>
+    <text x="462" y="480" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900">Ranked clearly</text>
+  </g>
+  <g>
+    <rect x="720" y="420" width="300" height="78" rx="10" fill="#EFF3E8"/>
+    <text x="744" y="452" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="800">NEXT TARGET</text>
+    <text x="744" y="480" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900">Built from splits</text>
+  </g>
+</svg>

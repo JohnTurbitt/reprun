@@ -36,6 +36,7 @@ Backend foundation:
 - paid report copy, share, download, and print actions
 - RepRun premium badge for paid-only report features
 - launch trust pages for privacy, terms, refunds, and contact
+- Open Graph and Twitter share metadata
 
 Planned additions:
 
@@ -135,6 +136,8 @@ Before launch:
 6. Run `npm run build` in the production environment and confirm it completes.
 7. Review `/privacy`, `/terms`, `/refunds`, and `/contact`, including the
    support email address, before public launch.
+8. Check the public URL in a social share preview tool so the Open Graph title,
+   description, and image render as expected.
 
 ## Getting Started
 
