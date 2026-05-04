@@ -6,6 +6,15 @@
   .site-header {
     display: grid;
   }
+
+  .site-header__actions {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .theme-toggle {
+    width: 100%;
+  }
 }
 
 @media (max-width: 640px) {

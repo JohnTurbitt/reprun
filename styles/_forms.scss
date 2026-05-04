@@ -30,14 +30,14 @@
   margin: 0;
   border-color: var(--line);
   padding: 0 12px;
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--ink);
 }
 
 .preset-actions button:hover {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--lime);
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .format-picker {
@@ -57,15 +57,15 @@
   margin: 0;
   border-color: var(--line);
   padding: 0 14px;
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--ink);
 }
 
 .format-picker button:hover,
 .format-picker button.is-active {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--lime);
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .custom-builder {
@@ -75,7 +75,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 16px;
-  background: #eff3e8;
+  background: var(--surface);
 }
 
 .custom-builder h3,
@@ -109,21 +109,21 @@
   margin: 0;
   border-color: var(--line);
   padding: 0 12px;
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--ink);
 }
 
 .custom-template-list__delete {
-  border-color: rgba(216, 75, 58, 0.42) !important;
+  border-color: var(--red) !important;
   color: var(--red) !important;
 }
 
 .custom-builder__actions button:hover,
 .custom-template-list button:hover,
 .field-action:hover {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--lime);
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .form-errors {
@@ -133,7 +133,7 @@
   border: 1px solid var(--red);
   border-radius: 8px;
   padding: 14px 16px;
-  background: rgba(216, 75, 58, 0.08);
+  background: var(--error-soft);
 }
 
 .form-errors h3 {
@@ -195,7 +195,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0 12px;
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--ink);
   outline: none;
 }
@@ -208,19 +208,19 @@
 .field input:focus,
 .field select:focus {
   border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(14, 117, 106, 0.14);
+  box-shadow: 0 0 0 3px var(--focus);
 }
 
 .field input.is-invalid,
 .field select.is-invalid {
   border-color: var(--red);
-  background: rgba(216, 75, 58, 0.06);
+  background: var(--error-soft);
 }
 
 .field input.is-invalid:focus,
 .field select.is-invalid:focus {
   border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(216, 75, 58, 0.14);
+  box-shadow: 0 0 0 3px var(--error-focus);
 }
 
 .field-error {

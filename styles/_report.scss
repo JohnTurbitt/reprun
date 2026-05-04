@@ -10,14 +10,14 @@
 }
 
 .report__print {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--lime);
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .report__print:disabled {
   border-color: var(--line);
-  background: #eef1e8;
+  background: var(--surface-strong);
   color: var(--muted);
   cursor: not-allowed;
 }
@@ -49,7 +49,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  background: #eff3e8;
+  background: var(--surface);
 }
 
 .report-strip span {
@@ -79,7 +79,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #eff3e8;
+  background: var(--surface);
 }
 
 .benchmark-context span {
@@ -97,7 +97,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--muted);
   line-height: 1.55;
 }
@@ -162,7 +162,7 @@
   align-content: start;
   border-radius: 8px;
   padding: 12px;
-  background: #eff3e8;
+  background: var(--surface);
 }
 
 .target-plan__grid span,
@@ -180,7 +180,7 @@
   margin: 18px 0;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfcf8;
+  background: var(--field);
 }
 
 .report-section summary {
@@ -241,7 +241,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #fbfcf8;
+  background: var(--field);
 }
 
 .leak-card span {
@@ -279,7 +279,7 @@
   border: 1px solid var(--ink);
   border-radius: 8px;
   padding: 18px;
-  background: #eef1e8;
+  background: var(--surface-strong);
 }
 
 .paywall h3 {
@@ -301,7 +301,7 @@
 
 .paywall button:disabled {
   border-color: var(--line);
-  background: #dfe4d7;
+  background: var(--disabled);
   color: var(--muted);
   cursor: not-allowed;
 }
@@ -328,14 +328,14 @@
   margin: 0;
   border-color: var(--line);
   padding: 0 14px;
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--ink);
 }
 
 .report-actions button:hover {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--lime);
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .export-menu {
@@ -377,7 +377,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #fbfcf8;
+  background: var(--field);
 }
 
 .training-week__header {

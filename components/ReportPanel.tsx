@@ -90,9 +90,13 @@ export function ReportPanel({
 
   async function shareReport() {
     try {
+      const captureBackground =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--panel")
+          .trim() || "#ffffff";
       const reportBlob = reportCaptureRef.current
         ? await toBlob(reportCaptureRef.current, {
-            backgroundColor: "#ffffff",
+            backgroundColor: captureBackground,
             cacheBust: true,
             filter: (node) => {
               if (!(node instanceof HTMLElement)) {

@@ -4,7 +4,7 @@
   gap: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--glass);
   padding: 12px;
 }
 
@@ -35,7 +35,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 4px;
-  background: #fbfcf8;
+  background: var(--field);
 }
 
 .auth-panel__switch button,
@@ -57,8 +57,8 @@
 }
 
 .auth-panel__switch button.is-active {
-  background: var(--ink);
-  color: var(--lime);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .auth-panel__form {
@@ -132,12 +132,12 @@
 
 .auth-panel--signed-in .button-secondary {
   border-color: var(--line);
-  background: #fbfcf8;
+  background: var(--field);
   color: var(--ink);
 }
 
 .auth-panel--signed-in .button-secondary:hover {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--lime);
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }

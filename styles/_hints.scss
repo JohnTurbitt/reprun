@@ -34,11 +34,11 @@
   bottom: calc(100% + 8px);
   left: 0;
   width: min(260px, 78vw);
-  border: 1px solid var(--ink);
+  border: 1px solid var(--action-bg);
   border-radius: 8px;
   padding: 10px 12px;
-  background: var(--ink);
-  color: var(--panel);
+  background: var(--action-bg);
+  color: var(--action-text);
   font-size: 0.86rem;
   font-weight: 500;
   line-height: 1.45;

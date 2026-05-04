@@ -4,10 +4,59 @@
   --muted: #5b6258;
   --line: #cfd5c8;
   --panel: #ffffff;
+  --field: #fbfcf8;
+  --surface: #eff3e8;
+  --surface-strong: #eef2e8;
+  --disabled: #dfe4d7;
   --lime: #c6f14a;
-  --teal: #0e756a;
+  --mid-green: #4baa62;
+  --teal: #075047;
   --red: #d84b3a;
+  --badge-ink: #0b120f;
+  --action-bg: #121411;
+  --action-text: #c6f14a;
+  --button-hover: #2b3028;
+  --action-muted: #dce4d5;
+  --action-line: rgba(255, 255, 255, 0.22);
+  --action-soft: rgba(255, 255, 255, 0.12);
+  --focus: rgba(7, 80, 71, 0.16);
+  --error-soft: rgba(216, 75, 58, 0.08);
+  --error-focus: rgba(216, 75, 58, 0.14);
+  --header-glow: rgba(198, 241, 74, 0.34);
+  --alert-glow: rgba(216, 75, 58, 0.16);
+  --glass: rgba(255, 255, 255, 0.82);
   --shadow: 0 24px 70px rgba(22, 28, 18, 0.12);
+}
+
+[data-theme="dark"] {
+  --paper: #0b120f;
+  --ink: #f4f7ef;
+  --muted: #aab7a7;
+  --line: #2c4036;
+  --panel: #111b16;
+  --field: #17261f;
+  --surface: #17261f;
+  --surface-strong: #102019;
+  --disabled: #25352d;
+  --lime: #c6f14a;
+  --mid-green: #61c77a;
+  --teal: #61c77a;
+  --red: #f06b5d;
+  --badge-ink: #0b120f;
+  --action-bg: #c6f14a;
+  --action-text: #0b120f;
+  --button-hover: #61c77a;
+  --action-muted: #20352b;
+  --action-line: rgba(11, 18, 15, 0.22);
+  --action-soft: rgba(11, 18, 15, 0.1);
+  --focus: rgba(97, 199, 122, 0.22);
+  --error-soft: rgba(240, 107, 93, 0.12);
+  --error-focus: rgba(240, 107, 93, 0.18);
+  --header-glow: rgba(198, 241, 74, 0.16);
+  --alert-glow: rgba(97, 199, 122, 0.08);
+  --glass: rgba(17, 27, 22, 0.86);
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  color-scheme: dark;
 }
 
 * {
@@ -39,16 +88,16 @@ button {
   width: 100%;
   min-height: 54px;
   margin-top: 28px;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--action-bg);
   border-radius: 8px;
-  background: var(--ink);
-  color: var(--lime);
+  background: var(--action-bg);
+  color: var(--action-text);
   cursor: pointer;
   font-weight: 800;
 }
 
 button:hover {
-  background: #2b3028;
+  background: var(--button-hover);
 }
 
 main {
@@ -87,11 +136,11 @@ li {
   min-width: 30px;
   height: 19px;
   place-items: center;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--badge-ink);
   border-radius: 999px;
   padding: 0 6px;
   background: var(--lime);
-  color: var(--ink);
+  color: var(--badge-ink);
   font-size: 0.62rem;
   font-weight: 900;
   line-height: 1;

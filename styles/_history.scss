@@ -10,7 +10,7 @@
   border: 1px dashed var(--line);
   border-radius: 8px;
   padding: 22px;
-  background: #fbfcf8;
+  background: var(--field);
 }
 
 .empty-state h3 {
@@ -37,7 +37,7 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 16px;
-  background: #fbfcf8;
+  background: var(--field);
 }
 
 .history-card span {
@@ -67,7 +67,7 @@
   gap: 6px;
   border-radius: 8px;
   padding: 12px;
-  background: #eff3e8;
+  background: var(--surface);
 }
 
 .history-card__metrics strong {

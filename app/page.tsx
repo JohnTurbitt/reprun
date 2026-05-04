@@ -6,6 +6,7 @@ import { Hint } from "@/components/Hint";
 import { ReportHistory } from "@/components/ReportHistory";
 import { ReportPanel } from "@/components/ReportPanel";
 import { SplitForm } from "@/components/SplitForm";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toast, ToastMessage } from "@/components/Toast";
 import {
   Analysis,
@@ -791,16 +792,19 @@ export default function Home() {
             src="/brand/reprun-logo-09-wordmark.svg"
             alt="RepRun"
           />
-          <AuthPanel
-            user={user}
-            loading={authLoading || reportsLoading}
-            billingLoading={billingLoading}
-            onLogin={handleLogin}
-            onSignup={handleSignup}
-            onLogout={handleLogout}
-            onManageBilling={handleManageBilling}
-            onSaveProfile={handleSaveProfile}
-          />
+          <div className="site-header__actions">
+            <ThemeToggle />
+            <AuthPanel
+              user={user}
+              loading={authLoading || reportsLoading}
+              billingLoading={billingLoading}
+              onLogin={handleLogin}
+              onSignup={handleSignup}
+              onLogout={handleLogout}
+              onManageBilling={handleManageBilling}
+              onSaveProfile={handleSaveProfile}
+            />
+          </div>
         </header>
         <div className="intro__copy">
           <h1>Find the time leaks between your reps and runs.</h1>

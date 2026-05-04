@@ -1,19 +1,20 @@
 .toast {
   position: fixed;
-  top: 18px;
-  right: clamp(14px, 4vw, 34px);
+  right: 50%;
+  bottom: 22px;
   z-index: 30;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   width: min(440px, calc(100vw - 28px));
-  border: 1px solid var(--ink);
+  border: 1px solid var(--action-bg);
   border-radius: 8px;
   padding: 14px;
-  background: var(--ink);
-  color: var(--panel);
+  background: var(--action-bg);
+  color: var(--action-text);
   box-shadow: var(--shadow);
+  transform: translateX(50%);
 }
 
 .toast--error {
@@ -26,12 +27,12 @@
 
 .toast strong {
   display: block;
-  color: var(--lime);
+  color: var(--action-text);
 }
 
 .toast p {
   margin: 4px 0 0;
-  color: #dce4d5;
+  color: var(--action-muted);
   line-height: 1.45;
 }
 
@@ -39,13 +40,13 @@
   width: auto;
   min-height: 36px;
   margin: 0;
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: var(--action-line);
   padding: 0 10px;
   background: transparent;
-  color: var(--panel);
+  color: var(--action-text);
   font-size: 0.82rem;
 }
 
 .toast button:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--action-soft);
 }
