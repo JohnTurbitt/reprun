@@ -1,19 +1,25 @@
 import { FormEvent } from "react";
+import { PremiumBadge } from "@/components/PremiumBadge";
 import {
   Level,
+  Station,
   StationKey,
   levelLabels,
-  stations,
 } from "@/lib/analysis";
+import { RaceFormat, raceFormatOptions } from "@/lib/raceFormats";
 
 type SplitFormProps = {
+  raceFormat: RaceFormat;
   goal: string;
   targetTime: string;
   level: Level;
   runs: string[];
+  stationDefinitions: Station[];
   stationSplits: Record<StationKey, string>;
   errors: string[];
   fieldErrors: Record<string, string>;
+  onRaceFormatChange: (value: RaceFormat) => void;
+  onCustomFormatClick: () => void;
   onGoalChange: (value: string) => void;
   onTargetTimeChange: (value: string) => void;
   onLevelChange: (value: Level) => void;
@@ -26,13 +32,17 @@ type SplitFormProps = {
 };
 
 export function SplitForm({
+  raceFormat,
   goal,
   targetTime,
   level,
   runs,
+  stationDefinitions,
   stationSplits,
   errors,
   fieldErrors,
+  onRaceFormatChange,
+  onCustomFormatClick,
   onGoalChange,
   onTargetTimeChange,
   onLevelChange,
@@ -61,6 +71,22 @@ export function SplitForm({
             Clear form
           </button>
         </div>
+      </div>
+
+      <div className="format-picker" aria-label="Race format">
+        {raceFormatOptions.map((option) => (
+          <button
+            key={option.id}
+            className={option.id === raceFormat ? "is-active" : undefined}
+            type="button"
+            onClick={() => onRaceFormatChange(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
+        <button type="button" onClick={onCustomFormatClick}>
+          Custom <PremiumBadge />
+        </button>
       </div>
 
       {errors.length > 0 ? (
@@ -141,7 +167,7 @@ export function SplitForm({
       <div className="split-group">
         <h3>Stations</h3>
         <div className="split-grid">
-          {stations.map((station) => (
+          {stationDefinitions.map((station) => (
             <label className="field" key={station.key}>
               <span>{station.label}</span>
               <input

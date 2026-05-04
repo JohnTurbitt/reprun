@@ -1,8 +1,10 @@
 import { Level, StationKey } from "./analysis";
+import { RaceFormat } from "./raceFormats";
 
 export type SavedReport = {
   id: string;
   createdAt: string;
+  raceFormat?: RaceFormat;
   goal: string;
   targetTime: string;
   level: Level;

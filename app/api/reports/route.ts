@@ -4,6 +4,11 @@ import { requireCurrentUser } from "@/lib/apiAuth";
 import { readString } from "@/lib/apiValidation";
 import { prisma } from "@/lib/prisma";
 import {
+  RaceFormat,
+  getRaceFormatStations,
+  isRaceFormat,
+} from "@/lib/raceFormats";
+import {
   toPersistableRaceReport,
   toSavedReport,
 } from "@/lib/reportPersistence";
@@ -12,6 +17,7 @@ import { validateReportInput } from "@/lib/validation";
 const levels: Level[] = ["starter", "competitive", "elite"];
 
 type ReportPayload = {
+  raceFormat: RaceFormat;
   goal: string;
   targetTime: string;
   level: Level;
@@ -29,6 +35,10 @@ function parseReportPayload(payload: unknown): {
   const goal = readString((record as Record<string, unknown>).goal);
   const targetTime = readString((record as Record<string, unknown>).targetTime);
   const levelValue = readString((record as Record<string, unknown>).level);
+  const raceFormatValue = readString(
+    (record as Record<string, unknown>).raceFormat,
+  );
+  const raceFormat = isRaceFormat(raceFormatValue) ? raceFormatValue : "hyrox";
   const runsValue = (record as Record<string, unknown>).runs;
   const stationValue = (record as Record<string, unknown>).stationSplits;
   const errors: string[] = [];
@@ -61,6 +71,7 @@ function parseReportPayload(payload: unknown): {
     targetTime,
     runs,
     stationSplits,
+    stationDefinitions: getRaceFormatStations(raceFormat),
   });
 
   errors.push(...timeValidation.errors);
@@ -75,6 +86,7 @@ function parseReportPayload(payload: unknown): {
       goal,
       targetTime,
       level: levelValue as Level,
+      raceFormat,
       runs,
       stationSplits,
     },
@@ -109,6 +121,7 @@ export async function GET(request: NextRequest) {
           finishSeconds: report.finishSeconds,
           predictedTargetSeconds: report.predictedTargetSeconds,
           topLeakLabel: report.topLeakLabel,
+          analysisSnapshot: report.analysisSnapshot,
         }),
       ),
     });
@@ -144,6 +157,8 @@ export async function POST(request: NextRequest) {
       parsed.value.level,
       parsed.value.runs,
       parsed.value.stationSplits,
+      getRaceFormatStations(parsed.value.raceFormat),
+      parsed.value.raceFormat,
     );
     const reportData = toPersistableRaceReport({ ...parsed.value, analysis });
     const report = await prisma.raceReport.create({

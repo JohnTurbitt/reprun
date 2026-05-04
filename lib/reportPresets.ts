@@ -1,6 +1,8 @@
 import { Level, StationKey, initialRuns, initialStations } from "./analysis";
+import { RaceFormat } from "./raceFormats";
 
 export type ReportPreset = {
+  raceFormat: RaceFormat;
   goal: string;
   targetTime: string;
   level: Level;
@@ -9,6 +11,7 @@ export type ReportPreset = {
 };
 
 export const defaultReportPreset: ReportPreset = {
+  raceFormat: "hyrox",
   goal: "Sub 1:25 at my next race",
   targetTime: "1:25:00",
   level: "competitive",
@@ -17,6 +20,7 @@ export const defaultReportPreset: ReportPreset = {
 };
 
 export const sampleReportPreset: ReportPreset = {
+  raceFormat: "hyrox",
   goal: "Break 1:20 with cleaner sleds and late-run control",
   targetTime: "1:20:00",
   level: "competitive",
@@ -34,6 +38,7 @@ export const sampleReportPreset: ReportPreset = {
 };
 
 export const emptyReportPreset: ReportPreset = {
+  raceFormat: "hyrox",
   goal: "",
   targetTime: "",
   level: "competitive",
@@ -47,6 +52,42 @@ export const emptyReportPreset: ReportPreset = {
     farmers: "",
     lunges: "",
     wallBalls: "",
+  },
+};
+
+export const tryka800Preset: ReportPreset = {
+  raceFormat: "tryka800",
+  goal: "Strong TRYKA 800 finish with controlled running",
+  targetTime: "1:05:00",
+  level: "competitive",
+  runs: ["4:05", "4:08", "4:10", "4:12", "4:18", "4:20", "4:24", "4:28"],
+  stationSplits: {
+    ski: "4:25",
+    sledPush: "3:45",
+    sledPull: "4:10",
+    burpees: "4:40",
+    row: "5:05",
+    farmers: "4:35",
+    lunges: "5:20",
+    wallBalls: "5:55",
+  },
+};
+
+export const tryka500Preset: ReportPreset = {
+  raceFormat: "tryka500",
+  goal: "Finish TRYKA 500 clean and controlled",
+  targetTime: "52:00",
+  level: "starter",
+  runs: ["2:55", "2:58", "3:02", "3:05", "3:10", "3:12", "3:14", "3:18"],
+  stationSplits: {
+    ski: "5:10",
+    sledPush: "4:20",
+    sledPull: "4:45",
+    burpees: "5:20",
+    row: "5:45",
+    farmers: "5:05",
+    lunges: "6:00",
+    wallBalls: "6:30",
   },
 };
 

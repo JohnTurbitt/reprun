@@ -13,6 +13,7 @@ describe("report persistence mapping", () => {
     );
 
     const report = toPersistableRaceReport({
+      raceFormat: "hyrox",
       goal: "Sub 1:25",
       targetTime: "1:25:00",
       level: "competitive",
@@ -22,6 +23,7 @@ describe("report persistence mapping", () => {
     });
 
     expect(report.athleteLevel).toBe("COMPETITIVE");
+    expect(report.raceFormat).toBe("hyrox");
     expect(report.runSplits).toEqual(initialRuns);
     expect(report.stationSplits.wallBalls).toBe(initialStations.wallBalls);
     expect(report.finishSeconds).toBe(analysis.finishSeconds);
@@ -52,5 +54,6 @@ describe("report persistence mapping", () => {
     expect(savedReport.level).toBe("elite");
     expect(savedReport.createdAt).toBe("2026-04-28T12:00:00.000Z");
     expect(savedReport.runs).toEqual(initialRuns);
+    expect(savedReport.raceFormat).toBe("hyrox");
   });
 });

@@ -40,6 +40,34 @@
   color: var(--lime);
 }
 
+.format-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.format-picker button {
+  display: inline-flex;
+  width: auto;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  border-color: var(--line);
+  padding: 0 14px;
+  background: #fbfcf8;
+  color: var(--ink);
+}
+
+.format-picker button:hover,
+.format-picker button.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--lime);
+}
+
 .form-errors {
   display: grid;
   gap: 10px;

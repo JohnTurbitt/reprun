@@ -1,7 +1,9 @@
 import { Analysis, Level, StationKey } from "./analysis";
+import { RaceFormat } from "./raceFormats";
 import { SavedReport } from "./reportStorage";
 
 export type PersistableReportInput = {
+  raceFormat: RaceFormat;
   goal: string;
   targetTime: string;
   level: Level;
@@ -11,6 +13,7 @@ export type PersistableReportInput = {
 };
 
 export type PersistableRaceReport = {
+  raceFormat: RaceFormat;
   goal: string;
   targetTime: string;
   athleteLevel: "STARTER" | "COMPETITIVE" | "ELITE";
@@ -24,10 +27,12 @@ export type PersistableRaceReport = {
 
 export type PersistedReportSummary = Omit<
   PersistableRaceReport,
-  "analysisSnapshot"
+  "analysisSnapshot" | "raceFormat"
 > & {
   id: string;
   createdAt: Date | string;
+  raceFormat?: RaceFormat;
+  analysisSnapshot?: unknown;
 };
 
 const athleteLevelByLevel: Record<Level, PersistableRaceReport["athleteLevel"]> = {
@@ -45,6 +50,7 @@ const levelByAthleteLevel: Record<PersistableRaceReport["athleteLevel"], Level> 
 // Keep persistence concerns out of the analysis engine. The UI works with
 // lowercase levels and `SavedReport`; Prisma stores enum values and JSON.
 export function toPersistableRaceReport({
+  raceFormat,
   goal,
   targetTime,
   level,
@@ -53,6 +59,7 @@ export function toPersistableRaceReport({
   analysis,
 }: PersistableReportInput): PersistableRaceReport {
   return {
+    raceFormat,
     goal,
     targetTime,
     athleteLevel: athleteLevelByLevel[level],
@@ -65,6 +72,23 @@ export function toPersistableRaceReport({
   };
 }
 
+function readRaceFormatFromSnapshot(snapshot: unknown): RaceFormat {
+  if (
+    typeof snapshot === "object" &&
+    snapshot &&
+    "raceFormat" in snapshot &&
+    typeof snapshot.raceFormat === "string"
+  ) {
+    const value = snapshot.raceFormat;
+
+    if (value === "hyrox" || value === "tryka800" || value === "tryka500") {
+      return value;
+    }
+  }
+
+  return "hyrox";
+}
+
 // Server-backed history should look like the existing local-storage history so
 // the frontend can switch storage backends without changing report rendering.
 export function toSavedReport(report: PersistedReportSummary): SavedReport {
@@ -74,6 +98,7 @@ export function toSavedReport(report: PersistedReportSummary): SavedReport {
       report.createdAt instanceof Date
         ? report.createdAt.toISOString()
         : report.createdAt,
+    raceFormat: report.raceFormat ?? readRaceFormatFromSnapshot(report.analysisSnapshot),
     goal: report.goal,
     targetTime: report.targetTime,
     level: levelByAthleteLevel[report.athleteLevel],

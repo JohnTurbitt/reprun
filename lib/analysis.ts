@@ -1,3 +1,5 @@
+import type { RaceFormat } from "./raceFormats";
+
 export type Level = "starter" | "competitive" | "elite";
 
 export type StationKey =
@@ -46,6 +48,7 @@ export type TrainingWeek = {
 };
 
 export type Analysis = {
+  raceFormat: RaceFormat;
   level: Level;
   levelLabel: string;
   finishSeconds: number;
@@ -321,6 +324,8 @@ export function buildAnalysis(
   level: Level,
   runs: string[],
   stationSplits: Record<StationKey, string>,
+  stationDefinitions: Station[] = stations,
+  raceFormat: RaceFormat = "hyrox",
 ): Analysis {
   const runSeconds = runs.map(parseTime);
   const totalRunSeconds = runSeconds.reduce((total, split) => total + split, 0);
@@ -331,7 +336,7 @@ export function buildAnalysis(
   const runFadeSeconds = Math.max(0, secondHalfRunAvg - firstHalfRunAvg);
   const runVolatilitySeconds = standardDeviation(runSeconds);
 
-  const stationResults = stations
+  const stationResults = stationDefinitions
     .map((station) => {
       const seconds = parseTime(stationSplits[station.key]);
       const benchmark = station.benchmarkSec[level];
@@ -413,6 +418,7 @@ export function buildAnalysis(
       : "Add a target finish time to see the exact gap you need to close.";
 
   return {
+    raceFormat,
     level,
     levelLabel: levelLabels[level],
     finishSeconds,

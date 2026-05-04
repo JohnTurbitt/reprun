@@ -25,7 +25,14 @@ import {
   defaultReportPreset,
   emptyReportPreset,
   sampleReportPreset,
+  tryka500Preset,
+  tryka800Preset,
 } from "@/lib/reportPresets";
+import {
+  RaceFormat,
+  getRaceFormatStations,
+  raceFormatLabels,
+} from "@/lib/raceFormats";
 import {
   AuthFormInput,
   AuthUser,
@@ -58,6 +65,9 @@ function buildUserDefaultPreset(user: AuthUser | null): ReportPreset {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("new");
+  const [raceFormat, setRaceFormat] = useState<RaceFormat>(
+    defaultReportPreset.raceFormat,
+  );
   const [goal, setGoal] = useState(defaultReportPreset.goal);
   const [targetTime, setTargetTime] = useState(defaultReportPreset.targetTime);
   const [level, setLevel] = useState<Level>(defaultReportPreset.level);
@@ -83,8 +93,17 @@ export default function Home() {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const preview = useMemo(
-    () => buildAnalysis(goal, targetTime, level, runs, stationSplits),
-    [goal, targetTime, level, runs, stationSplits],
+    () =>
+      buildAnalysis(
+        goal,
+        targetTime,
+        level,
+        runs,
+        stationSplits,
+        getRaceFormatStations(raceFormat),
+        raceFormat,
+      ),
+    [goal, targetTime, level, raceFormat, runs, stationSplits],
   );
 
   function updateRun(index: number, value: string) {
@@ -122,6 +141,7 @@ export default function Home() {
   function applyReportPreset(preset: ReportPreset, toastTitle: string) {
     const nextPreset = cloneReportPreset(preset);
 
+    setRaceFormat(nextPreset.raceFormat);
     setGoal(nextPreset.goal);
     setTargetTime(nextPreset.targetTime);
     setLevel(nextPreset.level);
@@ -137,6 +157,19 @@ export default function Home() {
       message: "The live preview has been updated.",
       tone: "success",
     });
+  }
+
+  function applyRaceFormat(nextRaceFormat: RaceFormat) {
+    const formatPresetByFormat: Record<RaceFormat, ReportPreset> = {
+      hyrox: buildUserDefaultPreset(user),
+      tryka800: tryka800Preset,
+      tryka500: tryka500Preset,
+    };
+
+    applyReportPreset(
+      formatPresetByFormat[nextRaceFormat],
+      `${raceFormatLabels[nextRaceFormat]} loaded`,
+    );
   }
 
   async function refreshRemoteReports() {
@@ -333,6 +366,7 @@ export default function Home() {
       targetTime,
       runs,
       stationSplits,
+      stationDefinitions: getRaceFormatStations(raceFormat),
     });
 
     if (!validation.valid) {
@@ -356,10 +390,13 @@ export default function Home() {
       level,
       runs,
       stationSplits,
+      getRaceFormatStations(raceFormat),
+      raceFormat,
     );
     const savedReport: SavedReport = {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
+      raceFormat,
       goal,
       targetTime,
       level,
@@ -378,6 +415,7 @@ export default function Home() {
           goal,
           targetTime,
           level,
+          raceFormat,
           runs,
           stationSplits,
         });
@@ -435,8 +473,11 @@ export default function Home() {
       report.level,
       report.runs,
       report.stationSplits,
+      getRaceFormatStations(report.raceFormat ?? "hyrox"),
+      report.raceFormat ?? "hyrox",
     );
 
+    setRaceFormat(report.raceFormat ?? "hyrox");
     setGoal(report.goal);
     setTargetTime(report.targetTime);
     setLevel(report.level);
@@ -673,13 +714,25 @@ export default function Home() {
         {activeTab === "new" ? (
           <>
             <SplitForm
+              raceFormat={raceFormat}
               goal={goal}
               targetTime={targetTime}
               level={level}
               runs={runs}
+              stationDefinitions={getRaceFormatStations(raceFormat)}
               stationSplits={stationSplits}
               errors={validationErrors}
               fieldErrors={fieldErrors}
+              onRaceFormatChange={applyRaceFormat}
+              onCustomFormatClick={() =>
+                setToast({
+                  id: Date.now(),
+                  title: "Custom formats are paid",
+                  message:
+                    "Custom race setup is planned as a RepRun premium feature.",
+                  tone: "error",
+                })
+              }
               onGoalChange={setGoal}
               onTargetTimeChange={updateTargetTime}
               onLevelChange={setLevel}
@@ -691,7 +744,12 @@ export default function Home() {
               onResetDefaults={() =>
                 applyReportPreset(buildUserDefaultPreset(user), "Defaults restored")
               }
-              onClearForm={() => applyReportPreset(emptyReportPreset, "Form cleared")}
+              onClearForm={() =>
+                applyReportPreset(
+                  { ...emptyReportPreset, raceFormat },
+                  "Form cleared",
+                )
+              }
               onSubmit={handleSubmit}
             />
 

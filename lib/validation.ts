@@ -1,9 +1,11 @@
-import { StationKey, stations } from "./analysis";
+import type { Station, StationKey } from "./analysis";
+import { stations } from "./analysis";
 
 export type ValidationInput = {
   targetTime: string;
   runs: string[];
   stationSplits: Record<StationKey, string>;
+  stationDefinitions?: Station[];
 };
 
 export type ValidationResult = {
@@ -44,6 +46,7 @@ export function validateReportInput({
   targetTime,
   runs,
   stationSplits,
+  stationDefinitions = stations,
 }: ValidationInput): ValidationResult {
   const errors: string[] = [];
   const fieldErrors: Record<string, string> = {};
@@ -62,7 +65,7 @@ export function validateReportInput({
     }
   });
 
-  stations.forEach((station) => {
+  stationDefinitions.forEach((station) => {
     if (!isValidTime(stationSplits[station.key])) {
       const message = `${station.label} needs a valid time, for example 5:00.`;
       errors.push(message);

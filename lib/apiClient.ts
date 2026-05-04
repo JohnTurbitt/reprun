@@ -1,4 +1,5 @@
 import { Level, StationKey } from "./analysis";
+import { RaceFormat } from "./raceFormats";
 import { SavedReport } from "./reportStorage";
 
 export type AuthUser = {
@@ -27,6 +28,7 @@ export type ReportRequestInput = {
   goal: string;
   targetTime: string;
   level: Level;
+  raceFormat: RaceFormat;
   runs: string[];
   stationSplits: Record<StationKey, string>;
 };

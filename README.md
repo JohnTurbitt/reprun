@@ -13,6 +13,7 @@ RepRun is a mobile-first race split analyzer for hybrid athletes. The MVP lets a
 
 Current analysis:
 
+- HYROX, TRYKA 800, and TRYKA 500 race format presets
 - run fade
 - pacing volatility
 - station benchmark gaps
@@ -41,6 +42,7 @@ Backend foundation:
 
 Planned additions:
 
+- paid custom race builder
 - richer report history
 
 ## Paid Report Boundary
