@@ -29,6 +29,7 @@ Backend foundation:
 - password hashing helpers
 - report persistence mappers that keep the current UI shape separate from the database shape
 - Auth routes and sessions
+- health check route for deployment monitoring
 - server-backed saved report history
 - Stripe checkout route and subscription webhook
 - Stripe customer portal for subscription management
@@ -62,6 +63,9 @@ STRIPE_PRICE_ID=price_...
 The checkout endpoint is `POST /api/billing/checkout`. The customer billing
 portal endpoint is `POST /api/billing/portal`. Configure Stripe webhooks to
 send subscription events to `/api/billing/webhook`.
+
+The deployment health endpoint is `GET /api/health`. It returns `200` when the
+app can reach the database and `503` when the database check fails.
 
 Paid customers can unsubscribe through the `Manage billing` button shown in the
 signed-in account panel. Stripe handles the cancellation flow, then webhook
