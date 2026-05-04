@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { normalizeEmail, verifyPassword } from "@/lib/auth";
+import { authServiceError } from "@/lib/apiErrors";
 import { validateAuthPayload } from "@/lib/apiValidation";
 import { prisma } from "@/lib/prisma";
 import { toPublicUser } from "@/lib/profile";
@@ -18,32 +19,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ errors: validation.errors }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: normalizeEmail(validation.value.email) },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: normalizeEmail(validation.value.email) },
+    });
 
-  if (!user || !(await verifyPassword(validation.value.password, user.passwordHash))) {
-    return NextResponse.json(
-      { errors: ["Email or password is incorrect."] },
-      { status: 401 },
-    );
+    if (
+      !user ||
+      !(await verifyPassword(validation.value.password, user.passwordHash))
+    ) {
+      return NextResponse.json(
+        { errors: ["Email or password is incorrect."] },
+        { status: 401 },
+      );
+    }
+
+    const token = createSessionToken();
+
+    // Logins create a new session rather than replacing old ones, which allows
+    // multiple browsers/devices to stay signed in independently.
+    await prisma.userSession.create({
+      data: {
+        userId: user.id,
+        tokenHash: hashSessionToken(token),
+        expiresAt: getSessionExpiry(),
+      },
+    });
+
+    const response = NextResponse.json({ user: toPublicUser(user) });
+
+    response.cookies.set(sessionCookieName, token, getSessionCookieOptions());
+
+    return response;
+  } catch (error) {
+    console.error("Login failed", error);
+
+    return authServiceError();
   }
-
-  const token = createSessionToken();
-
-  // Logins create a new session rather than replacing old ones, which allows
-  // multiple browsers/devices to stay signed in independently.
-  await prisma.userSession.create({
-    data: {
-      userId: user.id,
-      tokenHash: hashSessionToken(token),
-      expiresAt: getSessionExpiry(),
-    },
-  });
-
-  const response = NextResponse.json({ user: toPublicUser(user) });
-
-  response.cookies.set(sessionCookieName, token, getSessionCookieOptions());
-
-  return response;
 }

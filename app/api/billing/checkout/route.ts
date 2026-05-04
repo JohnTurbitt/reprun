@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCheckoutPriceId, getStripe } from "@/lib/billing";
+import { checkoutError } from "@/lib/apiErrors";
 import { requireCurrentUser } from "@/lib/apiAuth";
 import { prisma } from "@/lib/prisma";
 
@@ -70,9 +71,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Checkout creation failed", error);
 
-    return NextResponse.json(
-      { errors: ["Checkout could not be started."] },
-      { status: 500 },
-    );
+    return checkoutError(error);
   }
 }

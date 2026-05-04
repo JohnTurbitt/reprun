@@ -37,12 +37,36 @@ async function readApiResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errors = Array.isArray(body.errors)
       ? body.errors
-      : ["The server could not complete that request."];
+      : [fallbackErrorForStatus(response.status)];
 
     throw new Error(errors.join(" "));
   }
 
   return body as T;
+}
+
+function fallbackErrorForStatus(status: number) {
+  if (status === 401) {
+    return "Sign in required.";
+  }
+
+  if (status === 403) {
+    return "You do not have access to that action.";
+  }
+
+  if (status === 404) {
+    return "That resource could not be found.";
+  }
+
+  if (status === 409) {
+    return "That request conflicts with an existing record.";
+  }
+
+  if (status >= 500) {
+    return "The server is having trouble. Try again in a moment.";
+  }
+
+  return "The server could not complete that request.";
 }
 
 export async function getCurrentUser() {

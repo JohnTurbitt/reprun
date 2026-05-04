@@ -30,6 +30,7 @@ Backend foundation:
 - report persistence mappers that keep the current UI shape separate from the database shape
 - Auth routes and sessions
 - health check route for deployment monitoring
+- clearer API error messages for auth, checkout, and billing failures
 - server-backed saved report history
 - Stripe checkout route and subscription webhook
 - Stripe customer portal for subscription management

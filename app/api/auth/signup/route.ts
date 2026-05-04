@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { hashPassword, normalizeEmail } from "@/lib/auth";
+import { authServiceError } from "@/lib/apiErrors";
 import { prisma } from "@/lib/prisma";
 import { validateAuthPayload } from "@/lib/apiValidation";
 import { toPublicUser } from "@/lib/profile";
@@ -18,44 +19,53 @@ export async function POST(request: Request) {
     return NextResponse.json({ errors: validation.errors }, { status: 400 });
   }
 
-  const email = normalizeEmail(validation.value.email);
-  const existingUser = await prisma.user.findUnique({ where: { email } });
+  try {
+    const email = normalizeEmail(validation.value.email);
+    const existingUser = await prisma.user.findUnique({ where: { email } });
 
-  if (existingUser) {
-    return NextResponse.json(
-      { errors: ["An account already exists for that email."] },
-      { status: 409 },
-    );
-  }
+    if (existingUser) {
+      return NextResponse.json(
+        { errors: ["An account already exists for that email."] },
+        { status: 409 },
+      );
+    }
 
-  const token = createSessionToken();
-  // Create the user and first session together so a successful signup leaves the
-  // browser authenticated immediately.
-  const user = await prisma.user.create({
-    data: {
-      email,
-      name: validation.value.name,
-      passwordHash: await hashPassword(validation.value.password),
-      sessions: {
-        create: {
-          tokenHash: hashSessionToken(token),
-          expiresAt: getSessionExpiry(),
+    const token = createSessionToken();
+    // Create the user and first session together so a successful signup leaves the
+    // browser authenticated immediately.
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name: validation.value.name,
+        passwordHash: await hashPassword(validation.value.password),
+        sessions: {
+          create: {
+            tokenHash: hashSessionToken(token),
+            expiresAt: getSessionExpiry(),
+          },
         },
       },
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      subscription: true,
-      defaultLevel: true,
-      defaultTargetTime: true,
-      createdAt: true,
-    },
-  });
-  const response = NextResponse.json({ user: toPublicUser(user) }, { status: 201 });
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        subscription: true,
+        defaultLevel: true,
+        defaultTargetTime: true,
+        createdAt: true,
+      },
+    });
+    const response = NextResponse.json(
+      { user: toPublicUser(user) },
+      { status: 201 },
+    );
 
-  response.cookies.set(sessionCookieName, token, getSessionCookieOptions());
+    response.cookies.set(sessionCookieName, token, getSessionCookieOptions());
 
-  return response;
+    return response;
+  } catch (error) {
+    console.error("Signup failed", error);
+
+    return authServiceError();
+  }
 }

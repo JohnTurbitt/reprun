@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/billing";
+import { billingPortalError } from "@/lib/apiErrors";
 import { requireCurrentUser } from "@/lib/apiAuth";
 import { prisma } from "@/lib/prisma";
 
@@ -33,9 +34,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Customer portal creation failed", error);
 
-    return NextResponse.json(
-      { errors: ["Billing settings could not be opened."] },
-      { status: 500 },
-    );
+    return billingPortalError(error);
   }
 }
