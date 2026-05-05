@@ -5,6 +5,8 @@
 
   .site-header {
     display: grid;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 
   .site-header__actions {
@@ -12,12 +14,64 @@
     justify-content: stretch;
   }
 
-  .theme-toggle {
+  .site-header__logo {
+    width: min(190px, 58vw);
+  }
+
+  .settings-menu {
     width: 100%;
+  }
+
+  .settings-menu__trigger {
+    width: 100%;
+  }
+
+  .settings-menu__panel {
+    position: static;
+    margin-top: 8px;
   }
 }
 
 @media (max-width: 640px) {
+  .site-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .site-header__logo {
+    width: min(178px, 62vw);
+  }
+
+  .site-header__actions {
+    display: contents;
+  }
+
+  .auth-panel {
+    grid-column: 1 / -1;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .settings-menu {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    width: auto;
+  }
+
+  .settings-menu__trigger {
+    width: 44px;
+  }
+
+  .settings-menu__panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(280px, calc(100vw - 28px));
+    margin-top: 0;
+  }
+
   .intro,
   .workspace {
     padding-right: 14px;
@@ -142,13 +196,46 @@
   }
 
   .ghost-row,
-  .race-flow__detail,
   .poster-card {
     grid-template-columns: 1fr;
   }
 
-  .race-flow__detail dl {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .segment-insight {
+    width: 100%;
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 0;
+    padding: 16px 14px 96px;
+  }
+
+  .segment-insight__close {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .race-flow-modal {
+    padding: 0;
+  }
+
+  .segment-insight__header {
+    grid-template-columns: minmax(0, 1fr) 54px;
+  }
+
+  .segment-insight__header > strong {
+    width: 54px;
+    height: 54px;
+    font-size: 1.7rem;
+  }
+
+  .segment-insight__primary,
+  .segment-insight__secondary {
+    grid-template-columns: 1fr;
+  }
+
+  .segment-insight__primary strong,
+  .segment-insight__secondary strong {
+    font-size: 1.3rem;
   }
 
   .race-flow__chart {

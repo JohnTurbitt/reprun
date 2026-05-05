@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   Bar,
   BarChart,
@@ -11,9 +11,11 @@ import {
   type BarShapeProps,
 } from "recharts";
 import { Analysis, RaceSegment, formatTime } from "@/lib/analysis";
+import { DistanceUnit, formatSpeedForUnit } from "@/lib/units";
 
 type RaceVisualProps = {
   analysis: Analysis;
+  distanceUnit?: DistanceUnit;
 };
 
 type FlowChartSegment = RaceSegment & {
@@ -23,13 +25,19 @@ type FlowChartSegment = RaceSegment & {
   displayTime: string;
   phase: string;
   shortLabel: string;
+  speedLabel: string;
   topLeakRank: number;
 };
 
 type FlowBarShapeProps = Partial<BarShapeProps> & {
   selectedSegmentId: string;
   onSegmentHover: (segmentId: string) => void;
-  onSegmentSelect: (segmentId: string, shouldScroll: boolean) => void;
+  onSegmentSelect: (segmentId: string) => void;
+};
+
+type SegmentInsightPanelProps = {
+  segment: FlowChartSegment;
+  onClose: () => void;
 };
 
 function segmentStyle(segment: RaceSegment): CSSProperties {
@@ -127,6 +135,68 @@ function buildCoachRead(segment: RaceSegment, cumulativeGapSeconds: number) {
   return `${segment.label} is separating from the target profile. This is a high-value training focus because the race has accumulated ${cumulativeGap} of gap by this point.`;
 }
 
+function SegmentInsightPanel({ segment, onClose }: SegmentInsightPanelProps) {
+  return (
+    <article
+      className={`segment-insight segment-insight--${segment.status}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="race-flow-dialog-title"
+    >
+      <button
+        className="segment-insight__close"
+        type="button"
+        onClick={onClose}
+        aria-label="Close segment details"
+      >
+        Close
+      </button>
+
+      <header className="segment-insight__header">
+        <span>
+          {segment.phase} / {statusLabel(segment.status)}
+        </span>
+        <h4 id="race-flow-dialog-title">{segment.label}</h4>
+        <strong>{segmentGrade(segment)}</strong>
+      </header>
+
+      <div className="segment-insight__primary">
+        <div>
+          <span>Actual</span>
+          <strong>{formatTime(segment.actualSeconds)}</strong>
+          {segment.speedLabel ? <small>{segment.speedLabel}</small> : null}
+        </div>
+        <div>
+          <span>Target</span>
+          <strong>{formatTime(segment.targetSeconds)}</strong>
+        </div>
+        <div>
+          <span>Leak</span>
+          <strong>{formatTime(segment.leakSeconds)}</strong>
+        </div>
+      </div>
+
+      <div className="segment-insight__secondary">
+        <div>
+          <span>Cumulative</span>
+          <strong>{formatTime(segment.actualElapsed)}</strong>
+        </div>
+        <div>
+          <span>Cum. gap</span>
+          <strong>{formatTime(segment.cumulativeGapSeconds)}</strong>
+        </div>
+        <div>
+          <span>Race share</span>
+          <strong>{Math.round(segment.widthPercent)}%</strong>
+        </div>
+      </div>
+
+      <p>{buildCoachRead(segment, segment.cumulativeGapSeconds)}</p>
+    </article>
+  );
+}
+
+
 function FlowBarShape({
   x,
   y,
@@ -154,7 +224,7 @@ function FlowBarShape({
   const rankY = barY + barHeight / 2;
 
   function selectSegment() {
-    onSegmentSelect(segment.id, true);
+    onSegmentSelect(segment.id);
   }
 
   return (
@@ -163,8 +233,12 @@ function FlowBarShape({
       role="button"
       tabIndex={0}
       aria-label={`${segment.label}: ${formatTime(segment.actualSeconds)}`}
+      onPointerDown={(event) => {
+        event.preventDefault();
+        selectSegment();
+      }}
       onClick={selectSegment}
-      onFocus={() => onSegmentSelect(segment.id, false)}
+      onFocus={() => onSegmentHover(segment.id)}
       onMouseEnter={() => onSegmentHover(segment.id)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -218,9 +292,13 @@ function FlowBarShape({
   );
 }
 
-export function RaceFlowMap({ analysis }: RaceVisualProps) {
+export function RaceFlowMap({
+  analysis,
+  distanceUnit = "km",
+}: RaceVisualProps) {
   const [compactChart, setCompactChart] = useState(false);
-  const detailRef = useRef<HTMLElement>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalSegmentId, setModalSegmentId] = useState("");
   const cumulativeSegments = useMemo(() => {
     let actualElapsed = 0;
     let targetElapsed = 0;
@@ -243,10 +321,18 @@ export function RaceFlowMap({ analysis }: RaceVisualProps) {
         displayTime: formatTime(segment.actualSeconds),
         phase: phaseLabel(index, analysis.raceSegments.length),
         shortLabel: shortenLabel(segment.label),
+        speedLabel:
+          segment.type === "run"
+            ? formatSpeedForUnit(
+                segment.actualSeconds,
+                analysis.raceFormat,
+                distanceUnit,
+              )
+            : "",
         topLeakRank: topLeakRanks.get(segment.id) ?? 0,
       };
     });
-  }, [analysis.raceSegments]);
+  }, [analysis.raceFormat, analysis.raceSegments, distanceUnit]);
   const defaultSegment = useMemo(
     () =>
       [...cumulativeSegments].sort(
@@ -260,6 +346,9 @@ export function RaceFlowMap({ analysis }: RaceVisualProps) {
   const selectedSegment =
     cumulativeSegments.find((segment) => segment.id === selectedSegmentId) ??
     defaultSegment;
+  const modalSegment =
+    cumulativeSegments.find((segment) => segment.id === modalSegmentId) ??
+    selectedSegment;
   const chartHeight = Math.max(
     compactChart ? 500 : 560,
     cumulativeSegments.length * (compactChart ? 26 : 34) +
@@ -280,17 +369,32 @@ export function RaceFlowMap({ analysis }: RaceVisualProps) {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  function selectSegment(segmentId: string, shouldScroll: boolean) {
-    setSelectedSegmentId(segmentId);
-
-    if (shouldScroll && compactChart) {
-      window.requestAnimationFrame(() => {
-        detailRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      });
+  useEffect(() => {
+    if (!modalOpen) {
+      return;
     }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setModalOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [modalOpen]);
+
+  function selectSegment(segmentId: string) {
+    setSelectedSegmentId(segmentId);
+    setModalSegmentId(segmentId);
+    setModalOpen(true);
   }
 
   return (
@@ -356,49 +460,21 @@ export function RaceFlowMap({ analysis }: RaceVisualProps) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      {selectedSegment ? (
-        <article
-          className={`race-flow__detail race-flow__detail--${selectedSegment.status}`}
-          ref={detailRef}
+      {modalOpen && modalSegment ? (
+        <div
+          className="race-flow-modal"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setModalOpen(false);
+            }
+          }}
         >
-          <div>
-            <span>
-              {selectedSegment.phase} / {statusLabel(selectedSegment.status)}
-            </span>
-            <h4>{selectedSegment.label}</h4>
-            <p>{buildCoachRead(selectedSegment, selectedSegment.cumulativeGapSeconds)}</p>
-          </div>
-          <dl>
-            <div className="race-flow__grade">
-              <dt>Grade</dt>
-              <dd>{segmentGrade(selectedSegment)}</dd>
-            </div>
-            <div>
-              <dt>Actual</dt>
-              <dd>{formatTime(selectedSegment.actualSeconds)}</dd>
-            </div>
-            <div>
-              <dt>Target</dt>
-              <dd>{formatTime(selectedSegment.targetSeconds)}</dd>
-            </div>
-            <div>
-              <dt>Leak</dt>
-              <dd>{formatTime(selectedSegment.leakSeconds)}</dd>
-            </div>
-            <div>
-              <dt>Race share</dt>
-              <dd>{Math.round(selectedSegment.widthPercent)}%</dd>
-            </div>
-            <div>
-              <dt>Cumulative</dt>
-              <dd>{formatTime(selectedSegment.actualElapsed)}</dd>
-            </div>
-            <div>
-              <dt>Cum. gap</dt>
-              <dd>{formatTime(selectedSegment.cumulativeGapSeconds)}</dd>
-            </div>
-          </dl>
-        </article>
+          <SegmentInsightPanel
+            segment={modalSegment}
+            onClose={() => setModalOpen(false)}
+          />
+        </div>
       ) : null}
       <div className="race-visual__legend">
         <span className="race-visual__legend-item race-visual__legend-item--strong">

@@ -1,8 +1,14 @@
 import { Analysis, clamp, formatTime, parseTime } from "@/lib/analysis";
+import {
+  DistanceUnit,
+  distanceUnitLabels,
+  getTotalRunDistance,
+} from "@/lib/units";
 import { Hint } from "./Hint";
 
 type TargetSimulatorProps = {
   analysis: Analysis;
+  distanceUnit: DistanceUnit;
   runGainPerKm: string;
   stationGain: string;
   transitionGain: string;
@@ -14,6 +20,7 @@ type TargetSimulatorProps = {
 
 export function TargetSimulator({
   analysis,
+  distanceUnit,
   runGainPerKm,
   stationGain,
   transitionGain,
@@ -22,7 +29,16 @@ export function TargetSimulator({
   onStationGainChange,
   onTransitionGainChange,
 }: TargetSimulatorProps) {
-  const simulatedRunGain = clamp(Number(runGainPerKm) || 0, 0, 90) * 8;
+  const runCount =
+    analysis.raceSegments.filter((segment) => segment.type === "run").length ||
+    1;
+  const totalRunDistance = getTotalRunDistance(
+    runCount,
+    analysis.raceFormat,
+    distanceUnit,
+  );
+  const simulatedRunGain =
+    clamp(Number(runGainPerKm) || 0, 0, 90) * totalRunDistance;
   const simulatedStationGain = clamp(parseTime(stationGain), 0, 900);
   const simulatedTransitionGain = clamp(parseTime(transitionGain), 0, 300);
   const simulatedSavings =
@@ -38,7 +54,8 @@ export function TargetSimulator({
       <div className="simulator__inputs">
         <label className="field">
           <span>
-            Run <Hint enabled={showHints} hint="gain" term="gain" /> per km
+            Run <Hint enabled={showHints} hint="gain" term="gain" /> per{" "}
+            {distanceUnitLabels[distanceUnit]}
           </span>
           <input
             value={runGainPerKm}

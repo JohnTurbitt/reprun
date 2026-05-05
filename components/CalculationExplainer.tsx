@@ -1,11 +1,25 @@
 import { Analysis, formatTime } from "@/lib/analysis";
+import {
+  DistanceUnit,
+  distanceUnitLabels,
+  secondsPerDistanceUnit,
+} from "@/lib/units";
 
 type CalculationExplainerProps = {
   analysis: Analysis;
+  distanceUnit: DistanceUnit;
 };
 
-export function CalculationExplainer({ analysis }: CalculationExplainerProps) {
+export function CalculationExplainer({
+  analysis,
+  distanceUnit,
+}: CalculationExplainerProps) {
   const primaryLeak = analysis.topLeaks[0];
+  const runFadePace = secondsPerDistanceUnit(
+    analysis.runFadeSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
 
   return (
     <section className="calculation-explainer">
@@ -52,8 +66,8 @@ export function CalculationExplainer({ analysis }: CalculationExplainerProps) {
           <span>Run fade</span>
           <strong>runs 5-8 avg - runs 1-4 avg</strong>
           <p>
-            This race fades by {formatTime(analysis.runFadeSeconds)} per km in
-            the second half.
+            This race fades by {formatTime(runFadePace)} per{" "}
+            {distanceUnitLabels[distanceUnit]} in the second half.
           </p>
         </article>
       </div>

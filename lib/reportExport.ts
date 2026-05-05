@@ -1,6 +1,32 @@
 import { Analysis, formatTime } from "./analysis";
+import {
+  DistanceUnit,
+  distanceUnitLabels,
+  formatPaceForUnit,
+  formatSpeedForUnit,
+  secondsPerDistanceUnit,
+} from "./units";
 
-export function buildReportExportText(analysis: Analysis, generatedDate: string) {
+export function buildReportExportText(
+  analysis: Analysis,
+  generatedDate: string,
+  distanceUnit: DistanceUnit = "km",
+) {
+  const averageRunPace = formatPaceForUnit(
+    analysis.averageRunSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
+  const averageRunSpeed = formatSpeedForUnit(
+    analysis.averageRunSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
+  const runFadePace = secondsPerDistanceUnit(
+    analysis.runFadeSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
   const topLeaks = analysis.topLeaks
     .map(
       (leak, index) =>
@@ -38,8 +64,8 @@ export function buildReportExportText(analysis: Analysis, generatedDate: string)
     `Projected finish: ${formatTime(analysis.finishSeconds)}`,
     `Next target: ${formatTime(analysis.predictedTargetSeconds)}`,
     `Recoverable time: ${formatTime(analysis.recoverableSeconds)}`,
-    `Average run: ${analysis.averageRunPace}`,
-    `Run fade: ${formatTime(analysis.runFadeSeconds)}/km`,
+    `Average run pace: ${averageRunPace} (${averageRunSpeed})`,
+    `Run fade: ${formatTime(runFadePace)}/${distanceUnitLabels[distanceUnit]}`,
     `Target gap: ${formatTime(analysis.targetGapSeconds)}`,
     "",
     "Target Math",

@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { toBlob } from "html-to-image";
 import { Analysis, formatTime } from "@/lib/analysis";
 import { buildReportExportText } from "@/lib/reportExport";
+import {
+  DistanceUnit,
+  distanceUnitLabels,
+  formatPaceForUnit,
+  formatSpeedForUnit,
+  secondsPerDistanceUnit,
+} from "@/lib/units";
 import { CalculationExplainer } from "./CalculationExplainer";
 import { Hint } from "./Hint";
 import { PremiumBadge } from "./PremiumBadge";
@@ -16,6 +23,7 @@ import { TargetSimulator } from "./TargetSimulator";
 
 type ReportPanelProps = {
   analysis: Analysis;
+  distanceUnit: DistanceUnit;
   hasGeneratedReport: boolean;
   fullReportUnlocked: boolean;
   canStartCheckout: boolean;
@@ -58,6 +66,7 @@ function ReportSection({
 
 export function ReportPanel({
   analysis,
+  distanceUnit,
   hasGeneratedReport,
   fullReportUnlocked,
   canStartCheckout,
@@ -79,7 +88,22 @@ export function ReportPanel({
     ? analysis.topLeaks
     : analysis.topLeaks.slice(0, 2);
 
-  const exportText = buildReportExportText(analysis, generatedDate);
+  const exportText = buildReportExportText(analysis, generatedDate, distanceUnit);
+  const averageRunPace = formatPaceForUnit(
+    analysis.averageRunSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
+  const averageRunSpeed = formatSpeedForUnit(
+    analysis.averageRunSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
+  const runFadePace = secondsPerDistanceUnit(
+    analysis.runFadeSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
 
   useEffect(() => {
     setGeneratedDate(new Date().toLocaleDateString());
@@ -245,19 +269,22 @@ export function ReportPanel({
       </div>
 
       <ReportSection title="Race flow map" defaultOpen>
-        <RaceFlowMap analysis={analysis} />
+        <RaceFlowMap analysis={analysis} distanceUnit={distanceUnit} />
       </ReportSection>
 
       <div className="metric-row metric-row--three">
         <div>
-          <span>Average run</span>
-          <strong>{analysis.averageRunPace}</strong>
+          <span>Average run pace</span>
+          <strong>{averageRunPace}</strong>
+          <small>{averageRunSpeed}</small>
         </div>
         <div>
           <span>
             <Hint enabled={showHints} hint="runFade" term="Run fade" />
           </span>
-          <strong>{formatTime(analysis.runFadeSeconds)}/km</strong>
+          <strong>
+            {formatTime(runFadePace)}/{distanceUnitLabels[distanceUnit]}
+          </strong>
         </div>
         <div>
           <span>
@@ -384,6 +411,7 @@ export function ReportPanel({
           <ReportSection title="Target simulator" premium>
             <TargetSimulator
               analysis={analysis}
+              distanceUnit={distanceUnit}
               runGainPerKm={runGainPerKm}
               stationGain={stationGain}
               transitionGain={transitionGain}
@@ -426,7 +454,7 @@ export function ReportPanel({
           </ReportSection>
 
           <ReportSection title="Calculation breakdown" premium>
-            <CalculationExplainer analysis={analysis} />
+            <CalculationExplainer analysis={analysis} distanceUnit={distanceUnit} />
           </ReportSection>
         </>
       )}

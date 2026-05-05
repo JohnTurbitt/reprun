@@ -5,8 +5,8 @@ import { AuthPanel } from "@/components/AuthPanel";
 import { Hint } from "@/components/Hint";
 import { ReportHistory } from "@/components/ReportHistory";
 import { ReportPanel } from "@/components/ReportPanel";
+import { SettingsMenu } from "@/components/SettingsMenu";
 import { SplitForm } from "@/components/SplitForm";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Toast, ToastMessage } from "@/components/Toast";
 import {
   Analysis,
@@ -58,6 +58,7 @@ import {
   updateProfile,
 } from "@/lib/apiClient";
 import { validateReportInput } from "@/lib/validation";
+import type { DistanceUnit } from "@/lib/units";
 
 type ActiveTab = "new" | "history";
 
@@ -91,6 +92,7 @@ export default function Home() {
   const [runGainPerKm, setRunGainPerKm] = useState("8");
   const [stationGain, setStationGain] = useState("2:30");
   const [transitionGain, setTransitionGain] = useState("0:45");
+  const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>("km");
   const [showHints, setShowHints] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrollTopBottom, setScrollTopBottom] = useState(22);
@@ -785,27 +787,31 @@ export default function Home() {
 
   return (
     <main>
-      <section className="intro">
-        <header className="site-header">
-          <img
-            className="site-header__logo"
-            src="/brand/reprun-logo-09-wordmark.svg"
-            alt="RepRun"
+      <header className="site-header">
+        <img
+          className="site-header__logo"
+          src="/brand/reprun-logo-09-wordmark.svg"
+          alt="RepRun"
+        />
+        <div className="site-header__actions">
+          <AuthPanel
+            user={user}
+            loading={authLoading || reportsLoading}
+            billingLoading={billingLoading}
+            onLogin={handleLogin}
+            onSignup={handleSignup}
+            onLogout={handleLogout}
+            onManageBilling={handleManageBilling}
+            onSaveProfile={handleSaveProfile}
           />
-          <div className="site-header__actions">
-            <ThemeToggle />
-            <AuthPanel
-              user={user}
-              loading={authLoading || reportsLoading}
-              billingLoading={billingLoading}
-              onLogin={handleLogin}
-              onSignup={handleSignup}
-              onLogout={handleLogout}
-              onManageBilling={handleManageBilling}
-              onSaveProfile={handleSaveProfile}
-            />
-          </div>
-        </header>
+          <SettingsMenu
+            distanceUnit={distanceUnit}
+            onDistanceUnitChange={setDistanceUnit}
+          />
+        </div>
+      </header>
+
+      <section className="intro">
         <div className="intro__copy">
           <h1>Find the time leaks between your reps and runs.</h1>
           <p>
@@ -909,8 +915,9 @@ export default function Home() {
 
             <div ref={reportRef} className="report-anchor">
               <ReportPanel
-                analysis={activeAnalysis}
-                hasGeneratedReport={Boolean(analysis)}
+              analysis={activeAnalysis}
+              distanceUnit={distanceUnit}
+              hasGeneratedReport={Boolean(analysis)}
                 fullReportUnlocked={fullReportUnlocked}
                 canStartCheckout={Boolean(user) && !fullReportUnlocked}
                 billingLoading={billingLoading}
