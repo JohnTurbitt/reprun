@@ -106,7 +106,10 @@
     grid-template-columns: 1fr;
   }
 
-  .benchmark-context {
+  .benchmark-context,
+  .readiness-card,
+  .readiness-card__grid,
+  .positive-grid {
     grid-template-columns: 1fr;
   }
 
@@ -181,22 +184,95 @@
     width: 100%;
   }
 
-  .export-menu,
-  .export-menu__options {
-    position: static;
+  .share-preview-modal {
+    align-items: start;
+    padding: 12px;
+  }
+
+  .share-carousel {
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    border-radius: 10px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .share-carousel__header {
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  .share-carousel__header button {
+    width: auto;
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+
+  .share-carousel__content button,
+  .share-carousel__buttons button {
     width: 100%;
   }
 
-  .export-menu__options {
-    margin-top: 8px;
+  .share-carousel__track {
+    grid-auto-columns: minmax(86%, 1fr);
+    align-items: start;
+    padding-bottom: 0;
+  }
+
+  .share-carousel__slide,
+  .share-carousel__slide--poster {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 10px;
+  }
+
+  .share-carousel__copy-preview,
+  .share-carousel__file-preview,
+  .share-preview__report {
+    max-height: 330px;
+    overflow: hidden;
+  }
+
+  .share-carousel__copy-preview p,
+  .share-preview__report p,
+  .share-carousel__content p {
+    font-size: 0.92rem;
+  }
+
+  .share-carousel__content {
+    align-content: start;
+  }
+
+  .share-preview__report {
+    grid-template-columns: 1fr;
+  }
+
+  .share-preview__report div {
+    padding: 10px;
+  }
+
+  .share-preview__report strong {
+    font-size: 1.1rem;
+  }
+
+  .share-preview__poster-mini {
+    width: 132px;
+    height: 235px;
+  }
+
+  .share-preview__poster-mini .poster-card {
+    width: 420px;
+    transform: scale(0.314);
   }
 
   .station-table div {
     align-items: flex-start;
   }
 
-  .ghost-row,
-  .poster-card {
+  .poster-card,
+  .race-story__phases,
+  .race-story__readouts {
     grid-template-columns: 1fr;
   }
 
@@ -267,12 +343,20 @@
     min-height: 108px;
   }
 
-  .heatmap {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .heatmap-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .poster-card__fingerprint {
-    justify-content: flex-start;
+  .heatmap__cell {
+    min-height: 86px;
+  }
+
+  .poster-card {
+    width: 100%;
+  }
+
+  .poster-card__highlights {
+    grid-template-columns: 1fr;
   }
 
   .simulator__inputs {

@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from "react";
 import {
   Bar,
   BarChart,
@@ -11,11 +17,19 @@ import {
   type BarShapeProps,
 } from "recharts";
 import { Analysis, RaceSegment, formatTime } from "@/lib/analysis";
-import { DistanceUnit, formatSpeedForUnit } from "@/lib/units";
+import {
+  DistanceUnit,
+  formatPaceForUnit,
+  formatSpeedForUnit,
+} from "@/lib/units";
 
 type RaceVisualProps = {
   analysis: Analysis;
   distanceUnit?: DistanceUnit;
+};
+
+type PremiumReportPosterProps = RaceVisualProps & {
+  captureRef?: RefObject<HTMLDivElement | null>;
 };
 
 type FlowChartSegment = RaceSegment & {
@@ -29,6 +43,21 @@ type FlowChartSegment = RaceSegment & {
   topLeakRank: number;
 };
 
+function TrophyIcon() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M16 8 H32 V20 C32 26 28 30 24 30 C20 30 16 26 16 20 V8 Z" />
+      <path d="M16 12 H9 V17 C9 22 12 25 17 25" />
+      <path d="M32 12 H39 V17 C39 22 36 25 31 25" />
+      <path d="M24 30 V37" />
+      <path d="M17 40 H31" />
+      <path d="M20 37 H28" />
+      <path d="M21 16 H27" />
+      <path d="M19 21 H29" />
+    </svg>
+  );
+}
+
 type FlowBarShapeProps = Partial<BarShapeProps> & {
   selectedSegmentId: string;
   onSegmentHover: (segmentId: string) => void;
@@ -39,20 +68,6 @@ type SegmentInsightPanelProps = {
   segment: FlowChartSegment;
   onClose: () => void;
 };
-
-function segmentStyle(segment: RaceSegment): CSSProperties {
-  const targetMarker =
-    segment.actualSeconds > 0
-      ? Math.min((segment.targetSeconds / segment.actualSeconds) * 100, 100)
-      : 100;
-
-  return {
-    "--segment-width": `${Math.max(segment.widthPercent, 2.4)}%`,
-    "--segment-delay": `${segment.startPercent / 14}s`,
-    "--target-marker": `${targetMarker}%`,
-    "--lost-zone-opacity": segment.leakSeconds > 0 ? 1 : 0,
-  } as CSSProperties;
-}
 
 function topVisualSegments(analysis: Analysis) {
   return [...analysis.raceSegments]
@@ -497,96 +512,321 @@ export function RaceFlowMap({
   );
 }
 
-export function TargetGhostOverlay({ analysis }: RaceVisualProps) {
-  return (
-    <div className="race-visual ghost-overlay">
-      {analysis.raceSegments.map((segment) => {
-        const targetWidth =
-          segment.actualSeconds > 0
-            ? Math.max((segment.targetSeconds / segment.actualSeconds) * 100, 8)
-            : 0;
-
-        return (
-          <div className="ghost-row" key={segment.id}>
-            <span>{segment.label}</span>
-            <div className="ghost-row__bar">
-              <i style={{ width: "100%" }} />
-              <b style={{ width: `${Math.min(targetWidth, 100)}%` }} />
-            </div>
-            <strong>{formatTime(segment.leakSeconds)}</strong>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 export function TimeLeakHeatmap({ analysis }: RaceVisualProps) {
+  const columns = Math.ceil(Math.sqrt(analysis.raceSegments.length));
+  const maxLeakSeconds = Math.max(
+    1,
+    ...analysis.raceSegments.map((segment) => segment.leakSeconds),
+  );
+
   return (
-    <div className="race-visual heatmap">
-      {analysis.raceSegments.map((segment) => (
-        <article
-          className={`heatmap__cell heatmap__cell--${segment.status}`}
-          key={segment.id}
-          style={{ "--heat": segment.intensity } as CSSProperties}
-        >
-          <span>{segment.label}</span>
-          <strong>{formatTime(segment.leakSeconds)}</strong>
-          <small>
-            {formatTime(segment.actualSeconds)} actual /{" "}
-            {formatTime(segment.targetSeconds)} target
-          </small>
-        </article>
-      ))}
+    <div className="race-visual heatmap-panel">
+      <div
+        className="heatmap-grid"
+        style={{ "--heatmap-columns": columns } as CSSProperties}
+      >
+        {analysis.raceSegments.map((segment, index) => {
+          const heat = Math.min(segment.leakSeconds / maxLeakSeconds, 1);
+          const hue = Math.round(126 - heat * 120);
+          const lightness = Math.round(72 - heat * 20);
+
+          return (
+            <article
+              className="heatmap__cell"
+              key={segment.id}
+              style={
+                {
+                  "--heat": heat,
+                  "--heat-color": `hsl(${hue} 86% ${lightness}%)`,
+                } as CSSProperties
+              }
+            >
+              <span>{index + 1}</span>
+              <strong>{shortenLabel(segment.label)}</strong>
+              <small>{formatTime(segment.leakSeconds)}</small>
+            </article>
+          );
+        })}
+      </div>
+      <div className="heatmap-scale" aria-label="Heatmap scale">
+        <span>Low leak</span>
+        <i />
+        <span>High leak</span>
+      </div>
     </div>
   );
 }
 
-export function RaceReplayMode({ analysis }: RaceVisualProps) {
+function phaseSummary(
+  segments: RaceSegment[],
+  label: string,
+  fallback: RaceSegment,
+) {
+  const actualSeconds = segments.reduce(
+    (total, segment) => total + segment.actualSeconds,
+    0,
+  );
+  const targetSeconds = segments.reduce(
+    (total, segment) => total + segment.targetSeconds,
+    0,
+  );
+  const totalLeak = segments.reduce((total, segment) => total + segment.leakSeconds, 0);
+  const mainLeak =
+    [...segments].sort((a, b) => b.leakSeconds - a.leakSeconds)[0] ?? fallback;
+  const averageIntensity =
+    segments.reduce((total, segment) => total + segment.intensity, 0) /
+    Math.max(segments.length, 1);
+  const status =
+    averageIntensity >= 0.66
+      ? "leak" as const
+      : averageIntensity >= 0.28
+        ? "steady" as const
+        : "strong" as const;
+
+  return {
+    actualSeconds,
+    label,
+    mainLeak,
+    status,
+    targetSeconds,
+    totalLeak,
+  };
+}
+
+function raceStoryTone(analysis: Analysis) {
+  if (analysis.targetGapSeconds <= 0) {
+    return "This is already tracking inside the target profile. The job now is protecting the same rhythm under race pressure.";
+  }
+
+  if (analysis.requiredGainPercent <= 3) {
+    return "The target is close. This is a precision race now: clean transitions, fewer station pauses, and no late pacing drift.";
+  }
+
+  if (analysis.requiredGainPercent <= 8) {
+    return "The race is recoverable, but the gain has to come from the biggest leaks first rather than general fitness work.";
+  }
+
+  return "The current target is aggressive from these splits. Keep it visible, but use the top leaks as the first performance block.";
+}
+
+function raceStoryAction(analysis: Analysis) {
+  const primary = analysis.topLeaks[0];
+  const secondary = analysis.topLeaks[1];
+
+  if (!primary) {
+    return "Capture one more complete report before changing training direction.";
+  }
+
+  if (!secondary) {
+    return `Make ${primary.label.toLowerCase()} repeatable first; it is the only clear limiter in this report.`;
+  }
+
+  return `Pair ${primary.label.toLowerCase()} with ${secondary.label.toLowerCase()} in the same session so the main leak is trained under real fatigue.`;
+}
+
+export function RaceStory({ analysis }: RaceVisualProps) {
+  const segmentCount = analysis.raceSegments.length;
+  const phaseSize = Math.ceil(segmentCount / 3);
+  const fallback = analysis.raceSegments[0];
+  const phases = [
+    phaseSummary(
+      analysis.raceSegments.slice(0, phaseSize),
+      "Opening",
+      fallback,
+    ),
+    phaseSummary(
+      analysis.raceSegments.slice(phaseSize, phaseSize * 2),
+      "Middle",
+      fallback,
+    ),
+    phaseSummary(
+      analysis.raceSegments.slice(phaseSize * 2),
+      "Closing",
+      fallback,
+    ),
+  ];
+  const totalLeak = phases.reduce((total, phase) => total + phase.totalLeak, 0);
+  const pressurePhase = [...phases].sort((a, b) => b.totalLeak - a.totalLeak)[0];
+  const bestSegment = [...analysis.raceSegments].sort(
+    (a, b) => a.leakSeconds - b.leakSeconds,
+  )[0];
+  const breakPoint = analysis.raceSegments.find(
+    (segment) =>
+      segment.leakSeconds >=
+      Math.max(12, (analysis.topLeaks[0]?.leakSeconds ?? 0) * 0.65),
+  );
+  const openingLeak = phases[0]?.totalLeak ?? 0;
+  const closingLeak = phases[2]?.totalLeak ?? 0;
+  const fatigueSwing = closingLeak - openingLeak;
+
   return (
-    <div className="race-visual race-replay">
-      <div className="race-replay__track" aria-label="Race replay mode">
-        {analysis.raceSegments.map((segment) => (
-          <div
-            className={`race-replay__segment race-replay__segment--${segment.status}`}
-            key={segment.id}
-            style={segmentStyle(segment)}
-          >
-            <span>{segment.label}</span>
-          </div>
-        ))}
+    <div className="race-story">
+      <div className="race-story__headline">
+        <span>Race story</span>
+        <h3>{pressurePhase.label} phase carried the most time leak.</h3>
+        <p>{raceStoryTone(analysis)}</p>
       </div>
-      <p>
-        Replay highlights the race in order. Longer red sections are where the
-        target version moves away fastest.
+
+      <div className="race-story__phases">
+        {phases.map((phase) => {
+          const leakShare =
+            totalLeak > 0 ? Math.round((phase.totalLeak / totalLeak) * 100) : 0;
+
+          return (
+            <article
+              className={`race-story__phase race-story__phase--${phase.status}`}
+              key={phase.label}
+            >
+              <span>{phase.label}</span>
+              <h4>{statusLabel(phase.status)}</h4>
+              <strong>{formatTime(phase.totalLeak)} leak</strong>
+              <div
+                aria-label={`${phase.label} leak share ${leakShare}%`}
+                className="race-story__bar"
+              >
+                <i
+                  style={{
+                    width: `${Math.max(leakShare, phase.totalLeak > 0 ? 8 : 0)}%`,
+                  }}
+                />
+              </div>
+              <p>
+                {phase.totalLeak > 0
+                  ? `${phase.mainLeak.label} drove the pressure here across ${formatTime(
+                      phase.actualSeconds,
+                    )} of racing.`
+                  : `This phase stayed inside the ${formatTime(phase.targetSeconds)} target block.`}
+              </p>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="race-story__readouts">
+        <article>
+          <span>Turning point</span>
+          <strong>{breakPoint?.label ?? analysis.topLeaks[0]?.label ?? "Not clear"}</strong>
+          <p>
+            {breakPoint
+              ? `${formatTime(breakPoint.leakSeconds)} leaked here, which is where the race profile starts needing attention.`
+              : "No single segment forced a clear change in the story."}
+          </p>
+        </article>
+        <article>
+          <span>Protected split</span>
+          <strong>{bestSegment?.label ?? "Not clear"}</strong>
+          <p>
+            {bestSegment
+              ? `${formatTime(bestSegment.leakSeconds)} leak against target. This is the rhythm to reuse around weaker segments.`
+              : "Add more complete splits to identify what is already working."}
+          </p>
+        </article>
+        <article>
+          <span>Fatigue signal</span>
+          <strong>
+            {fatigueSwing > 0 ? "+" : ""}
+            {formatTime(Math.abs(fatigueSwing))}
+          </strong>
+          <p>
+            {fatigueSwing > 0
+              ? "Closing leak rose versus the opening phase, pointing to late-race durability."
+              : "Closing leak did not rise versus the opening phase, so the issue is more specific than general fade."}
+          </p>
+        </article>
+      </div>
+
+      <p className="race-story__readout">
+        {analysis.topLeaks[0]
+          ? `${analysis.topLeaks[0].label} is the clearest headline: ${formatTime(
+              analysis.topLeaks[0].recoverableSeconds,
+            )} is realistically recoverable. ${raceStoryAction(analysis)}`
+          : raceStoryAction(analysis)}
       </p>
     </div>
   );
 }
 
-export function PremiumReportPoster({ analysis }: RaceVisualProps) {
-  const topSegments = topVisualSegments(analysis);
+export function PremiumReportPoster({
+  analysis,
+  captureRef,
+  distanceUnit = "km",
+}: PremiumReportPosterProps) {
+  const bestSegment = [...analysis.raceSegments].sort(
+    (a, b) => a.leakSeconds - b.leakSeconds,
+  )[0];
+  const bestRun = [...analysis.raceSegments]
+    .filter((segment) => segment.type === "run")
+    .sort((a, b) => a.actualSeconds - b.actualSeconds)[0];
+  const bestStation = [...analysis.stationResults].sort((a, b) => a.gap - b.gap)[0];
+  const shareSplits = [...analysis.raceSegments]
+    .sort((a, b) => a.actualSeconds - b.actualSeconds)
+    .slice(0, 6);
+  const averageRunPace = formatPaceForUnit(
+    analysis.averageRunSeconds,
+    analysis.raceFormat,
+    distanceUnit,
+  );
 
   return (
-    <div className="poster-card">
-      <div>
-        <span>RepRun premium poster</span>
-        <h3>{formatTime(analysis.finishSeconds)}</h3>
-        <p>
-          Target path: {formatTime(analysis.predictedTargetSeconds)} with{" "}
-          {formatTime(analysis.recoverableSeconds)} realistic gain.
-        </p>
+    <div className="poster-card" ref={captureRef}>
+      <header className="poster-card__header">
+        <div>
+          <div className="poster-card__brand">
+            <img
+              src="/brand/reprun-logo-09-wordmark.svg"
+              alt="RepRun"
+            />
+          </div>
+          <h3>{formatTime(analysis.finishSeconds)}</h3>
+        </div>
+      </header>
+      <div className="poster-card__stats">
+        <div>
+          <span>Target path</span>
+          <strong>{formatTime(analysis.predictedTargetSeconds)}</strong>
+        </div>
+        <div>
+          <span>Avg run</span>
+          <strong>{averageRunPace}</strong>
+        </div>
+        <div>
+          <span>Best protected</span>
+          <strong>{bestSegment?.label ?? "Not clear"}</strong>
+        </div>
       </div>
-      <div className="poster-card__fingerprint">
-        {topSegments.map((segment) => (
-          <i
-            key={segment.id}
-            style={{ height: `${28 + segment.intensity * 72}%` }}
-            title={segment.label}
-          />
-        ))}
+      <div className="poster-card__highlights">
+        <article>
+          <span>
+            <TrophyIcon />
+          </span>
+          <div>
+            <small>Best station</small>
+            <strong>{bestStation?.label ?? "Not clear"}</strong>
+            <em>{bestStation ? formatTime(bestStation.seconds) : "--"}</em>
+          </div>
+        </article>
+        <article>
+          <span>
+            <TrophyIcon />
+          </span>
+          <div>
+            <small>Best run</small>
+            <strong>{bestRun?.label ?? "Not clear"}</strong>
+            <em>{bestRun ? formatTime(bestRun.actualSeconds) : "--"}</em>
+          </div>
+        </article>
       </div>
-      <strong>{analysis.topLeaks[0]?.label ?? "No clear leak"}</strong>
+      <div className="poster-card__splits">
+        <span>Fastest splits</span>
+        <div>
+          {shareSplits.map((segment) => (
+            <p key={segment.id}>
+              <span>{segment.label}</span>
+              <strong>{formatTime(segment.actualSeconds)}</strong>
+            </p>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
