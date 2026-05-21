@@ -23,6 +23,92 @@
   line-height: 1.55;
 }
 
+.history-compare {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.45fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 22px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--lime) 14%, transparent), transparent 56%),
+    var(--field);
+}
+
+.history-compare > div:first-child {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+}
+
+.history-compare span,
+.history-compare__panel span {
+  color: var(--teal);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.history-compare h3,
+.history-compare p {
+  margin: 0;
+}
+
+.history-compare h3 {
+  line-height: 1.1;
+}
+
+.history-compare p,
+.history-compare__empty {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.history-compare__panel {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.history-compare__panel div,
+.history-compare__empty {
+  display: grid;
+  gap: 6px;
+  min-height: 100px;
+  align-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--panel);
+}
+
+.history-compare__panel strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.history-compare__panel small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.history-compare__panel p {
+  grid-column: 1 / -1;
+  border-left: 5px solid var(--lime);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--panel);
+}
+
+.history-compare__empty {
+  align-content: center;
+}
+
 .history-list {
   display: grid;
   gap: 12px;
@@ -38,6 +124,11 @@
   border-radius: 8px;
   padding: 16px;
   background: var(--field);
+}
+
+.history-card.is-selected {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--focus);
 }
 
 .history-card span {
@@ -96,4 +187,10 @@
   border-color: var(--red);
   background: var(--red);
   color: var(--panel);
+}
+
+.history-card__actions .button-secondary.is-selected {
+  border-color: var(--teal);
+  background: var(--lime);
+  color: var(--ink);
 }

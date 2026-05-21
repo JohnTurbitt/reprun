@@ -114,13 +114,17 @@ export function ReportPanel({
   onTransitionGainChange,
 }: ReportPanelProps) {
   const reportCaptureRef = useRef<HTMLElement>(null);
+  const jumpNavShellRef = useRef<HTMLDivElement>(null);
   const sharePosterCaptureRef = useRef<HTMLDivElement>(null);
   const [generatedDate, setGeneratedDate] = useState("");
   const [exportMessage, setExportMessage] = useState("");
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [jumpNavFloating, setJumpNavFloating] = useState(false);
+  const [jumpNavTop, setJumpNavTop] = useState(92);
   const visibleLeaks = fullReportUnlocked
     ? analysis.topLeaks
     : analysis.topLeaks.slice(0, 2);
+  const primaryLeak = analysis.topLeaks[0];
   const bestSegment = [...analysis.raceSegments].sort(
     (a, b) => a.leakSeconds - b.leakSeconds,
   )[0];
@@ -146,6 +150,30 @@ export function ReportPanel({
     analysis.raceFormat,
     distanceUnit,
   );
+  const timeToFind =
+    analysis.targetGapSeconds > 0
+      ? formatTime(analysis.targetGapSeconds)
+      : "On target";
+  const nextAction = primaryLeak
+    ? `${primaryLeak.label}: ${primaryLeak.recommendation}`
+    : "Generate a complete report to identify the highest-value training focus.";
+  const bestSplitDetail = bestSegment
+    ? `${formatTime(bestSegment.actualSeconds)} actual / ${formatTime(bestSegment.targetSeconds)} target`
+    : "Add splits to identify your most controlled segment.";
+  const biggestLeakDetail = primaryLeak
+    ? `${formatTime(primaryLeak.leakSeconds)} leak / ${formatTime(primaryLeak.recoverableSeconds)} realistic gain`
+    : "Add splits to identify the highest-value leak.";
+
+  function scrollToRaceFlow() {
+    scrollToReportSection("race-flow-map");
+  }
+
+  function scrollToReportSection(sectionId: string) {
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
 
   useEffect(() => {
     setGeneratedDate(new Date().toLocaleDateString());
@@ -166,6 +194,38 @@ export function ReportPanel({
 
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [shareModalOpen]);
+
+  useEffect(() => {
+    function updateJumpNavPosition() {
+      const report = reportCaptureRef.current;
+      const shell = jumpNavShellRef.current;
+
+      if (!report || !shell) {
+        setJumpNavFloating(false);
+        return;
+      }
+
+      const header = document.querySelector<HTMLElement>(".site-header");
+      const headerBottom = header?.getBoundingClientRect().bottom ?? 0;
+      const topOffset = Math.max(12, Math.round(headerBottom + 10));
+      const shellBounds = shell.getBoundingClientRect();
+      const reportBounds = report.getBoundingClientRect();
+
+      setJumpNavTop(topOffset);
+      setJumpNavFloating(
+        shellBounds.top <= topOffset && reportBounds.bottom >= topOffset + 80,
+      );
+    }
+
+    updateJumpNavPosition();
+    window.addEventListener("scroll", updateJumpNavPosition, { passive: true });
+    window.addEventListener("resize", updateJumpNavPosition);
+
+    return () => {
+      window.removeEventListener("scroll", updateJumpNavPosition);
+      window.removeEventListener("resize", updateJumpNavPosition);
+    };
+  }, []);
 
   async function copyReport() {
     try {
@@ -363,48 +423,96 @@ export function ReportPanel({
       <p className="report__date">
         {generatedDate ? `Generated ${generatedDate} - Ocht` : "Ocht"}
       </p>
-      <p className="report__summary">{analysis.report}</p>
-
-      {hasGeneratedReport ? (
-        <div className="report-guide">
-          <span>First read</span>
-          <p>
-            Start with projected finish, target gap, and biggest leak. Then use
-            race flow to see where the split first moved away from the plan.
-          </p>
-        </div>
-      ) : null}
-
-      <div className="report-strip">
-        <div>
-          <span>Projected</span>
+      <section id="report-overview" className="race-cockpit" aria-label="Race overview">
+        <div className="race-cockpit__hero">
+          <span>{hasGeneratedReport ? "Race cockpit" : "Live cockpit"}</span>
           <strong>{formatTime(analysis.finishSeconds)}</strong>
+          <p>{analysis.targetPlanSummary}</p>
         </div>
-        <div>
-          <span>Gap</span>
-          <strong>{formatTime(analysis.targetGapSeconds)}</strong>
+        <div className="race-cockpit__stats">
+          <div className="race-cockpit__stat">
+            <span>Time to find</span>
+            <strong>{timeToFind}</strong>
+            <small>against your entered target</small>
+          </div>
+          <div className="race-cockpit__stat">
+            <span>Realistic gain</span>
+            <strong>{formatTime(analysis.recoverableSeconds)}</strong>
+            <small>from the top ranked leaks</small>
+          </div>
+          <button
+            className="race-cockpit__stat race-cockpit__stat--button"
+            type="button"
+            onClick={scrollToRaceFlow}
+          >
+            <span>Biggest leak</span>
+            <strong>{primaryLeak?.label ?? "Not clear"}</strong>
+            <small>{biggestLeakDetail}</small>
+          </button>
+          <button
+            className="race-cockpit__stat race-cockpit__stat--button"
+            type="button"
+            onClick={scrollToRaceFlow}
+          >
+            <span>Most controlled split</span>
+            <strong>{bestSegment?.label ?? "Not clear"}</strong>
+            <small>{bestSplitDetail}</small>
+          </button>
         </div>
-        <div>
-          <span>Biggest leak</span>
-          <strong>{analysis.topLeaks[0]?.label ?? "Not clear"}</strong>
+        <div className="race-cockpit__action">
+          <span>Next action</span>
+          <p>{nextAction}</p>
         </div>
-        <div>
-          <span>Target</span>
-          <strong>{analysis.targetDifficultyLabel}</strong>
+        <div className="race-cockpit__meta">
+          <span>{analysis.levelLabel}</span>
+          <span>{analysis.targetDifficultyLabel}</span>
+          <span>{averageRunPace} avg run</span>
         </div>
+      </section>
+
+      <div className="report-jump-nav-shell" ref={jumpNavShellRef}>
+        <nav
+          className={
+            jumpNavFloating
+              ? "report-jump-nav report-jump-nav--floating"
+              : "report-jump-nav"
+          }
+          style={jumpNavFloating ? { top: `${jumpNavTop}px` } : undefined}
+          aria-label="Report sections"
+        >
+          <button type="button" onClick={() => scrollToReportSection("report-overview")}>
+            Overview
+          </button>
+          <button type="button" onClick={() => scrollToReportSection("race-flow-map")}>
+            Flow
+          </button>
+          <button type="button" onClick={() => scrollToReportSection("report-leaks")}>
+            Leaks
+          </button>
+          <button type="button" onClick={() => scrollToReportSection("report-strengths")}>
+            Strengths
+          </button>
+          <button type="button" onClick={() => scrollToReportSection("report-training")}>
+            Training
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              fullReportUnlocked
+                ? setShareModalOpen(true)
+                : scrollToReportSection("report-training")
+            }
+          >
+            {fullReportUnlocked ? "Share" : "Upgrade"}
+          </button>
+        </nav>
       </div>
 
-      <div className="benchmark-context">
-        <div>
-          <span>Athlete level</span>
-          <strong>{analysis.levelLabel}</strong>
-        </div>
-        <p>{analysis.stationBenchmarkSummary}</p>
+      <div id="race-flow-map" className="report-scroll-anchor">
+        <ReportSection title="Race flow map" defaultOpen>
+          <RaceFlowMap analysis={analysis} distanceUnit={distanceUnit} />
+        </ReportSection>
       </div>
-
-      <ReportSection title="Race flow map" defaultOpen>
-        <RaceFlowMap analysis={analysis} distanceUnit={distanceUnit} />
-      </ReportSection>
 
       <div className="metric-row metric-row--three">
         <div>
@@ -414,7 +522,7 @@ export function ReportPanel({
         </div>
         <div>
           <span>
-            <Hint enabled={showHints} hint="runFade" term="Run fade" />
+            <Hint enabled={showHints} hint="runFade" term="Second-half drop-off" />
           </span>
           <strong>
             {formatTime(runFadePace)}/{distanceUnitLabels[distanceUnit]}
@@ -422,17 +530,18 @@ export function ReportPanel({
         </div>
         <div>
           <span>
-            <Hint enabled={showHints} hint="targetGap" term="Target gap" />
+            <Hint enabled={showHints} hint="targetGap" term="Time to find" />
           </span>
           <strong>{formatTime(analysis.targetGapSeconds)}</strong>
         </div>
       </div>
 
-      <ReportSection title="Target math" defaultOpen>
+      <div id="report-target-path" className="report-scroll-anchor">
+        <ReportSection title="Target path" defaultOpen>
         <div className="target-plan">
           <div className="target-plan__header">
             <div>
-              <p className="eyebrow">Target math</p>
+              <p className="eyebrow">Target path</p>
               <h3>{analysis.targetDifficultyLabel}</h3>
             </div>
             <strong>
@@ -465,9 +574,10 @@ export function ReportPanel({
             </div>
           </div>
         </div>
-      </ReportSection>
+        </ReportSection>
+      </div>
 
-      <ReportSection title="Race readiness score" defaultOpen>
+      <ReportSection title="Readiness" defaultOpen>
         <div className="readiness-card">
           <div className="readiness-card__score">
             <span>{readinessLabel(readiness.overall)}</span>
@@ -511,7 +621,8 @@ export function ReportPanel({
         </div>
       </ReportSection>
 
-      <ReportSection title="What went well" defaultOpen>
+      <div id="report-strengths" className="report-scroll-anchor">
+        <ReportSection title="Strengths" defaultOpen>
         <div className="positive-grid">
           <article>
             <span>Best controlled split</span>
@@ -553,24 +664,28 @@ export function ReportPanel({
             </p>
           </article>
         </div>
-      </ReportSection>
-
-      <h3>
-        Top <Hint enabled={showHints} hint="timeLeak" term="time leaks" />
-      </h3>
-      <div className="leak-list">
-        {visibleLeaks.map((leak, index) => (
-          <article className="leak-card" key={leak.id}>
-            <div>
-              <span>#{index + 1}</span>
-              <h4>{leak.label}</h4>
-              <p>{leak.detail}</p>
-            </div>
-            <strong>{formatTime(leak.recoverableSeconds)}</strong>
-          </article>
-        ))}
+        </ReportSection>
       </div>
 
+      <div id="report-leaks" className="report-scroll-anchor">
+        <h3>
+          Main <Hint enabled={showHints} hint="timeLeak" term="time leaks" />
+        </h3>
+        <div className="leak-list">
+          {visibleLeaks.map((leak, index) => (
+            <article className="leak-card" key={leak.id}>
+              <div>
+                <span>#{index + 1}</span>
+                <h4>{leak.label}</h4>
+                <p>{leak.detail}</p>
+              </div>
+              <strong>{formatTime(leak.recoverableSeconds)}</strong>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div id="report-training" className="report-scroll-anchor">
       {!fullReportUnlocked ? (
         <div className="paywall">
           <div>
@@ -677,6 +792,7 @@ export function ReportPanel({
           </ReportSection>
         </>
       )}
+      </div>
       {shareModalOpen ? (
         <div
           className="share-preview-modal"

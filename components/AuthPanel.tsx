@@ -42,6 +42,8 @@ export function AuthPanel({
   const [profileLevel, setProfileLevel] = useState<Level>("competitive");
   const [profileTargetTime, setProfileTargetTime] = useState("1:25:00");
   const [submitting, setSubmitting] = useState(false);
+  const displayName = user?.name || user?.email || "";
+  const userInitial = displayName.trim().charAt(0).toUpperCase() || "O";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,18 +68,21 @@ export function AuthPanel({
     return (
       <aside className="auth-panel auth-panel--signed-in">
         <div className="auth-panel__identity">
+          <span className="auth-panel__avatar" aria-hidden="true">
+            {userInitial}
+          </span>
           <div>
-            <span>Signed in</span>
-            <strong>{user.name || user.email}</strong>
+            <span className="auth-panel__meta">Signed in</span>
+            <strong>{displayName}</strong>
             <p>
               {subscriptionLabels[user.subscription]}{" "}
               {user.subscription === "ACTIVE" ? <PremiumBadge /> : null}
             </p>
           </div>
-          <p>
-            Defaults: {levelLabels[user.defaultLevel]}, {user.defaultTargetTime}
-          </p>
         </div>
+        <p className="auth-panel__defaults">
+          {levelLabels[user.defaultLevel]} · {user.defaultTargetTime}
+        </p>
         <div className="auth-panel__actions">
           <button
             className="button-secondary"
@@ -170,72 +175,94 @@ export function AuthPanel({
   }
 
   return (
-    <aside className="auth-panel">
+    <aside className={mode ? "auth-panel auth-panel--open" : "auth-panel"}>
       <div className="auth-panel__signed-out">
-        <p>Save reports and unlock paid race analytics.</p>
+        <div>
+          <span className="auth-panel__meta">Account</span>
+          <p>Save reports and unlock premium analytics.</p>
+        </div>
         <div className="auth-panel__switch" aria-label="Auth mode">
           <button
-            className={mode === "login" ? "is-active" : undefined}
+            className={mode === "login" ? "is-active auth-panel__login" : "auth-panel__login"}
             type="button"
             onClick={() => setMode("login")}
           >
             Login
           </button>
           <button
-            className={mode === "signup" ? "is-active" : undefined}
+            className={mode === "signup" ? "is-active auth-panel__join" : "auth-panel__join"}
             type="button"
             onClick={() => setMode("signup")}
           >
-            Sign up
+            Join Ocht
           </button>
         </div>
       </div>
 
       {mode ? (
-        <form
-          className={
-            mode === "signup"
-              ? "auth-panel__form auth-panel__form--signup"
-              : "auth-panel__form auth-panel__form--login"
-          }
-          onSubmit={handleSubmit}
-        >
-          {mode === "signup" ? (
-            <label className="field">
-              <span>Name</span>
+        <div className="auth-panel__popover">
+          <div className="auth-panel__popover-header">
+            <div>
+              <span className="auth-panel__meta">
+                {mode === "signup" ? "Create account" : "Welcome back"}
+              </span>
+              <h2>{mode === "signup" ? "Join Ocht" : "Log in to Ocht"}</h2>
+            </div>
+            <button
+              className="auth-panel__close"
+              type="button"
+              onClick={() => setMode(null)}
+              aria-label="Close account form"
+            >
+              ×
+            </button>
+          </div>
+          <p className="auth-panel__lead">
+            {mode === "signup"
+              ? "Save reports, track your targets, and unlock premium race tools."
+              : "Access saved reports, billing, and your default race settings."}
+          </p>
+          <form
+            className="auth-panel__form"
+            onSubmit={handleSubmit}
+          >
+            {mode === "signup" ? (
+              <label className="field">
+                <span>Name</span>
+                <input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder="Test Runner"
+                />
+              </label>
+            ) : null}
+            <label className="field auth-panel__email-field">
+              <span>Email</span>
               <input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Test Runner"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="runner@example.com"
+                type="email"
               />
             </label>
-          ) : null}
-          <label className="field auth-panel__email-field">
-            <span>Email</span>
-            <input
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="runner@example.com"
-              type="email"
-            />
-          </label>
-          <label className="field auth-panel__password-field">
-            <span>Password</span>
-            <input
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="At least 8 characters"
-              type="password"
-            />
-          </label>
-          <button type="submit" disabled={submitting || loading}>
-            {submitting
-              ? "Working..."
-              : mode === "signup"
-                ? "Create account"
-                : "Sign in"}
-          </button>
-        </form>
+            <label className="field auth-panel__password-field">
+              <span>Password</span>
+              <input
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="At least 8 characters"
+                type="password"
+              />
+            </label>
+            <button type="submit" disabled={submitting || loading}>
+              {submitting
+                ? "Working..."
+                : mode === "signup"
+                  ? "Create account"
+                  : "Sign in"}
+            </button>
+          </form>
+        </div>
       ) : null}
     </aside>
   );

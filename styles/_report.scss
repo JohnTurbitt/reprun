@@ -2,6 +2,10 @@
   scroll-margin-top: 24px;
 }
 
+.report-scroll-anchor {
+  scroll-margin-top: 104px;
+}
+
 .report__header {
   display: flex;
   align-items: flex-start;
@@ -32,6 +36,201 @@
   color: var(--muted);
   font-size: 1rem;
   line-height: 1.7;
+}
+
+.race-cockpit {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.95fr) minmax(0, 1.25fr);
+  gap: 12px;
+  margin: 16px 0 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--lime) 18%, transparent), transparent 48%),
+    var(--surface);
+}
+
+.race-cockpit__hero,
+.race-cockpit__action,
+.race-cockpit__stat {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.race-cockpit__hero {
+  display: grid;
+  align-content: end;
+  min-height: 250px;
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.race-cockpit__hero span,
+.race-cockpit__stats span,
+.race-cockpit__action span {
+  color: var(--teal);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.race-cockpit__hero strong {
+  margin-top: 10px;
+  color: var(--ink);
+  font-size: clamp(2.9rem, 8vw, 5.8rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.92;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.race-cockpit__hero p {
+  max-width: 520px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.race-cockpit__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.race-cockpit__stat {
+  display: grid;
+  min-height: 118px;
+  min-width: 0;
+  align-content: space-between;
+  gap: 8px;
+  padding: 14px;
+  text-align: left;
+}
+
+.race-cockpit__stat--button {
+  width: 100%;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.race-cockpit__stat--button:hover {
+  border-color: var(--teal);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--lime) 12%, transparent), transparent 56%),
+    var(--panel);
+}
+
+.race-cockpit__stat--button:focus-visible {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px var(--focus);
+  outline: none;
+}
+
+.race-cockpit__stats strong {
+  color: var(--ink);
+  font-size: clamp(1rem, 1.75vw, 1.42rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.06;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.race-cockpit__stats span,
+.race-cockpit__stats small {
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.race-cockpit__stats small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.race-cockpit__action {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  border-left: 5px solid var(--lime);
+  padding: 14px 16px;
+}
+
+.race-cockpit__action p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.race-cockpit__meta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.race-cockpit__meta span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 11px;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.report-jump-nav-shell {
+  min-height: 50px;
+  margin: 0 0 18px;
+}
+
+.report-jump-nav {
+  position: relative;
+  z-index: 35;
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 28px rgba(22, 28, 18, 0.12);
+}
+
+.report-jump-nav--floating {
+  position: fixed;
+  top: 92px;
+  left: 50%;
+  width: min(1064px, calc(100vw - 32px));
+  transform: translateX(-50%);
+}
+
+.report-jump-nav button {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 36px;
+  margin: 0;
+  border-color: transparent;
+  border-radius: 999px;
+  padding: 0 13px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.84rem;
+}
+
+.report-jump-nav button:hover,
+.report-jump-nav button:focus-visible {
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .report-strip {

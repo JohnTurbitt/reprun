@@ -841,8 +841,8 @@ export default function Home() {
           </div>
           <div>
             <span>
-              <Hint enabled={showHints} hint="recoverable" term="Recoverable" />{" "}
-              time
+              <Hint enabled={showHints} hint="recoverable" term="Realistic" />{" "}
+              gain
             </span>
             <strong>{formatTime(activeAnalysis.recoverableSeconds)}</strong>
           </div>

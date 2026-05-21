@@ -10,8 +10,8 @@
   }
 
   .site-header__actions {
-    display: grid;
-    justify-content: stretch;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .site-header__logo {
@@ -19,15 +19,15 @@
   }
 
   .settings-menu {
-    width: 100%;
+    width: auto;
   }
 
   .settings-menu__trigger {
-    width: 100%;
+    width: 44px;
   }
 
   .settings-menu__panel {
-    position: static;
+    position: absolute;
     margin-top: 8px;
   }
 }
@@ -48,9 +48,7 @@
   }
 
   .auth-panel {
-    grid-column: 1 / -1;
-    width: 100%;
-    padding: 10px;
+    min-width: 0;
   }
 
   .settings-menu {
@@ -90,8 +88,32 @@
     grid-template-columns: 1fr;
   }
 
+  .race-cockpit,
   .report-strip {
     grid-template-columns: 1fr;
+  }
+
+  .race-cockpit__hero {
+    min-height: 190px;
+  }
+
+  .race-cockpit__hero strong {
+    font-size: clamp(2.75rem, 17vw, 4.6rem);
+  }
+
+  .race-cockpit__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-jump-nav {
+    margin-right: -4px;
+    margin-left: -4px;
+    border-radius: 12px;
+    box-shadow: 0 -10px 28px rgba(22, 28, 18, 0.14);
+  }
+
+  .report-jump-nav--floating {
+    width: calc(100vw - 20px);
   }
 
   .target-plan__header {
@@ -107,10 +129,15 @@
   }
 
   .benchmark-context,
+  .history-compare,
   .readiness-card,
   .readiness-card__grid,
   .positive-grid {
     grid-template-columns: 1fr;
+  }
+
+  .history-compare__panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .input-row {
@@ -130,26 +157,54 @@
     display: grid;
   }
 
-  .auth-panel__heading,
-  .auth-panel__signed-out,
-  .auth-panel--signed-in {
-    align-items: stretch;
-    flex-direction: column;
+  .start-guide {
+    grid-template-columns: 1fr;
   }
 
-  .auth-panel__switch,
+  .auth-panel {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .auth-panel__signed-out {
+    display: grid;
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .auth-panel__switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .auth-panel__switch button,
   .auth-panel__actions,
   .auth-panel--signed-in button {
     width: 100%;
   }
 
+  .auth-panel__popover {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .auth-panel__popover::before {
+    display: none;
+  }
+
+  .auth-panel--signed-in {
+    grid-template-columns: 1fr;
+    width: 100%;
+    min-width: 0;
+  }
+
   .auth-panel__actions {
     display: grid;
   }
 
-  .auth-panel__form {
-    grid-template-columns: 1fr;
+  .auth-panel__defaults {
+    margin-left: 52px !important;
   }
 
   .profile-form {
@@ -182,6 +237,10 @@
 
   .report-actions button {
     width: 100%;
+  }
+
+  .history-compare__panel {
+    grid-template-columns: 1fr;
   }
 
   .share-preview-modal {

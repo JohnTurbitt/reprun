@@ -80,8 +80,8 @@ export function SplitForm({
     <form className="split-form" onSubmit={onSubmit}>
       <div className="form-heading">
         <div className="section-heading">
-          <p className="eyebrow">Race Input</p>
-          <h2>Your splits</h2>
+          <p className="eyebrow">Race input</p>
+          <h2>Build your race file</h2>
         </div>
         <div className="preset-actions" aria-label="Report presets">
           <button type="button" onClick={onLoadSample}>
@@ -94,6 +94,24 @@ export function SplitForm({
             Clear form
           </button>
         </div>
+      </div>
+
+      <div className="start-guide" aria-label="How to start">
+        <article>
+          <span>1</span>
+          <strong>Choose format</strong>
+          <p>Pick HYROX, TRYKA, or a premium custom setup.</p>
+        </article>
+        <article>
+          <span>2</span>
+          <strong>Add splits</strong>
+          <p>Enter race or simulation times exactly as recorded.</p>
+        </article>
+        <article>
+          <span>3</span>
+          <strong>Read cockpit</strong>
+          <p>Start with finish, time to find, biggest leak, and next action.</p>
+        </article>
       </div>
 
       <div className="format-picker" aria-label="Race format">
