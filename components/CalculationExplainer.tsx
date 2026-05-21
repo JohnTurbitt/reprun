@@ -25,7 +25,7 @@ export function CalculationExplainer({
     <section className="calculation-explainer">
       <div>
         <p className="eyebrow">Calculations</p>
-        <h3>How RepRun scores this race</h3>
+        <h3>How Ocht scores this race</h3>
         <p>
           The report is built from fixed formulas. The model compares each split
           with a benchmark, estimates how much time is realistically recoverable,
@@ -48,7 +48,7 @@ export function CalculationExplainer({
           <span>Recoverable time</span>
           <strong>leak x recoverability</strong>
           <p>
-            RepRun estimates {formatTime(primaryLeak?.recoverableSeconds ?? 0)}
+            Ocht estimates {formatTime(primaryLeak?.recoverableSeconds ?? 0)}
             {" "}could be won back from the top leak with focused training.
           </p>
         </article>

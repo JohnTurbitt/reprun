@@ -3,7 +3,7 @@ import { hashPassword, normalizeEmail, verifyPassword } from "./auth";
 
 describe("auth helpers", () => {
   it("normalizes email addresses before lookup", () => {
-    expect(normalizeEmail("  Athlete@RepRun.COM ")).toBe("athlete@reprun.com");
+    expect(normalizeEmail("  Athlete@Ocht.APP ")).toBe("athlete@ocht.app");
   });
 
   it("hashes and verifies passwords", async () => {

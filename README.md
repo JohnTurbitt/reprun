@@ -1,6 +1,6 @@
-# RepRun
+# Ocht
 
-RepRun is a mobile-first race split analyzer for hybrid athletes. The MVP lets an athlete enter eight run splits and eight station splits, then uses a deterministic scoring engine to rank weak points, estimate recoverable time, and suggest the next training priorities.
+Ocht is a mobile-first race split analyzer for hybrid athletes. Ocht means eight in Irish, matching the common eight-run/eight-station race structure. The MVP lets an athlete enter run splits and station splits, then uses a deterministic scoring engine to rank weak points, estimate recoverable time, and suggest the next training priorities.
 
 ## Tech Stack
 
@@ -36,8 +36,10 @@ Backend foundation:
 - Stripe checkout route and subscription webhook
 - Stripe customer portal for subscription management
 - paid report copy, share, download, and print actions
-- RepRun premium badge for paid-only report features
+- Ocht premium badge for paid-only report features
 - launch trust pages for privacy, terms, refunds, and contact
+- calculation methodology page for beta trust and review
+- beta feedback links for tester review
 - Open Graph and Twitter share metadata
 
 Planned additions:
@@ -116,7 +118,7 @@ events update the local `User.subscription` status.
 
 ## Local Stripe Test Flow
 
-Run RepRun:
+Run Ocht:
 
 ```bash
 npm run dev
@@ -133,7 +135,7 @@ Use the `whsec_...` value printed by the Stripe CLI as
 
 To test checkout:
 
-1. Sign in or create a local RepRun account.
+1. Sign in or create a local Ocht account.
 2. Generate a report.
 3. Click `Unlock full report`.
 4. Use Stripe test card `4242 4242 4242 4242` with any future expiry date
@@ -146,7 +148,7 @@ To test cancellation:
 1. Sign in as a paid test user.
 2. Click `Manage billing` in the top account panel.
 3. Cancel the subscription in Stripe's customer portal.
-4. Return to RepRun and keep the webhook listener running.
+4. Return to Ocht and keep the webhook listener running.
 5. Confirm the account panel changes from `Paid access` to the updated
    subscription status and paid report sections lock again.
 

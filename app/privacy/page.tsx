@@ -2,20 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - RepRun",
-  description: "How RepRun handles account, billing, and race report data.",
+  title: "Privacy Policy - Ocht",
+  description: "How Ocht handles account, billing, and race report data.",
 };
 
 export default function PrivacyPage() {
   return (
     <main className="legal-page">
       <Link className="legal-page__back" href="/">
-        Back to RepRun
+        Back to Ocht
       </Link>
       <p className="eyebrow">Privacy</p>
       <h1>Privacy Policy</h1>
       <p>
-        RepRun stores the account and race report data needed to provide saved
+        Ocht stores the account and race report data needed to provide saved
         reports, subscription access, and race analysis features.
       </p>
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         We collect your email address, optional display name, saved report
         inputs, generated report summaries, profile defaults, session cookies,
         and subscription status. Payment details are handled by Stripe and are
-        not stored by RepRun.
+        not stored by Ocht.
       </p>
 
       <h2>How Data Is Used</h2>
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
       <p>
         Stripe processes checkout, billing portal, and subscription webhook
         events. Hosting, database, and email providers may process operational
-        data when RepRun is deployed.
+        data when Ocht is deployed.
       </p>
 
       <h2>Retention And Deletion</h2>
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
       <h2>Contact</h2>
       <p>
         For privacy requests, email{" "}
-        <a href="mailto:support@reprun.app">support@reprun.app</a>.
+        <a href="mailto:support@ocht.app">support@ocht.app</a>.
       </p>
       <p className="legal-page__note">
         Last updated: May 4, 2026. Replace this page with lawyer-reviewed copy

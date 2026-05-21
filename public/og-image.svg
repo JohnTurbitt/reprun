@@ -1,31 +1,14 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">RepRun hybrid race split analyzer</title>
-  <desc id="desc">RepRun share image with race analytics headline and green progress bars.</desc>
-  <rect width="1200" height="630" fill="#F7F8F3"/>
-  <path d="M0 0H1200V630H0V0Z" fill="#F7F8F3"/>
-  <circle cx="1060" cy="78" r="188" fill="#C6F14A" opacity="0.24"/>
-  <circle cx="160" cy="560" r="210" fill="#D84B3A" opacity="0.1"/>
-  <rect x="78" y="72" width="1044" height="486" rx="28" fill="#FFFFFF" stroke="#121411" stroke-width="3"/>
-  <text x="124" y="178" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="78" font-weight="900">RepRun</text>
-  <path d="M128 207H320" stroke="#075047" stroke-width="12" stroke-linecap="round"/>
-  <path d="M346 207H522" stroke="#4BAA62" stroke-width="12" stroke-linecap="round"/>
-  <path d="M548 207H754" stroke="#C6F14A" stroke-width="12" stroke-linecap="round"/>
-  <text x="126" y="274" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="900">Hybrid race split analyzer</text>
-  <text x="126" y="330" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Find time leaks, rank weak points,</text>
-  <text x="126" y="366" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">and build a realistic next target.</text>
-  <g>
-    <rect x="126" y="420" width="286" height="78" rx="10" fill="#EFF3E8"/>
-    <text x="150" y="452" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="800">PROJECTED FINISH</text>
-    <text x="150" y="480" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900">Race breakdown</text>
-  </g>
-  <g>
-    <rect x="438" y="420" width="256" height="78" rx="10" fill="#EFF3E8"/>
-    <text x="462" y="452" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="800">TIME LEAKS</text>
-    <text x="462" y="480" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900">Ranked clearly</text>
-  </g>
-  <g>
-    <rect x="720" y="420" width="300" height="78" rx="10" fill="#EFF3E8"/>
-    <text x="744" y="452" fill="#5B6258" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="800">NEXT TARGET</text>
-    <text x="744" y="480" fill="#121411" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="900">Built from splits</text>
-  </g>
+  <title id="title">Ocht hybrid race split analyzer</title>
+  <desc id="desc">Ocht share image with race analytics headline and shield eight mark.</desc>
+  <rect width="1200" height="630" fill="#F7FAF2"/>
+  <path d="M159 82 L232 112 V179 C232 237 196 279 159 295 C122 279 86 237 86 179 V112 L159 82Z" fill="#C8FF2E"/>
+  <path d="M159 126 C191 126 211 142 211 168 C211 186 201 198 183 204 C203 212 215 228 215 250 C215 280 191 298 159 298 C127 298 103 280 103 250 C103 228 115 212 135 204 C117 198 107 186 107 168 C107 142 127 126 159 126ZM159 148 C143 148 133 156 133 168 C133 180 143 188 159 188 C175 188 185 180 185 168 C185 156 175 148 159 148ZM159 230 C141 230 129 240 129 256 C129 272 141 282 159 282 C177 282 189 272 189 256 C189 240 177 230 159 230Z" fill="#0A1711"/>
+  <text x="274" y="178" fill="#10130F" font-family="Arial, Helvetica, sans-serif" font-size="86" font-weight="900">Ocht</text>
+  <text x="279" y="224" fill="#073F35" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" letter-spacing="2">EIGHT SPLITS. ONE PLAN.</text>
+  <text x="86" y="356" fill="#10130F" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="900">Hybrid race analytics</text>
+  <text x="88" y="424" fill="#5A6458" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">Find time leaks across runs, stations, targets, and race flow.</text>
+  <rect x="88" y="506" width="190" height="22" rx="11" fill="#2F5E45"/>
+  <rect x="304" y="506" width="260" height="22" rx="11" fill="#60C878"/>
+  <rect x="590" y="506" width="330" height="22" rx="11" fill="#C8FF2E"/>
 </svg>

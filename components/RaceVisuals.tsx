@@ -773,8 +773,8 @@ export function PremiumReportPoster({
         <div>
           <div className="poster-card__brand">
             <img
-              src="/brand/reprun-logo-09-wordmark.svg"
-              alt="RepRun"
+              src="/brand/ocht-logo-wordmark.svg"
+              alt="Ocht"
             />
           </div>
           <h3>{formatTime(analysis.finishSeconds)}</h3>

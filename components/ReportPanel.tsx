@@ -203,13 +203,13 @@ export function ReportPanel({
         : null;
 
       if (reportBlob && navigator.share) {
-        const reportFile = new File([reportBlob], "reprun-race-report.png", {
+        const reportFile = new File([reportBlob], "ocht-race-report.png", {
           type: "image/png",
         });
         const shareData = {
           files: [reportFile],
-          text: "RepRun race report",
-          title: "RepRun Race Report",
+          text: "Ocht race report",
+          title: "Ocht Race Report",
         };
 
         if (!navigator.canShare || navigator.canShare(shareData)) {
@@ -222,7 +222,7 @@ export function ReportPanel({
 
       if (navigator.share) {
         await navigator.share({
-          title: "RepRun Race Report",
+          title: "Ocht Race Report",
           text: exportText,
         });
         setExportMessage("Share sheet opened.");
@@ -287,13 +287,13 @@ export function ReportPanel({
         return;
       }
 
-      const posterFile = new File([posterBlob], "reprun-story-poster.png", {
+      const posterFile = new File([posterBlob], "ocht-story-poster.png", {
         type: "image/png",
       });
       const shareData = {
         files: [posterFile],
-        text: "RepRun race poster",
-        title: "RepRun Race Poster",
+        text: "Ocht race poster",
+        title: "Ocht Race Poster",
       };
 
       if (navigator.share && (!navigator.canShare || navigator.canShare(shareData))) {
@@ -316,7 +316,7 @@ export function ReportPanel({
       const reportLink = document.createElement("a");
 
       reportLink.href = reportUrl;
-      reportLink.download = "reprun-race-report.txt";
+      reportLink.download = "ocht-race-report.txt";
       reportLink.click();
       URL.revokeObjectURL(reportUrl);
       setExportMessage("Report downloaded.");
@@ -361,9 +361,19 @@ export function ReportPanel({
         </div>
       </div>
       <p className="report__date">
-        {generatedDate ? `Generated ${generatedDate} - RepRun` : "RepRun"}
+        {generatedDate ? `Generated ${generatedDate} - Ocht` : "Ocht"}
       </p>
       <p className="report__summary">{analysis.report}</p>
+
+      {hasGeneratedReport ? (
+        <div className="report-guide">
+          <span>First read</span>
+          <p>
+            Start with projected finish, target gap, and biggest leak. Then use
+            race flow to see where the split first moved away from the plan.
+          </p>
+        </div>
+      ) : null}
 
       <div className="report-strip">
         <div>
@@ -566,13 +576,18 @@ export function ReportPanel({
           <div>
             <p className="eyebrow">Full report</p>
             <h3>
-              Unlock the complete race plan <PremiumBadge />
+              Unlock Ocht premium <PremiumBadge />
             </h3>
             <p>
-              Paid access includes the full leak list, four-week focus,
+              Ocht premium includes the full leak list, four-week focus,
               heatmap, race story, report poster, target simulator, print view,
               and calculation breakdown.
             </p>
+            <ul className="paywall__features">
+              <li>Custom formats and saved templates</li>
+              <li>Share images, print view, and coach summary</li>
+              <li>Training priorities, simulator, and calculation detail</li>
+            </ul>
           </div>
           <button
             type="button"
@@ -592,6 +607,20 @@ export function ReportPanel({
             {exportMessage ||
               "Export includes the full leak list, training plan, target, and station ranking."}
           </p>
+
+          <ReportSection title="Target simulator" defaultOpen premium>
+            <TargetSimulator
+              analysis={analysis}
+              distanceUnit={distanceUnit}
+              runGainPerKm={runGainPerKm}
+              stationGain={stationGain}
+              transitionGain={transitionGain}
+              showHints={showHints}
+              onRunGainPerKmChange={onRunGainPerKmChange}
+              onStationGainChange={onStationGainChange}
+              onTransitionGainChange={onTransitionGainChange}
+            />
+          </ReportSection>
 
           <ReportSection title="Training priorities" defaultOpen premium>
             <ol>
@@ -620,28 +649,6 @@ export function ReportPanel({
             </div>
           </ReportSection>
 
-          <ReportSection title="Target simulator" premium>
-            <TargetSimulator
-              analysis={analysis}
-              distanceUnit={distanceUnit}
-              runGainPerKm={runGainPerKm}
-              stationGain={stationGain}
-              transitionGain={transitionGain}
-              showHints={showHints}
-              onRunGainPerKmChange={onRunGainPerKmChange}
-              onStationGainChange={onStationGainChange}
-              onTransitionGainChange={onTransitionGainChange}
-            />
-          </ReportSection>
-
-          <ReportSection title="Time leak heatmap" premium>
-            <TimeLeakHeatmap analysis={analysis} />
-          </ReportSection>
-
-          <ReportSection title="Race story" premium>
-            <RaceStory analysis={analysis} />
-          </ReportSection>
-
           <ReportSection title="Station ranking" premium>
             <p className="helper-text">
               Each station is compared with the {analysis.levelLabel}{" "}
@@ -655,6 +662,14 @@ export function ReportPanel({
                 </div>
               ))}
             </div>
+          </ReportSection>
+
+          <ReportSection title="Race story" premium>
+            <RaceStory analysis={analysis} />
+          </ReportSection>
+
+          <ReportSection title="Time leak heatmap" premium>
+            <TimeLeakHeatmap analysis={analysis} />
           </ReportSection>
 
           <ReportSection title="Calculation breakdown" premium>
@@ -691,7 +706,7 @@ export function ReportPanel({
             <div className="share-carousel__track" aria-label="Swipe share options">
               <article className="share-carousel__slide">
                 <div className="share-carousel__copy-preview">
-                  <img src="/brand/reprun-logo-09-wordmark.svg" alt="RepRun" />
+                  <img src="/brand/ocht-logo-wordmark.svg" alt="Ocht" />
                   <p>{analysis.report}</p>
                 </div>
                 <div className="share-carousel__content">
@@ -706,7 +721,7 @@ export function ReportPanel({
 
               <article className="share-carousel__slide">
                 <div className="share-preview__report">
-                  <img src="/brand/reprun-logo-09-wordmark.svg" alt="RepRun" />
+                  <img src="/brand/ocht-logo-wordmark.svg" alt="Ocht" />
                   <div>
                     <span>Projected finish</span>
                     <strong>{formatTime(analysis.finishSeconds)}</strong>
@@ -767,7 +782,7 @@ export function ReportPanel({
               <article className="share-carousel__slide">
                 <div className="share-carousel__file-preview">
                   <span>TXT</span>
-                  <strong>reprun-race-report.txt</strong>
+                  <strong>ocht-race-report.txt</strong>
                   <p>Plain text export with targets, leaks, and rankings.</p>
                 </div>
                 <div className="share-carousel__content">

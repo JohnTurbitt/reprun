@@ -256,7 +256,7 @@ export default function Home() {
       setToast({
         id: Date.now(),
         title: "Custom formats are paid",
-        message: "Unlock RepRun premium to build and save custom race formats.",
+        message: "Unlock Ocht premium to build and save custom race formats.",
         tone: "error",
       });
       return;
@@ -367,7 +367,7 @@ export default function Home() {
         message:
           error instanceof Error
             ? error.message
-            : "RepRun could not sign you in.",
+            : "Ocht could not sign you in.",
         tone: "error",
       });
     }
@@ -384,7 +384,7 @@ export default function Home() {
       setToast({
         id: Date.now(),
         title: "Account created",
-        message: "Your future reports will save to your RepRun account.",
+        message: "Your future reports will save to your Ocht account.",
         tone: "success",
       });
     } catch (error) {
@@ -394,7 +394,7 @@ export default function Home() {
         message:
           error instanceof Error
             ? error.message
-            : "RepRun could not create this account.",
+            : "Ocht could not create this account.",
         tone: "error",
       });
     }
@@ -408,7 +408,7 @@ export default function Home() {
       setToast({
         id: Date.now(),
         title: "Signed out",
-        message: "RepRun is showing reports saved on this device.",
+        message: "Ocht is showing reports saved on this device.",
         tone: "success",
       });
     } catch (error) {
@@ -416,7 +416,7 @@ export default function Home() {
         id: Date.now(),
         title: "Logout failed",
         message:
-          error instanceof Error ? error.message : "RepRun could not log out.",
+          error instanceof Error ? error.message : "Ocht could not log out.",
         tone: "error",
       });
     }
@@ -444,7 +444,7 @@ export default function Home() {
         message:
           error instanceof Error
             ? error.message
-            : "RepRun could not open checkout.",
+            : "Ocht could not open checkout.",
         tone: "error",
       });
       setBillingLoading(false);
@@ -463,7 +463,7 @@ export default function Home() {
         message:
           error instanceof Error
             ? error.message
-            : "RepRun could not open billing settings.",
+            : "Ocht could not open billing settings.",
         tone: "error",
       });
       setBillingLoading(false);
@@ -490,7 +490,7 @@ export default function Home() {
         message:
           error instanceof Error
             ? error.message
-            : "RepRun could not save your profile.",
+            : "Ocht could not save your profile.",
         tone: "error",
       });
       throw error;
@@ -515,7 +515,7 @@ export default function Home() {
         message:
           validation.errors.length === 1
             ? validation.errors[0]
-            : `${validation.errors.length} fields need valid times before RepRun can calculate the report.`,
+            : `${validation.errors.length} fields need valid times before Ocht can calculate the report.`,
         tone: "error",
       });
       return;
@@ -562,7 +562,7 @@ export default function Home() {
         });
 
         nextReports = [remoteReport, ...savedReports].slice(0, 50);
-        toastMessage = "Your report has been saved to your RepRun account.";
+        toastMessage = "Your report has been saved to your Ocht account.";
       } catch (error) {
         setAnalysis(generatedAnalysis);
         setValidationErrors([]);
@@ -698,7 +698,7 @@ export default function Home() {
           setToast({
             id: Date.now(),
             title: "Using device storage",
-            message: "RepRun could not reach the account API.",
+            message: "Ocht could not reach the account API.",
             tone: "error",
           });
         }
@@ -790,8 +790,8 @@ export default function Home() {
       <header className="site-header">
         <img
           className="site-header__logo"
-          src="/brand/reprun-logo-09-wordmark.svg"
-          alt="RepRun"
+          src="/brand/ocht-logo-wordmark.svg"
+          alt="Ocht"
         />
         <div className="site-header__actions">
           <AuthPanel
@@ -818,6 +818,13 @@ export default function Home() {
             Enter your splits to get a deterministic race breakdown, ranked weak
             points, and a realistic next target without AI guesswork.
           </p>
+          <div className="intro-trust" aria-label="Launch trust signals">
+            <span>Deterministic formulas</span>
+            <span>Coach-friendly exports</span>
+            <a href="mailto:support@ocht.app?subject=Ocht%20beta%20feedback">
+              Send beta feedback
+            </a>
+          </div>
           <label className="hint-toggle">
             <input
               checked={showHints}

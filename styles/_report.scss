@@ -232,6 +232,29 @@
   margin-bottom: 24px;
 }
 
+.report-guide {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0;
+  border-left: 5px solid var(--lime);
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--field);
+}
+
+.report-guide span {
+  color: var(--teal);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.report-guide p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .positive-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -425,10 +448,19 @@
   margin: 0 0 8px;
 }
 
-.paywall p:last-child {
+.paywall p {
   margin: 0;
   color: var(--muted);
   line-height: 1.55;
+}
+
+.paywall__features {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .paywall button {

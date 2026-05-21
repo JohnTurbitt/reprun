@@ -13,7 +13,7 @@ describe("buildReportExportText", () => {
     );
     const exportText = buildReportExportText(analysis, "30/04/2026");
 
-    expect(exportText).toContain("RepRun Race Report");
+    expect(exportText).toContain("Ocht Race Report");
     expect(exportText).toContain("Athlete level: Competitive");
     expect(exportText).toContain("Top Time Leaks");
     expect(exportText).toContain("Training Priorities");

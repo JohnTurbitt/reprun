@@ -135,6 +135,38 @@
   line-height: 1.6;
 }
 
+.intro-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+
+.intro-trust span,
+.intro-trust a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.intro-trust a {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.intro-trust a:hover {
+  background: var(--action-bg);
+  color: var(--action-text);
+}
+
 .intro > *,
 .workspace > *,
 .split-form,

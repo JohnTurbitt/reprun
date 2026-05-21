@@ -26,13 +26,13 @@ export function ReportHistory({
       {loading ? (
         <div className="empty-state">
           <h3>Loading reports</h3>
-          <p>RepRun is checking the saved history for this account.</p>
+          <p>Ocht is checking the saved history for this account.</p>
         </div>
       ) : reports.length === 0 ? (
         <div className="empty-state">
           <h3>No reports saved yet</h3>
           <p>
-            Generate a race report and RepRun will keep it in this history.
+            Generate a race report and Ocht will keep it in this history.
           </p>
         </div>
       ) : (

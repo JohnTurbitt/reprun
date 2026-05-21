@@ -4,14 +4,18 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div>
-        <strong>RepRun</strong>
+        <strong>Ocht</strong>
         <span>Hybrid race split analytics.</span>
       </div>
       <nav aria-label="Trust and legal links">
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
+        <Link href="/calculations">Calculations</Link>
         <Link href="/refunds">Refunds</Link>
         <Link href="/contact">Contact</Link>
+        <a href="mailto:support@ocht.app?subject=Ocht%20beta%20feedback">
+          Feedback
+        </a>
       </nav>
     </footer>
   );

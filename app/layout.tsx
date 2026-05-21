@@ -3,16 +3,16 @@ import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.scss";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:3002";
-const appName = "RepRun";
+const appName = "Ocht";
 const appDescription =
-  "Analyze HYROX-style race splits, find time leaks, and build a realistic next target.";
+  "Trace hybrid race splits, find time leaks, and build a realistic next target.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   applicationName: appName,
   title: {
-    default: "RepRun - Hybrid Race Split Analyzer",
-    template: "%s - RepRun",
+    default: "Ocht - Hybrid Race Split Analyzer",
+    template: "%s - Ocht",
   },
   description: appDescription,
   alternates: {
@@ -25,20 +25,20 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: appName,
-    title: "RepRun - Hybrid Race Split Analyzer",
+    title: "Ocht - Hybrid Race Split Analyzer",
     description: appDescription,
     images: [
       {
         url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "RepRun hybrid race split analyzer preview",
+        alt: "Ocht hybrid race split analyzer preview",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "RepRun - Hybrid Race Split Analyzer",
+    title: "Ocht - Hybrid Race Split Analyzer",
     description: appDescription,
     images: ["/og-image.svg"],
   },
@@ -48,8 +48,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f8f3" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b120f" },
+    { media: "(prefers-color-scheme: light)", color: "#f7faf2" },
+    { media: "(prefers-color-scheme: dark)", color: "#08100d" },
   ],
 };
 
