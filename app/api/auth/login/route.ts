@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { normalizeEmail, verifyPassword } from "@/lib/auth";
 import { authServiceError } from "@/lib/apiErrors";
 import { validateAuthPayload } from "@/lib/apiValidation";
 import { prisma } from "@/lib/prisma";
 import { toPublicUser } from "@/lib/profile";
+import { guardBrowserMutation } from "@/lib/security";
 import {
   createSessionToken,
   getSessionCookieOptions,
@@ -12,7 +13,17 @@ import {
   sessionCookieName,
 } from "@/lib/session";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const guardResponse = guardBrowserMutation(request, {
+    key: "auth-login",
+    limit: 12,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   const validation = validateAuthPayload(await request.json().catch(() => null));
 
   if (!validation.valid || !validation.value) {

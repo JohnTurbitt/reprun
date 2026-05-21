@@ -12,6 +12,7 @@ import {
   toPersistableRaceReport,
   toSavedReport,
 } from "@/lib/reportPersistence";
+import { guardBrowserMutation } from "@/lib/security";
 import { validateReportInput } from "@/lib/validation";
 
 const levels: Level[] = ["starter", "competitive", "elite"];
@@ -176,6 +177,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const guardResponse = guardBrowserMutation(request, {
+    key: "reports-create",
+    limit: 30,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   try {
     const user = await requireCurrentUser(request);
 

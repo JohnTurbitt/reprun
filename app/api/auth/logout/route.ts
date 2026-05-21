@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { guardBrowserMutation } from "@/lib/security";
 import { hashSessionToken, sessionCookieName } from "@/lib/session";
 
 export async function POST(request: NextRequest) {
+  const guardResponse = guardBrowserMutation(request, {
+    key: "auth-logout",
+    limit: 30,
+    windowMs: 5 * 60 * 1000,
+  });
+
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   const token = request.cookies.get(sessionCookieName)?.value;
 
   if (token) {

@@ -40,6 +40,7 @@ Backend foundation:
 - launch trust pages for privacy, terms, refunds, and contact
 - calculation methodology page for beta trust and review
 - beta feedback links for tester review
+- security headers, origin checks, and API rate limits for launch hardening
 - Open Graph and Twitter share metadata
 
 Planned additions:
@@ -180,6 +181,32 @@ Before launch:
 6. Run `npm run build` in the production environment and confirm it completes.
 7. Review `/privacy`, `/terms`, `/refunds`, and `/contact`, including the
    support email address, before public launch.
+
+## Launch Security Checklist
+
+Implemented app-side safeguards:
+
+- hashed passwords with bcrypt
+- hashed database session tokens
+- `httpOnly`, `sameSite=lax`, production-secure session cookies
+- Stripe webhook signature verification
+- user-scoped report reads and deletes
+- server-side report recalculation before persistence
+- browser origin checks on state-changing API routes
+- basic in-memory rate limits for auth, reports, checkout, and billing portal
+- response security headers from `next.config.ts`
+
+Before taking broad public traffic:
+
+1. Keep all production secrets in the deployment provider, not in git.
+2. Rotate any key that was pasted into chat, logs, screenshots, or public tools.
+3. Use a managed production database with SSL, backups, and a strong password.
+4. Configure Stripe live webhooks and monitor failed webhook deliveries.
+5. Consider hosted rate limiting such as Upstash, Redis, Vercel Firewall, or
+   Cloudflare before scaling beyond a small beta. In-memory rate limits reset
+   when serverless instances restart and do not coordinate across instances.
+6. Add password reset and email verification before a larger paid launch.
+7. Review the legal pages with appropriate professional advice.
 8. Check the public URL in a social share preview tool so the Open Graph title,
    description, and image render as expected.
 

@@ -3,6 +3,7 @@ import { validateProfilePayload } from "@/lib/apiValidation";
 import { getCurrentUser } from "@/lib/apiAuth";
 import { prisma } from "@/lib/prisma";
 import { athleteLevelByLevel, toPublicUser } from "@/lib/profile";
+import { guardBrowserMutation } from "@/lib/security";
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser(request);
@@ -11,6 +12,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const guardResponse = guardBrowserMutation(request, {
+    key: "profile-update",
+    limit: 20,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   const currentUser = await getCurrentUser(request);
 
   if (!currentUser) {

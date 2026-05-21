@@ -3,8 +3,19 @@ import { getCheckoutPriceId, getStripe } from "@/lib/billing";
 import { checkoutError } from "@/lib/apiErrors";
 import { requireCurrentUser } from "@/lib/apiAuth";
 import { prisma } from "@/lib/prisma";
+import { guardBrowserMutation } from "@/lib/security";
 
 export async function POST(request: NextRequest) {
+  const guardResponse = guardBrowserMutation(request, {
+    key: "billing-checkout",
+    limit: 8,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   try {
     const user = await requireCurrentUser(request);
 

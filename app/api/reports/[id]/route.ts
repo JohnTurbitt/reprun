@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser } from "@/lib/apiAuth";
 import { prisma } from "@/lib/prisma";
+import { guardBrowserMutation } from "@/lib/security";
 
 type RouteContext = {
   params: Promise<{
@@ -9,6 +10,16 @@ type RouteContext = {
 };
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
+  const guardResponse = guardBrowserMutation(request, {
+    key: "reports-delete",
+    limit: 30,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (guardResponse) {
+    return guardResponse;
+  }
+
   const user = await requireCurrentUser(request);
 
   if (!user) {
