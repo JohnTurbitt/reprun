@@ -38,6 +38,7 @@ export function AuthPanel({
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [profileName, setProfileName] = useState("");
   const [profileLevel, setProfileLevel] = useState<Level>("competitive");
   const [profileTargetTime, setProfileTargetTime] = useState("1:25:00");
@@ -67,7 +68,12 @@ export function AuthPanel({
 
     return (
       <aside className="auth-panel auth-panel--signed-in">
-        <div className="auth-panel__identity">
+        <button
+          className="auth-panel__account-trigger"
+          type="button"
+          onClick={() => setAccountOpen((isOpen) => !isOpen)}
+          aria-expanded={accountOpen}
+        >
           <span className="auth-panel__avatar" aria-hidden="true">
             {userInitial}
           </span>
@@ -79,44 +85,48 @@ export function AuthPanel({
               {user.subscription === "ACTIVE" ? <PremiumBadge /> : null}
             </p>
           </div>
-        </div>
-        <p className="auth-panel__defaults">
-          {levelLabels[user.defaultLevel]} · {user.defaultTargetTime}
-        </p>
-        <div className="auth-panel__actions">
-          <button
-            className="button-secondary"
-            type="button"
-            onClick={() => {
-              setProfileName(user.name ?? "");
-              setProfileLevel(user.defaultLevel);
-              setProfileTargetTime(user.defaultTargetTime);
-              setProfileOpen((isOpen) => !isOpen);
-            }}
-            disabled={loading}
-          >
-            Profile settings
-          </button>
-          {canManageBilling ? (
+        </button>
+
+        {accountOpen ? (
+          <div className="auth-panel__account-menu">
+            <p className="auth-panel__defaults">
+              Defaults: {levelLabels[user.defaultLevel]} · {user.defaultTargetTime}
+            </p>
             <button
               className="button-secondary"
               type="button"
-              onClick={onManageBilling}
-              disabled={loading || billingLoading}
+              onClick={() => {
+                setProfileName(user.name ?? "");
+                setProfileLevel(user.defaultLevel);
+                setProfileTargetTime(user.defaultTargetTime);
+                setProfileOpen((isOpen) => !isOpen);
+              }}
+              disabled={loading}
             >
-              {billingLoading ? "Opening..." : "Manage billing"}
+              Profile settings
             </button>
-          ) : null}
-          <button
-            className="button-secondary"
-            type="button"
-            onClick={() => void onLogout()}
-            disabled={loading}
-          >
-            Log out
-          </button>
-        </div>
-        {profileOpen ? (
+            {canManageBilling ? (
+              <button
+                className="button-secondary"
+                type="button"
+                onClick={onManageBilling}
+                disabled={loading || billingLoading}
+              >
+                {billingLoading ? "Opening..." : "Manage billing"}
+              </button>
+            ) : null}
+            <button
+              className="button-secondary"
+              type="button"
+              onClick={() => void onLogout()}
+              disabled={loading}
+            >
+              Log out
+            </button>
+          </div>
+        ) : null}
+
+        {accountOpen && profileOpen ? (
           <form
             className="profile-form"
             onSubmit={async (event) => {

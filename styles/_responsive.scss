@@ -199,12 +199,24 @@
     min-width: 0;
   }
 
-  .auth-panel__actions {
-    display: grid;
+  .auth-panel__account-trigger {
+    width: 100%;
+    min-width: 0;
   }
 
-  .auth-panel__defaults {
-    margin-left: 52px !important;
+  .auth-panel__account-menu,
+  .profile-form {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .auth-panel__account-menu::before {
+    display: none;
+  }
+
+  .auth-panel__actions {
+    display: grid;
   }
 
   .profile-form {

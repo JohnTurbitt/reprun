@@ -143,17 +143,10 @@
 }
 
 .auth-panel--signed-in {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 10px 14px;
-  align-items: center;
-  width: min(620px, 100%);
-  min-width: min(620px, 100%);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 10px;
-  background: var(--glass);
-  box-shadow: 0 8px 22px rgba(22, 28, 18, 0.06);
+  width: auto;
+  min-width: 0;
 }
 
 .auth-panel--signed-in strong {
@@ -169,11 +162,31 @@
   font-size: 0.82rem;
 }
 
-.auth-panel__identity {
+.auth-panel__account-trigger {
   display: flex;
-  min-width: 0;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
+  width: auto;
+  min-width: 220px;
+  min-height: 54px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 14px 6px 6px;
+  background: var(--glass);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: 0 8px 22px rgba(22, 28, 18, 0.06);
+}
+
+.auth-panel__account-trigger:hover,
+.auth-panel__account-trigger[aria-expanded="true"] {
+  border-color: var(--teal);
+  background: var(--field);
+}
+
+.auth-panel__account-trigger > div {
+  min-width: 0;
 }
 
 .auth-panel__avatar {
@@ -184,29 +197,65 @@
   place-items: center;
   border-radius: 999px;
   background: var(--lime);
-  color: var(--ink);
+  color: #0a1711;
   font-weight: 900;
+  line-height: 1;
 }
 
 .auth-panel__defaults {
-  grid-column: 1;
-  margin: 0 0 0 52px !important;
+  margin: 0 !important;
   color: var(--muted);
   font-size: 0.8rem;
 }
 
-.profile-form {
-  grid-column: 1 / -1;
+.auth-panel__account-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 55;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  min-width: 260px;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.auth-panel__account-menu::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 28px;
+  width: 12px;
+  height: 12px;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  transform: rotate(45deg);
+}
+
+.profile-form {
+  position: absolute;
+  top: calc(100% + 188px);
+  right: 0;
+  z-index: 54;
+  display: grid;
+  width: min(520px, calc(100vw - 32px));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: end;
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
 }
 
 .profile-form button {
-  width: auto;
+  grid-column: 1 / -1;
+  width: 100%;
   min-height: 48px;
   margin: 0;
   padding: 0 16px;
