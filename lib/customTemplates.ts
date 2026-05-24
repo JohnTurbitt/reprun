@@ -7,7 +7,8 @@ export type CustomTemplate = ReportPreset & {
   raceFormat: "custom";
 };
 
-const storageKey = "reprun.customTemplates";
+const storageKey = "ocht.customTemplates";
+const legacyStorageKey = "reprun.customTemplates";
 
 export function loadCustomTemplates(): CustomTemplate[] {
   if (typeof window === "undefined") {
@@ -15,7 +16,9 @@ export function loadCustomTemplates(): CustomTemplate[] {
   }
 
   try {
-    const rawTemplates = window.localStorage.getItem(storageKey);
+    const rawTemplates =
+      window.localStorage.getItem(storageKey) ??
+      window.localStorage.getItem(legacyStorageKey);
 
     if (!rawTemplates) {
       return [];
@@ -27,7 +30,15 @@ export function loadCustomTemplates(): CustomTemplate[] {
       return [];
     }
 
-    return templates.filter((template) => template.raceFormat === "custom");
+    const customTemplates = templates.filter(
+      (template) => template.raceFormat === "custom",
+    );
+
+    if (!window.localStorage.getItem(storageKey)) {
+      window.localStorage.setItem(storageKey, JSON.stringify(customTemplates));
+    }
+
+    return customTemplates;
   } catch {
     return [];
   }

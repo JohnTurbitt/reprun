@@ -16,7 +16,8 @@ export type SavedReport = {
   topLeakLabel: string;
 };
 
-const storageKey = "reprun.savedReports";
+const storageKey = "ocht.savedReports";
+const legacyStorageKey = "reprun.savedReports";
 
 export function loadSavedReports(): SavedReport[] {
   if (typeof window === "undefined") {
@@ -24,7 +25,9 @@ export function loadSavedReports(): SavedReport[] {
   }
 
   try {
-    const rawReports = window.localStorage.getItem(storageKey);
+    const rawReports =
+      window.localStorage.getItem(storageKey) ??
+      window.localStorage.getItem(legacyStorageKey);
 
     if (!rawReports) {
       return [];
@@ -34,6 +37,10 @@ export function loadSavedReports(): SavedReport[] {
 
     if (!Array.isArray(reports)) {
       return [];
+    }
+
+    if (!window.localStorage.getItem(storageKey)) {
+      window.localStorage.setItem(storageKey, JSON.stringify(reports));
     }
 
     return reports;

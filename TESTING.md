@@ -1,13 +1,13 @@
-# RepRun Preview Setup
+# Ocht Preview Setup
 
 ## Local Setup
 
 From the project folder:
 
 ```powershell
-cd c:\Users\johnt\Documents\reprun
+cd c:\Users\johnt\Documents\ocht
 npm install
-docker start reprun-postgres
+docker start ocht-postgres
 npm run prisma:generate
 npm run prisma:migrate
 npm run dev
@@ -16,16 +16,16 @@ npm run dev
 Open:
 
 ```text
-http://localhost:3000
+http://127.0.0.1:3002
 ```
 
 If the database container does not exist yet:
 
 ```powershell
-docker run --name reprun-postgres `
+docker run --name ocht-postgres `
   -e POSTGRES_USER=postgres `
   -e POSTGRES_PASSWORD=postgres `
-  -e POSTGRES_DB=reprun `
+  -e POSTGRES_DB=ocht `
   -p 5433:5432 `
   -d postgres:16
 ```
@@ -33,7 +33,7 @@ docker run --name reprun-postgres `
 The local `.env` should include:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5433/reprun?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/ocht?schema=public"
 AUTH_SECRET="replace-with-a-long-random-secret"
 ```
 

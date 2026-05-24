@@ -8,7 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient() {
   const connectionString =
     process.env.DATABASE_URL ??
-    "postgresql://postgres:postgres@localhost:5432/reprun?schema=public";
+    "postgresql://postgres:postgres@localhost:5432/ocht?schema=public";
 
   if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is required in production.");

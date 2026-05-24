@@ -10,15 +10,33 @@ type SettingsMenuProps = {
   onDistanceUnitChange: (unit: DistanceUnit) => void;
 };
 
-const themeStorageKey = "reprun.theme";
-const unitStorageKey = "reprun.distanceUnit";
+const themeStorageKey = "ocht.theme";
+const unitStorageKey = "ocht.distanceUnit";
+const legacyThemeStorageKey = "reprun.theme";
+const legacyUnitStorageKey = "reprun.distanceUnit";
+
+function readStorageWithLegacy(key: string, legacyKey: string) {
+  const value = window.localStorage.getItem(key);
+
+  if (value !== null) {
+    return value;
+  }
+
+  const legacyValue = window.localStorage.getItem(legacyKey);
+
+  if (legacyValue !== null) {
+    window.localStorage.setItem(key, legacyValue);
+  }
+
+  return legacyValue;
+}
 
 function readPreferredTheme(): Theme {
   if (typeof window === "undefined") {
     return "light";
   }
 
-  const savedTheme = window.localStorage.getItem(themeStorageKey);
+  const savedTheme = readStorageWithLegacy(themeStorageKey, legacyThemeStorageKey);
 
   if (savedTheme === "light" || savedTheme === "dark") {
     return savedTheme;
@@ -38,7 +56,7 @@ function readPreferredDistanceUnit(): DistanceUnit {
     return "km";
   }
 
-  const savedUnit = window.localStorage.getItem(unitStorageKey);
+  const savedUnit = readStorageWithLegacy(unitStorageKey, legacyUnitStorageKey);
 
   return savedUnit === "mi" ? "mi" : "km";
 }

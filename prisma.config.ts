@@ -20,7 +20,7 @@ const databaseUrl =
   process.env.DATABASE_URL ??
   readDatabaseUrlFromEnvFile() ??
   // Local fallback keeps `prisma generate` usable before a project `.env` exists.
-  "postgresql://postgres:postgres@localhost:5432/reprun?schema=public";
+  "postgresql://postgres:postgres@localhost:5432/ocht?schema=public";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
