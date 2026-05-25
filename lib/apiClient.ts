@@ -164,3 +164,10 @@ export async function openBillingPortal() {
 
   return body.url;
 }
+
+export async function syncBillingStatus() {
+  const response = await fetch("/api/billing/sync", { method: "POST" });
+  const body = await readApiResponse<{ user: AuthUser }>(response);
+
+  return body.user;
+}

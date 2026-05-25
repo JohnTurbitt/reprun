@@ -55,6 +55,7 @@ import {
   saveRemoteReport,
   signUp,
   startCheckout,
+  syncBillingStatus,
   updateProfile,
 } from "@/lib/apiClient";
 import { trackEvent } from "@/lib/analytics";
@@ -339,6 +340,19 @@ export default function Home() {
 
     for (let attempt = 0; attempt < billingRefreshAttempts; attempt += 1) {
       try {
+        const syncedUser = await syncBillingStatus().catch(() => null);
+
+        if (syncedUser) {
+          setUser(syncedUser);
+
+          if (
+            expectedPaidAccess === undefined ||
+            Boolean(syncedUser.subscription === "ACTIVE") === expectedPaidAccess
+          ) {
+            return;
+          }
+        }
+
         const currentUser = await getCurrentUser();
 
         setUser(currentUser);
