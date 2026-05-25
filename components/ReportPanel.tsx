@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { toBlob } from "html-to-image";
 import { Analysis, formatTime } from "@/lib/analysis";
+import { trackEvent } from "@/lib/analytics";
 import { calculateRaceReadiness, readinessLabel } from "@/lib/readiness";
 import { buildReportExportText } from "@/lib/reportExport";
 import {
@@ -232,6 +233,9 @@ export function ReportPanel({
       await navigator.clipboard.writeText(exportText);
       setExportMessage("Report copied.");
       setShareModalOpen(false);
+      trackEvent("report_exported", {
+        format: "text_clipboard",
+      });
     } catch {
       setExportMessage("Copy was blocked by the browser.");
     }
@@ -276,6 +280,9 @@ export function ReportPanel({
           await navigator.share(shareData);
           setExportMessage("Report image shared.");
           setShareModalOpen(false);
+          trackEvent("report_exported", {
+            format: "full_image_share",
+          });
           return;
         }
       }
@@ -287,6 +294,9 @@ export function ReportPanel({
         });
         setExportMessage("Share sheet opened.");
         setShareModalOpen(false);
+        trackEvent("report_exported", {
+          format: "text_share",
+        });
         return;
       }
 
@@ -327,6 +337,9 @@ export function ReportPanel({
         ]);
         setExportMessage("Poster image copied.");
         setShareModalOpen(false);
+        trackEvent("report_exported", {
+          format: "poster_clipboard",
+        });
         return;
       }
 
@@ -360,6 +373,9 @@ export function ReportPanel({
         await navigator.share(shareData);
         setExportMessage("Poster shared.");
         setShareModalOpen(false);
+        trackEvent("report_exported", {
+          format: "poster_share",
+        });
         return;
       }
 
@@ -381,6 +397,9 @@ export function ReportPanel({
       URL.revokeObjectURL(reportUrl);
       setExportMessage("Report downloaded.");
       setShareModalOpen(false);
+      trackEvent("report_exported", {
+        format: "text_download",
+      });
     } catch {
       setExportMessage("Download was blocked by the browser.");
     }
@@ -398,7 +417,10 @@ export function ReportPanel({
             <button
               className="share-trigger"
               type="button"
-              onClick={() => setShareModalOpen(true)}
+              onClick={() => {
+                setShareModalOpen(true);
+                trackEvent("share_options_opened");
+              }}
               aria-label="Open share options"
               title="Share and export"
             >
@@ -413,7 +435,12 @@ export function ReportPanel({
           <button
             className="report__print"
             type="button"
-            onClick={() => window.print()}
+            onClick={() => {
+              trackEvent("report_exported", {
+                format: "print",
+              });
+              window.print();
+            }}
             disabled={!fullReportUnlocked}
           >
             Print report
@@ -499,7 +526,7 @@ export function ReportPanel({
             type="button"
             onClick={() =>
               fullReportUnlocked
-                ? setShareModalOpen(true)
+                ? (setShareModalOpen(true), trackEvent("share_options_opened"))
                 : scrollToReportSection("report-training")
             }
           >
@@ -708,6 +735,7 @@ export function ReportPanel({
             type="button"
             onClick={onStartCheckout}
             disabled={!canStartCheckout || billingLoading}
+            data-analytics-source="paywall"
           >
             {billingLoading
               ? "Opening checkout..."

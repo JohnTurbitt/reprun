@@ -37,8 +37,11 @@ export default function PrivacyPage() {
       <h2>Third Parties</h2>
       <p>
         Stripe processes checkout, billing portal, and subscription webhook
-        events. Hosting, database, and email providers may process operational
-        data when Ocht is deployed.
+        events. Hosting, database, email, and analytics providers may process
+        operational data when Ocht is deployed. Analytics events are limited to
+        product actions such as report generation, checkout starts, and export
+        clicks; Ocht does not intentionally send passwords, payment details,
+        full race split payloads, or account emails in analytics events.
       </p>
 
       <h2>Retention And Deletion</h2>

@@ -57,6 +57,7 @@ import {
   startCheckout,
   updateProfile,
 } from "@/lib/apiClient";
+import { trackEvent } from "@/lib/analytics";
 import { validateReportInput } from "@/lib/validation";
 import type { DistanceUnit } from "@/lib/units";
 
@@ -249,10 +250,19 @@ export default function Home() {
       formatPresetByFormat[nextRaceFormat],
       `${raceFormatLabels[nextRaceFormat]} loaded`,
     );
+    trackEvent("race_format_selected", {
+      race_format: nextRaceFormat,
+      signed_in: Boolean(user),
+      premium: fullReportUnlocked,
+    });
   }
 
   function activateCustomFormat() {
     if (!fullReportUnlocked) {
+      trackEvent("premium_gate_clicked", {
+        feature: "custom_format",
+        signed_in: Boolean(user),
+      });
       setToast({
         id: Date.now(),
         title: "Custom formats are paid",
@@ -292,6 +302,10 @@ export default function Home() {
       message: "Your custom race setup is saved on this device.",
       tone: "success",
     });
+    trackEvent("custom_template_saved", {
+      station_count: customStations.length,
+      run_count: runs.length,
+    });
   }
 
   function deleteCustomTemplate(templateId: string) {
@@ -307,6 +321,7 @@ export default function Home() {
       message: "The custom race template has been removed.",
       tone: "success",
     });
+    trackEvent("custom_template_deleted");
   }
 
   async function refreshRemoteReports() {
@@ -360,6 +375,9 @@ export default function Home() {
         message: "Your reports will now save to your account.",
         tone: "success",
       });
+      trackEvent("login_completed", {
+        premium: authenticatedUser.subscription === "ACTIVE",
+      });
     } catch (error) {
       setToast({
         id: Date.now(),
@@ -387,6 +405,7 @@ export default function Home() {
         message: "Your future reports will save to your Ocht account.",
         tone: "success",
       });
+      trackEvent("signup_completed");
     } catch (error) {
       setToast({
         id: Date.now(),
@@ -411,6 +430,7 @@ export default function Home() {
         message: "Ocht is showing reports saved on this device.",
         tone: "success",
       });
+      trackEvent("logout_completed");
     } catch (error) {
       setToast({
         id: Date.now(),
@@ -434,6 +454,9 @@ export default function Home() {
     }
 
     setBillingLoading(true);
+    trackEvent("checkout_started", {
+      source: "report_paywall",
+    });
 
     try {
       window.location.href = await startCheckout();
@@ -448,11 +471,13 @@ export default function Home() {
         tone: "error",
       });
       setBillingLoading(false);
+      trackEvent("checkout_start_failed");
     }
   }
 
   async function handleManageBilling() {
     setBillingLoading(true);
+    trackEvent("billing_portal_started");
 
     try {
       window.location.href = await openBillingPortal();
@@ -467,6 +492,7 @@ export default function Home() {
         tone: "error",
       });
       setBillingLoading(false);
+      trackEvent("billing_portal_failed");
     }
   }
 
@@ -483,6 +509,7 @@ export default function Home() {
         message: "Your report defaults have been updated.",
         tone: "success",
       });
+      trackEvent("profile_saved");
     } catch (error) {
       setToast({
         id: Date.now(),
@@ -599,6 +626,14 @@ export default function Home() {
     });
     setSavedReports(nextReports);
     setActiveTab("new");
+    trackEvent("report_generated", {
+      race_format: raceFormat,
+      signed_in: Boolean(user),
+      premium: fullReportUnlocked,
+      saved_remote: Boolean(user),
+      run_count: runs.length,
+      station_count: activeStationDefinitions.length,
+    });
     window.requestAnimationFrame(() => {
       reportRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -630,6 +665,10 @@ export default function Home() {
     setStationSplits(report.stationSplits);
     setAnalysis(loadedAnalysis);
     setActiveTab("new");
+    trackEvent("saved_report_loaded", {
+      race_format: report.raceFormat ?? "hyrox",
+      signed_in: Boolean(user),
+    });
     window.requestAnimationFrame(() => {
       reportRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -663,6 +702,9 @@ export default function Home() {
     if (!user) {
       saveReports(nextReports);
     }
+    trackEvent("saved_report_deleted", {
+      signed_in: Boolean(user),
+    });
   }
 
   const activeAnalysis = analysis ?? preview;
@@ -722,6 +764,9 @@ export default function Home() {
     );
 
     if (checkoutStatus === "success") {
+      trackEvent("checkout_returned", {
+        status: "success",
+      });
       setToast({
         id: Date.now(),
         title: "Checkout complete",
@@ -733,6 +778,9 @@ export default function Home() {
     }
 
     if (checkoutStatus === "cancelled") {
+      trackEvent("checkout_returned", {
+        status: "cancelled",
+      });
       setToast({
         id: Date.now(),
         title: "Checkout cancelled",
@@ -743,6 +791,7 @@ export default function Home() {
     }
 
     if (checkoutStatus === "billing") {
+      trackEvent("billing_portal_returned");
       setToast({
         id: Date.now(),
         title: "Billing updated",
@@ -867,7 +916,13 @@ export default function Home() {
               activeTab === "history" ? "tab-bar__tab is-active" : "tab-bar__tab"
             }
             type="button"
-            onClick={() => setActiveTab("history")}
+            onClick={() => {
+              setActiveTab("history");
+              trackEvent("history_opened", {
+                signed_in: Boolean(user),
+                report_count: savedReports.length,
+              });
+            }}
           >
             Previous reports
             {savedReports.length > 0 ? <span>{savedReports.length}</span> : null}

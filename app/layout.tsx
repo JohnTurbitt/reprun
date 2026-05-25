@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { SiteFooter } from "@/components/SiteFooter";
 import "./globals.scss";
 
@@ -20,6 +21,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/favicon.svg",
+    apple: "/brand/ocht-mark.png",
+  },
+  manifest: "/manifest.webmanifest",
+  robots: {
+    index: true,
+    follow: true,
   },
   openGraph: {
     type: "website",
@@ -63,6 +70,7 @@ export default function RootLayout({
       <body>
         {children}
         <SiteFooter />
+        <Analytics />
       </body>
     </html>
   );
