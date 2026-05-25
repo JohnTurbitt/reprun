@@ -360,3 +360,35 @@
   border-top: 1px solid var(--line);
   font-size: 0.94rem;
 }
+
+.legal-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  background: var(--panel);
+}
+
+.legal-form button {
+  margin: 0;
+}
+
+.legal-form__message,
+.legal-form__error {
+  margin: 0 !important;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.94rem !important;
+}
+
+.legal-form__message {
+  background: var(--surface);
+  color: var(--teal) !important;
+}
+
+.legal-form__error {
+  background: var(--error-soft);
+  color: var(--red) !important;
+}

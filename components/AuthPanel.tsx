@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Level, levelLabels } from "@/lib/analysis";
 import { AuthFormInput, AuthUser, ProfileFormInput } from "@/lib/apiClient";
 import { PremiumBadge } from "./PremiumBadge";
@@ -335,6 +336,11 @@ export function AuthPanel({
                 type="password"
               />
             </label>
+            {mode === "login" ? (
+              <Link className="auth-panel__forgot" href="/forgot-password">
+                Forgot password?
+              </Link>
+            ) : null}
             <button type="submit" disabled={submitting || loading}>
               {submitting
                 ? "Working..."
