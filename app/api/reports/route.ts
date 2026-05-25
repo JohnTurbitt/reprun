@@ -9,6 +9,7 @@ import {
   isRaceFormat,
 } from "@/lib/raceFormats";
 import {
+  PersistedReportSummary,
   toPersistableRaceReport,
   toSavedReport,
 } from "@/lib/reportPersistence";
@@ -16,6 +17,14 @@ import { guardBrowserMutation } from "@/lib/security";
 import { validateReportInput } from "@/lib/validation";
 
 const levels: Level[] = ["starter", "competitive", "elite"];
+
+type RaceReportRecord = Omit<
+  PersistedReportSummary,
+  "stationSplits" | "analysisSnapshot"
+> & {
+  stationSplits: unknown;
+  analysisSnapshot: unknown;
+};
 
 type ReportPayload = {
   raceFormat: RaceFormat;
@@ -150,7 +159,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-      reports: reports.map((report) =>
+      reports: reports.map((report: RaceReportRecord) =>
         toSavedReport({
           id: report.id,
           createdAt: report.createdAt,
