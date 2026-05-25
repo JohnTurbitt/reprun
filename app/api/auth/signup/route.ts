@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { hashPassword, normalizeEmail } from "@/lib/auth";
-import { authServiceError } from "@/lib/apiErrors";
+import { signupError } from "@/lib/apiErrors";
 import { prisma } from "@/lib/prisma";
 import { guardBrowserMutation } from "@/lib/security";
 import { validateAuthPayload } from "@/lib/apiValidation";
@@ -89,6 +89,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Signup failed", error);
 
-    return authServiceError();
+    return signupError(error);
   }
 }

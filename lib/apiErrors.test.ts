@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { billingPortalError, checkoutError } from "./apiErrors";
+import { billingPortalError, checkoutError, signupError } from "./apiErrors";
 
 describe("api error helpers", () => {
   it("explains missing Stripe checkout configuration", async () => {
@@ -33,5 +33,15 @@ describe("api error helpers", () => {
 
     expect(response.status).toBe(502);
     expect(body.errors[0]).toContain("Stripe billing could not be reached");
+  });
+
+  it("explains unreachable account database errors", async () => {
+    const response = signupError(
+      new Error("Can't reach database server at base"),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.errors[0]).toContain("DATABASE_URL");
   });
 });

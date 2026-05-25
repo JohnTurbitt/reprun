@@ -42,6 +42,35 @@ export function authServiceError() {
   );
 }
 
+export function signupError(error: unknown) {
+  const message = error instanceof Error ? error.message : "";
+
+  if (
+    message.includes("DATABASE_URL") ||
+    message.includes("Can't reach database server") ||
+    message.includes("connect ECONNREFUSED") ||
+    message.includes("Connection terminated")
+  ) {
+    return apiError(
+      ["Account database is not reachable. Check DATABASE_URL in Vercel and Neon."],
+      { status: 503 },
+    );
+  }
+
+  if (
+    message.includes("does not exist") ||
+    message.includes("relation") ||
+    message.includes("table")
+  ) {
+    return apiError(
+      ["Account database is not migrated yet. Run Prisma migrations for the production database."],
+      { status: 503 },
+    );
+  }
+
+  return authServiceError();
+}
+
 export function checkoutError(error: unknown) {
   const message = error instanceof Error ? error.message : "";
   const stripeType = readStringProperty(error, "type");
