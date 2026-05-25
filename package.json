@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3002",
+    "prebuild": "prisma generate",
     "build": "next build",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
