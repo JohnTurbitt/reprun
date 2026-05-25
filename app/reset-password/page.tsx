@@ -5,6 +5,10 @@ import { ResetPasswordForm } from "@/components/PasswordResetForms";
 export const metadata: Metadata = {
   title: "Set New Password - Ocht",
   description: "Set a new password for your Ocht account.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function ResetPasswordPage() {

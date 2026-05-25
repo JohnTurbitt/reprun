@@ -52,3 +52,36 @@ export async function sendPasswordResetEmail({
 
   return result.data;
 }
+
+export async function sendEmailVerificationEmail({
+  email,
+  verificationUrl,
+}: {
+  email: string;
+  verificationUrl: string;
+}) {
+  const result = await getResend().emails.send({
+    from: getEmailFrom(),
+    to: email,
+    subject: "Verify your Ocht email",
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.5; color: #10130f;">
+        <h1 style="font-size: 22px;">Verify your Ocht email</h1>
+        <p>Confirm this email address so Ocht can send account, password reset, and billing-related messages reliably.</p>
+        <p>
+          <a href="${verificationUrl}" style="display: inline-block; padding: 12px 16px; background: #10130f; color: #c8ff2e; text-decoration: none; font-weight: 700;">
+            Verify email
+          </a>
+        </p>
+        <p>This link expires in 24 hours. If you did not create an Ocht account, you can ignore this email.</p>
+      </div>
+    `,
+    text: `Verify your Ocht email: ${verificationUrl}\n\nThis link expires in 24 hours. If you did not create an Ocht account, you can ignore this email.`,
+  });
+
+  if (result.error) {
+    throw new Error(result.error.message);
+  }
+
+  return result.data;
+}

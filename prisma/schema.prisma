@@ -20,19 +20,21 @@ enum SubscriptionStatus {
 }
 
 model User {
-  id           String             @id @default(cuid())
-  email        String             @unique
-  passwordHash String
-  name         String?
-  defaultLevel AthleteLevel       @default(COMPETITIVE)
-  defaultTargetTime String        @default("1:25:00")
-  subscription SubscriptionStatus @default(FREE)
-  stripeCustomerId String?        @unique
-  sessions     UserSession[]
-  passwordResetTokens PasswordResetToken[]
-  reports      RaceReport[]
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id                      String                   @id @default(cuid())
+  email                   String                   @unique
+  emailVerifiedAt         DateTime?
+  passwordHash            String
+  name                    String?
+  defaultLevel            AthleteLevel             @default(COMPETITIVE)
+  defaultTargetTime       String                   @default("1:25:00")
+  subscription            SubscriptionStatus       @default(FREE)
+  stripeCustomerId        String?                  @unique
+  sessions                UserSession[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  reports                 RaceReport[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
 }
 
 model UserSession {
@@ -48,13 +50,26 @@ model UserSession {
 }
 
 model PasswordResetToken {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tokenHash String   @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
 
   @@index([userId])
   @@index([expiresAt])

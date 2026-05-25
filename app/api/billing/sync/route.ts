@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         email: true,
+        emailVerifiedAt: true,
         name: true,
         subscription: true,
         defaultLevel: true,

@@ -2,7 +2,7 @@
 
 import { FormEvent, Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { requestPasswordReset, resetPassword } from "@/lib/apiClient";
+import { requestPasswordReset, resetPassword, verifyEmail } from "@/lib/apiClient";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -108,6 +108,54 @@ export function ResetPasswordForm() {
   return (
     <Suspense fallback={null}>
       <ResetPasswordInner />
+    </Suspense>
+  );
+}
+
+function VerifyEmailInner() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleVerify() {
+    setSubmitting(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await verifyEmail(token);
+      setMessage("Your email has been verified. You can return to Ocht.");
+    } catch (verifyError) {
+      setError(
+        verifyError instanceof Error
+          ? verifyError.message
+          : "Email could not be verified.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="legal-form">
+      <button type="button" onClick={handleVerify} disabled={submitting || !token}>
+        {submitting ? "Verifying..." : "Verify email"}
+      </button>
+      {!token ? (
+        <p className="legal-form__error">Email verification link is missing.</p>
+      ) : null}
+      {message ? <p className="legal-form__message">{message}</p> : null}
+      {error ? <p className="legal-form__error">{error}</p> : null}
+    </div>
+  );
+}
+
+export function VerifyEmailForm() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailInner />
     </Suspense>
   );
 }

@@ -170,6 +170,11 @@
   font-size: 0.82rem;
 }
 
+.auth-panel__verification-status {
+  color: var(--red) !important;
+  font-weight: 800;
+}
+
 .auth-panel__account-trigger {
   display: flex;
   align-items: center;
@@ -214,6 +219,33 @@
   margin: 0 !important;
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.auth-panel__verify {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--red);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--error-soft);
+}
+
+.auth-panel__verify span {
+  color: var(--red);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.auth-panel__verify p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.auth-panel__verify button {
+  margin: 0;
 }
 
 .auth-panel__account-menu {

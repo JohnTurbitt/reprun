@@ -13,6 +13,7 @@ type AuthPanelProps = {
   onLogout: () => Promise<void>;
   onStartCheckout: () => void;
   onManageBilling: () => void;
+  onResendVerification: () => Promise<void>;
   onSaveProfile: (input: ProfileFormInput) => Promise<void>;
 };
 
@@ -34,6 +35,7 @@ export function AuthPanel({
   onLogout,
   onStartCheckout,
   onManageBilling,
+  onResendVerification,
   onSaveProfile,
 }: AuthPanelProps) {
   const [mode, setMode] = useState<AuthMode | null>(null);
@@ -125,6 +127,9 @@ export function AuthPanel({
               {subscriptionLabels[user.subscription]}{" "}
               {user.subscription === "ACTIVE" ? <PremiumBadge /> : null}
             </p>
+            {!user.emailVerified ? (
+              <p className="auth-panel__verification-status">Email unverified</p>
+            ) : null}
           </div>
         </button>
 
@@ -133,6 +138,20 @@ export function AuthPanel({
             <p className="auth-panel__defaults">
               Defaults: {levelLabels[user.defaultLevel]} · {user.defaultTargetTime}
             </p>
+            {!user.emailVerified ? (
+              <div className="auth-panel__verify">
+                <span>Email not verified</span>
+                <p>Verify your email to keep account recovery reliable.</p>
+                <button
+                  className="button-secondary"
+                  type="button"
+                  onClick={() => void onResendVerification()}
+                  disabled={loading || submitting}
+                >
+                  Resend verification email
+                </button>
+              </div>
+            ) : null}
             {profileOpen ? (
               <form
                 className="profile-form"

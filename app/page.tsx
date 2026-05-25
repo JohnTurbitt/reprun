@@ -52,6 +52,7 @@ import {
   logOut,
   openBillingPortal,
   ProfileFormInput,
+  resendEmailVerification,
   saveRemoteReport,
   signUp,
   startCheckout,
@@ -510,6 +511,32 @@ export default function Home() {
     }
   }
 
+  async function handleResendVerification() {
+    trackEvent("email_verification_resend_started");
+
+    try {
+      await resendEmailVerification();
+      setToast({
+        id: Date.now(),
+        title: "Verification email sent",
+        message: "Check your inbox for the Ocht verification link.",
+        tone: "success",
+      });
+      trackEvent("email_verification_resend_completed");
+    } catch (error) {
+      setToast({
+        id: Date.now(),
+        title: "Verification not sent",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Ocht could not send the verification email.",
+        tone: "error",
+      });
+      trackEvent("email_verification_resend_failed");
+    }
+  }
+
   async function handleSaveProfile(input: ProfileFormInput) {
     try {
       const updatedUser = await updateProfile(input);
@@ -866,6 +893,7 @@ export default function Home() {
             onLogout={handleLogout}
             onStartCheckout={handleStartCheckout}
             onManageBilling={handleManageBilling}
+            onResendVerification={handleResendVerification}
             onSaveProfile={handleSaveProfile}
           />
           <SettingsMenu
