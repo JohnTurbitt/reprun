@@ -850,6 +850,7 @@ export default function Home() {
             onLogin={handleLogin}
             onSignup={handleSignup}
             onLogout={handleLogout}
+            onStartCheckout={handleStartCheckout}
             onManageBilling={handleManageBilling}
             onSaveProfile={handleSaveProfile}
           />

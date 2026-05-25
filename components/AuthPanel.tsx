@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Level, levelLabels } from "@/lib/analysis";
 import { AuthFormInput, AuthUser, ProfileFormInput } from "@/lib/apiClient";
 import { PremiumBadge } from "./PremiumBadge";
@@ -10,6 +10,7 @@ type AuthPanelProps = {
   onLogin: (input: AuthFormInput) => Promise<void>;
   onSignup: (input: AuthFormInput) => Promise<void>;
   onLogout: () => Promise<void>;
+  onStartCheckout: () => void;
   onManageBilling: () => void;
   onSaveProfile: (input: ProfileFormInput) => Promise<void>;
 };
@@ -30,6 +31,7 @@ export function AuthPanel({
   onLogin,
   onSignup,
   onLogout,
+  onStartCheckout,
   onManageBilling,
   onSaveProfile,
 }: AuthPanelProps) {
@@ -44,8 +46,43 @@ export function AuthPanel({
   const [profileLevel, setProfileLevel] = useState<Level>("competitive");
   const [profileTargetTime, setProfileTargetTime] = useState("1:25:00");
   const [submitting, setSubmitting] = useState(false);
+  const accountRef = useRef<HTMLElement>(null);
   const displayName = user?.name || user?.email || "";
   const userInitial = displayName.trim().charAt(0).toUpperCase() || "O";
+
+  useEffect(() => {
+    if (!accountOpen) {
+      return;
+    }
+
+    function closeAccountMenu() {
+      setAccountOpen(false);
+      setProfileOpen(false);
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (
+        accountRef.current &&
+        !accountRef.current.contains(event.target as Node)
+      ) {
+        closeAccountMenu();
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeAccountMenu();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [accountOpen]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -67,9 +104,10 @@ export function AuthPanel({
 
   if (user) {
     const canManageBilling = user.subscription !== "FREE";
+    const canUpgrade = user.subscription === "FREE" || user.subscription === "CANCELED";
 
     return (
-      <aside className="auth-panel auth-panel--signed-in">
+      <aside className="auth-panel auth-panel--signed-in" ref={accountRef}>
         <button
           className="auth-panel__account-trigger"
           type="button"
@@ -94,19 +132,94 @@ export function AuthPanel({
             <p className="auth-panel__defaults">
               Defaults: {levelLabels[user.defaultLevel]} · {user.defaultTargetTime}
             </p>
-            <button
-              className="button-secondary"
-              type="button"
-              onClick={() => {
-                setProfileName(user.name ?? "");
-                setProfileLevel(user.defaultLevel);
-                setProfileTargetTime(user.defaultTargetTime);
-                setProfileOpen((isOpen) => !isOpen);
-              }}
-              disabled={loading}
-            >
-              Profile settings
-            </button>
+            {profileOpen ? (
+              <form
+                className="profile-form"
+                onSubmit={async (event) => {
+                  event.preventDefault();
+                  setSubmitting(true);
+
+                  try {
+                    await onSaveProfile({
+                      name: profileName,
+                      defaultLevel: profileLevel,
+                      defaultTargetTime: profileTargetTime,
+                    });
+                    setProfileOpen(false);
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+              >
+                <label className="field">
+                  <span>Name</span>
+                  <input
+                    value={profileName}
+                    onChange={(event) => setProfileName(event.target.value)}
+                    placeholder="Runner name"
+                  />
+                </label>
+                <label className="field">
+                  <span>Default athlete level</span>
+                  <select
+                    value={profileLevel}
+                    onChange={(event) => setProfileLevel(event.target.value as Level)}
+                  >
+                    {Object.entries(levelLabels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <span>Default target time</span>
+                  <input
+                    value={profileTargetTime}
+                    onChange={(event) => setProfileTargetTime(event.target.value)}
+                    inputMode="numeric"
+                    placeholder="1:25:00"
+                  />
+                </label>
+                <div className="profile-form__actions">
+                  <button
+                    className="button-secondary"
+                    type="button"
+                    onClick={() => setProfileOpen(false)}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={submitting || loading}>
+                    {submitting ? "Saving..." : "Save profile"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                className="button-secondary"
+                type="button"
+                onClick={() => {
+                  setProfileName(user.name ?? "");
+                  setProfileLevel(user.defaultLevel);
+                  setProfileTargetTime(user.defaultTargetTime);
+                  setProfileOpen(true);
+                }}
+                disabled={loading}
+              >
+                Profile settings
+              </button>
+            )}
+            {canUpgrade ? (
+              <button
+                className="button-secondary auth-panel__upgrade"
+                type="button"
+                onClick={onStartCheckout}
+                disabled={loading || billingLoading}
+              >
+                {billingLoading ? "Opening..." : "Upgrade to premium"}
+              </button>
+            ) : null}
             {canManageBilling ? (
               <button
                 className="button-secondary"
@@ -128,60 +241,6 @@ export function AuthPanel({
           </div>
         ) : null}
 
-        {accountOpen && profileOpen ? (
-          <form
-            className="profile-form"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              setSubmitting(true);
-
-              try {
-                await onSaveProfile({
-                  name: profileName,
-                  defaultLevel: profileLevel,
-                  defaultTargetTime: profileTargetTime,
-                });
-                setProfileOpen(false);
-              } finally {
-                setSubmitting(false);
-              }
-            }}
-          >
-            <label className="field">
-              <span>Name</span>
-              <input
-                value={profileName}
-                onChange={(event) => setProfileName(event.target.value)}
-                placeholder="Runner name"
-              />
-            </label>
-            <label className="field">
-              <span>Default athlete level</span>
-              <select
-                value={profileLevel}
-                onChange={(event) => setProfileLevel(event.target.value as Level)}
-              >
-                {Object.entries(levelLabels).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="field">
-              <span>Default target time</span>
-              <input
-                value={profileTargetTime}
-                onChange={(event) => setProfileTargetTime(event.target.value)}
-                inputMode="numeric"
-                placeholder="1:25:00"
-              />
-            </label>
-            <button type="submit" disabled={submitting || loading}>
-              {submitting ? "Saving..." : "Save profile"}
-            </button>
-          </form>
-        ) : null}
       </aside>
     );
   }

@@ -212,13 +212,13 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  z-index: 55;
+  z-index: 70;
   display: grid;
-  min-width: 260px;
-  gap: 8px;
+  width: min(380px, calc(100vw - 32px));
+  gap: 10px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 10px;
+  padding: 12px;
   background: var(--panel);
   box-shadow: var(--shadow);
 }
@@ -237,29 +237,35 @@
 }
 
 .profile-form {
-  position: absolute;
-  top: calc(100% + 188px);
-  right: 0;
-  z-index: 54;
   display: grid;
-  width: min(520px, calc(100vw - 32px));
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 10px;
   align-items: end;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 12px;
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  background: var(--field);
 }
 
-.profile-form button {
-  grid-column: 1 / -1;
+.profile-form__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.profile-form button,
+.profile-form__actions button {
   width: 100%;
   min-height: 48px;
   margin: 0;
   padding: 0 16px;
   white-space: nowrap;
+}
+
+.profile-form__actions .button-secondary {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--ink);
 }
 
 .auth-panel--signed-in .button-secondary {
@@ -273,4 +279,14 @@
   border-color: var(--action-bg);
   background: var(--action-bg);
   color: var(--action-text);
+}
+
+.auth-panel--signed-in .auth-panel__upgrade {
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
+}
+
+.auth-panel--signed-in .auth-panel__upgrade:hover {
+  background: var(--button-hover);
 }
