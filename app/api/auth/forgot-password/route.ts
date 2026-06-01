@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { normalizeEmail } from "@/lib/auth";
 import { readString } from "@/lib/apiValidation";
-import { sendPasswordResetEmail } from "@/lib/email";
+import {
+  EmailConfigurationError,
+  EmailDeliveryError,
+  sendPasswordResetEmail,
+} from "@/lib/email";
 import { logServerError } from "@/lib/logging";
 import { prisma } from "@/lib/prisma";
 import { guardBrowserMutation } from "@/lib/security";
@@ -60,6 +64,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     logServerError("Password reset request failed", error);
+
+    if (error instanceof EmailConfigurationError) {
+      return NextResponse.json(
+        { errors: ["Email service is not configured. Contact support."] },
+        { status: 503 },
+      );
+    }
+
+    if (error instanceof EmailDeliveryError) {
+      return NextResponse.json(
+        { errors: ["Email service rejected this reset email. Contact support."] },
+        { status: 502 },
+      );
+    }
 
     return NextResponse.json(
       { errors: ["Password reset email could not be sent. Try again later."] },

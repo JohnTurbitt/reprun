@@ -1,10 +1,24 @@
 import { Resend } from "resend";
 
+export class EmailConfigurationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EmailConfigurationError";
+  }
+}
+
+export class EmailDeliveryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "EmailDeliveryError";
+  }
+}
+
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not configured.");
+    throw new EmailConfigurationError("RESEND_API_KEY is not configured.");
   }
 
   return new Resend(apiKey);
@@ -14,7 +28,7 @@ export function getEmailFrom() {
   const from = process.env.EMAIL_FROM;
 
   if (!from) {
-    throw new Error("EMAIL_FROM is not configured.");
+    throw new EmailConfigurationError("EMAIL_FROM is not configured.");
   }
 
   return from;
@@ -47,7 +61,7 @@ export async function sendPasswordResetEmail({
   });
 
   if (result.error) {
-    throw new Error(result.error.message);
+    throw new EmailDeliveryError(result.error.message);
   }
 
   return result.data;
@@ -80,7 +94,7 @@ export async function sendEmailVerificationEmail({
   });
 
   if (result.error) {
-    throw new Error(result.error.message);
+    throw new EmailDeliveryError(result.error.message);
   }
 
   return result.data;
